@@ -1,0 +1,45 @@
+{
+  "name": "meus-envelopes-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@react-email/components": "^0.2.0",
+    "@react-email/render": "^1.1.3",
+    "@supabase/ssr": "^0.6.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.2.0",
+    "next": "15.3.5",
+    "nodemailer": "^7.0.5",
+    "phosphor-react": "^1.4.1",
+    "prisma": "^6.11.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^3.1.0",
+    "resend": "^4.6.0",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^4.0.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv-cli": "^8.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+enum OperationType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  operations Operation[]
+  categories Category[]
+  monthlyIncomes MonthlyIncome[]
+  budgetEnvelopes BudgetEnvelope[]
+  categoryBudgets CategoryBudget[]
+  ownedAccounts SharedAccountAccess[] @relation("OwnerAccounts")
+  memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  operations Operation[]
+  categoryBudgets CategoryBudget[]
+}
+
+model Operation {
+  id          String        @id @default(uuid())
+  amount      Int
+  type        OperationType
+  description String?
+  date        DateTime      @default(now())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  categoryId  String?
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model MonthlyIncome {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  month     Int
+  year      Int
+  fixed     Int
+  variable  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, month, year])
+}
+
+model BudgetEnvelope {
+  id          String         @id @default(uuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  name        String
+  allocation  Int          // Percentage of total income (e.g., 30 for 30%)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  categoryBudgets CategoryBudget[]
+}
+
+model CategoryBudget {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  categoryId  String        @unique
+  category    Category      @relation(fields: [categoryId], references: [id])
+  amount      Int?        // Fixed amount in cents
+  percentage  Int?        // Percentage of a BudgetEnvelope
+  envelopeId  String?       // Optional: Link to a BudgetEnvelope
+  envelope    BudgetEnvelope? @relation(fields: [envelopeId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model SharedAccountAccess {
+  id        String   @id @default(uuid())
+  ownerId   String
+  owner     User     @relation("OwnerAccounts", fields: [ownerId], references: [id])
+  memberId  String
+  member    User     @relation("MemberAccounts", fields: [memberId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ownerId, memberId])
+}
