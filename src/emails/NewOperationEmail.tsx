@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/currency'
 import { Html, Head, Body, Container, Text, Link } from '@react-email/components'
 import * as React from 'react'
 
@@ -29,7 +30,7 @@ export default function NewOperationEmail({
             Uma nova operação de {operationType} foi registrada:
           </Text>
           <Text style={details}>
-            <strong>Valor:</strong> R$ {amount.toFixed(2).replace('.', ',')}
+            <strong>Valor:</strong> {formatCurrency(amount)}
           </Text>
           {description && (
             <Text style={details}>
