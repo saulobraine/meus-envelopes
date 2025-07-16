@@ -4,6 +4,7 @@ import { createOperation, deleteOperation } from '@/app/_actions/operation'
 import { createCategory, deleteCategory } from '@/app/_actions/category'
 import { getCalculatedBudgets } from '@/app/planning/page'
 import { revalidatePath } from 'next/cache'
+import { formatCurrency } from '@/lib/currency'
 
 async function getUser() {
   'use server'
@@ -56,9 +57,9 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div className="bg-white p-4 rounded shadow">
           <h2 className="text-xl font-semibold mb-2">Resumo</h2>
-          <p>Receita Total: R$ {(income / 100).toFixed(2)}</p>
-          <p>Despesa Total: R$ {(expense / 100).toFixed(2)}</p>
-          <p>Saldo: R$ {((income - expense) / 100).toFixed(2)}</p>
+          <p>Receita Total: {formatCurrency(income)}</p>
+          <p>Despesa Total: {formatCurrency(expense)}</p>
+          <p>Saldo: {formatCurrency(income - expense)}</p>
         </div>
 
         <div className="bg-white p-4 rounded shadow">
@@ -77,7 +78,7 @@ export default async function DashboardPage() {
             const spent = categoryExpenses[cb.categoryId] || 0
             return (
               <li key={cb.id} className="py-2 border-b last:border-b-0">
-                <span>{cb.category.name}: Gastos R$ {(spent / 100).toFixed(2)} de R$ {(cb.budgetedAmount / 100).toFixed(2)}</span>
+                <span>{cb.category.name}: Gastos {formatCurrency(spent)} de {formatCurrency(cb.budgetedAmount)}</span>
                 <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                   <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${(spent / cb.budgetedAmount) * 100}%` }}></div>
                 </div>
@@ -166,7 +167,7 @@ export default async function DashboardPage() {
               <div>
                 <p className="text-lg font-semibold">{operation.description || 'Sem Descrição'}</p>
                 <p className={`text-sm ${operation.type === 'INCOME' ? 'text-green-600' : 'text-red-600'}`}>
-                  {operation.type === 'INCOME' ? '+' : '-'}R$ {(operation.amount / 100).toFixed(2)}
+                  {operation.type === 'INCOME' ? '+' : '-'}{formatCurrency(operation.amount)}
                 </p>
                 {operation.category && (
                   <p className="text-xs text-gray-500">Categoria: {operation.category.name}</p>
