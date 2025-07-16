@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
-import { BudgetEnvelope, Category, CategoryBudget, MonthlyIncome, Operation } from '@prisma/client'
+import { BudgetEnvelope, Category, CategoryBudget } from '@prisma/client'
 import { z } from 'zod'
 import PlanningCharts from '@/components/planning-charts'
 import { formatCurrency } from '@/lib/currency'
