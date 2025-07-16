@@ -1,5 +1,6 @@
 "use client"
 
+import { formatCurrency } from '@/lib/currency';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface ChartData {
@@ -45,7 +46,7 @@ export default function PlanningCharts({ data }: PlanningChartsProps) {
             nameKey="name"
             label
           />
-          <Tooltip formatter={(value) => `R$ ${Number(value).toFixed(2)}`} />
+          <Tooltip formatter={(value) => formatCurrency(Number(value))} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>
