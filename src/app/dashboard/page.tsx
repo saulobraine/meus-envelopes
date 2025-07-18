@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { H1, H2, P } from '@/components/ui/typography'
+import { H1, P } from '@/components/ui/typography'
 
 async function getUser() {
   'use server'
