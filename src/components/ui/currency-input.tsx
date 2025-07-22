@@ -1,3 +1,4 @@
+"use client";
 import { ChangeEvent, forwardRef, InputHTMLAttributes } from "react";
 
 import { formatCurrency, parseCurrency } from "@/lib/currency";
