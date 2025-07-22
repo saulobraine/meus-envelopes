@@ -5,6 +5,10 @@ import { BudgetEnvelope, Category, CategoryBudget } from '@prisma/client'
 import { z } from 'zod'
 import PlanningCharts from '@/components/planning-charts'
 import { formatCurrency } from '@/lib/currency'
+import { CurrencyInput } from '@/components/ui/currency-input';
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const monthlyIncomeSchema = z.object({
   fixed: z.number().int().nonnegative(),
@@ -37,6 +41,8 @@ async function getUser() {
   return { data }
 }
 
+import { parseCurrency } from '@/lib/currency';
+
 export async function createMonthlyIncome(formData: FormData) {
   'use server'
   const supabase = await createClient()
@@ -50,8 +56,8 @@ export async function createMonthlyIncome(formData: FormData) {
   const variableStr = formData.get('variable') as string || '0'
 
   const parsed = monthlyIncomeSchema.parse({
-    fixed: Math.round(parseFloat(fixedStr) * 100),
-    variable: Math.round(parseFloat(variableStr) * 100),
+    fixed: parseCurrency(fixedStr),
+    variable: parseCurrency(variableStr),
     month: parseInt(formData.get('month') as string),
     year: parseInt(formData.get('year') as string),
   })
@@ -119,7 +125,7 @@ export async function createCategoryBudget(formData: FormData) {
 
   const parsed = categoryBudgetSchema.parse({
     categoryId: formData.get('categoryId') as string,
-    amount: formData.get('amount') ? Math.round(parseFloat(formData.get('amount') as string) * 100) : undefined,
+    amount: formData.get('amount') ? parseCurrency(formData.get('amount') as string) : undefined,
     percentage: formData.get('percentage') ? parseInt(formData.get('percentage') as string) : undefined,
     envelopeId: formData.get('envelopeId') as string,
   })
@@ -240,76 +246,63 @@ export default async function PlanningPage() {
           <h2 className="text-xl font-semibold mb-2">Renda Mensal</h2>
           <form action={createMonthlyIncome} className="space-y-4">
             <div>
-              <label
+              <Label
                 htmlFor="fixed"
-                className="block text-sm font-medium text-gray-700"
               >
                 Renda Fixa
-              </label>
-              <input
-                type="number"
-                step="0.01"
+              </Label>
+              <CurrencyInput
                 name="fixed"
                 id="fixed"
-                defaultValue={(monthlyIncome?.fixed || 0) / 100}
+                defaultValue={formatCurrency(monthlyIncome?.fixed || 0)}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               />
             </div>
             <div>
-              <label
+              <Label
                 htmlFor="variable"
-                className="block text-sm font-medium text-gray-700"
               >
                 Renda Variável
-              </label>
-              <input
-                type="number"
-                step="0.01"
+              </Label>
+              <CurrencyInput
                 name="variable"
                 id="variable"
-                defaultValue={(monthlyIncome?.variable || 0) / 100}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                defaultValue={formatCurrency(monthlyIncome?.variable || 0)}
               />
             </div>
             <div>
-              <label
+              <Label
                 htmlFor="month"
-                className="block text-sm font-medium text-gray-700"
               >
                 Mês
-              </label>
-              <input
+              </Label>
+              <Input
                 type="number"
                 name="month"
                 id="month"
                 defaultValue={currentMonth}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               />
             </div>
             <div>
-              <label
+              <Label
                 htmlFor="year"
-                className="block text-sm font-medium text-gray-700"
               >
                 Ano
-              </label>
-              <input
+              </Label>
+              <Input
                 type="number"
                 name="year"
                 id="year"
                 defaultValue={currentYear}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               />
             </div>
-            <button
+            <Button
               type="submit"
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
             >
               Salvar Renda
-            </button>
+            </Button>
           </form>
         </div>
 
@@ -319,28 +312,25 @@ export default async function PlanningPage() {
           </h2>
           <form action={createBudgetEnvelope} className="space-y-4 mb-4">
             <div>
-              <label
+              <Label
                 htmlFor="envelopeName"
-                className="block text-sm font-medium text-gray-700"
               >
                 Nome do Envelope
-              </label>
-              <input
+              </Label>
+              <Input
                 type="text"
                 name="name"
                 id="envelopeName"
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               />
             </div>
             <div>
-              <label
+              <Label
                 htmlFor="allocation"
-                className="block text-sm font-medium text-gray-700"
               >
                 Alocação (%)
-              </label>
-              <input
+              </Label>
+              <Input
                 type="number"
                 step="1"
                 name="allocation"
@@ -348,15 +338,13 @@ export default async function PlanningPage() {
                 min="0"
                 max="100"
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               />
             </div>
-            <button
+            <Button
               type="submit"
-              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
             >
               Adicionar Envelope
-            </button>
+            </Button>
           </form>
           <ul>
             {budgetEnvelopes.map((envelope: BudgetEnvelope) => (
@@ -371,7 +359,7 @@ export default async function PlanningPage() {
                   'use server'
                   await deleteBudgetEnvelope(envelope.id)
                 }}>
-                  <button type="submit" className="text-red-600 hover:text-red-900 text-sm">Excluir</button>
+                  <Button type="submit" variant="destructive" size="sm">Excluir</Button>
                 </form>
               </li>
             ))}
@@ -391,19 +379,18 @@ export default async function PlanningPage() {
             >
               Categoria
             </label>
-            <select
-              name="categoryId"
-              id="categoryBudgetCategory"
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            >
-              <option value="">Selecionar Categoria</option>
-              {categories.map((category: Category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+            <Select name="categoryId" required>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecionar Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category: Category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label
@@ -412,70 +399,64 @@ export default async function PlanningPage() {
             >
               Tipo de Orçamento
             </label>
-            <select
-              id="budgetType"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            >
-              <option value="fixed">Valor Fixo</option>
-              <option value="percentage">Percentual do Envelope</option>
-            </select>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Tipo de Orçamento" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fixed">Valor Fixo</SelectItem>
+                <SelectItem value="percentage">Percentual do Envelope</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div id="fixedAmountDiv">
-            <label
+            <Label
               htmlFor="amount"
-              className="block text-sm font-medium text-gray-700"
             >
               Valor
-            </label>
-            <input
-              type="number"
-              step="0.01"
+            </Label>
+            <CurrencyInput
               name="amount"
               id="amount"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
           </div>
           <div id="percentageDiv" style={{ display: 'none' }}>
-            <label
+            <Label
               htmlFor="percentage"
-              className="block text-sm font-medium text-gray-700"
             >
               Percentual (%)
-            </label>
-            <input
+            </Label>
+            <Input
               type="number"
               step="1"
               name="percentage"
               id="percentage"
               min="0"
               max="100"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
             />
-            <label
+            <Label
               htmlFor="envelopeId"
-              className="block text-sm font-medium text-gray-700"
             >
               Do Envelope
-            </label>
-            <select
-              name="envelopeId"
-              id="envelopeId"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-            >
-              <option value="">Selecionar Envelope</option>
-              {budgetEnvelopes.map((envelope: BudgetEnvelope) => (
-                <option key={envelope.id} value={envelope.id}>
-                  {envelope.name}
-                </option>
-              ))}
-            </select>
+            </Label>
+            <Select name="envelopeId">
+              <SelectTrigger>
+                <SelectValue placeholder="Selecionar Envelope" />
+              </SelectTrigger>
+              <SelectContent>
+                {budgetEnvelopes.map((envelope: BudgetEnvelope) => (
+                  <SelectItem key={envelope.id} value={envelope.id}>
+                    {envelope.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <button
+          <Button
             type="submit"
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
           >
             Adicionar Orçamento
-          </button>
+          </Button>
         </form>
         <ul>
           {categoryBudgets.map(
@@ -499,7 +480,7 @@ export default async function PlanningPage() {
                   'use server'
                   await deleteCategoryBudget(cb.id)
                 }}>
-                  <button type="submit" className="text-red-600 hover:text-red-900 text-sm">Excluir</button>
+                  <Button type="submit" variant="destructive" size="sm">Excluir</Button>
                 </form>
               </li>
             ),

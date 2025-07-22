@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/currency";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { H1, P } from "@/components/ui/typography";
+import { Input } from "@/components/ui/input";
 
 async function getUser() {
   "use server";
@@ -155,13 +156,7 @@ export default async function DashboardPage() {
             >
               <div>
                 <Label htmlFor="amount">Valor</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  name="amount"
-                  id="amount"
-                  required
-                />
+                <CurrencyInput name="amount" id="amount" required />
               </div>
               <div>
                 <Label htmlFor="type">Tipo</Label>

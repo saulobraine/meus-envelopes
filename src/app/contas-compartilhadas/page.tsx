@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { inviteUserToSharedAccount, removeUserFromSharedAccount } from '@/app/_actions/shared-account'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export default async function SharedAccountsPage() {
   const supabase = await createClient()
@@ -28,8 +30,8 @@ export default async function SharedAccountsPage() {
       <div className="bg-white p-4 rounded shadow mb-8">
         <h2 className="text-xl font-semibold mb-2">Convidar Usuário</h2>
         <form action={inviteUserToSharedAccount} className="flex space-x-2">
-          <input type="email" name="email" placeholder="E-mail do usuário para convidar" required className="flex-grow rounded-md border-gray-300 shadow-sm" />
-          <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Convidar</button>
+          <Input type="email" name="email" placeholder="E-mail do usuário para convidar" required className="flex-grow" />
+          <Button type="submit">Convidar</Button>
         </form>
       </div>
 
@@ -43,7 +45,7 @@ export default async function SharedAccountsPage() {
                 await removeUserFromSharedAccount(account.id)
                 revalidatePath('/shared-accounts')
               }}>
-                <button type="submit" className="text-red-600 hover:text-red-900 text-sm">Remover</button>
+                <Button type="submit" variant="destructive" size="sm">Remover</Button>
               </form>
             </li>
           ))}

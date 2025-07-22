@@ -58,12 +58,12 @@ export default function MainNav({
                 Configurações
               </Link>
               <form action={signOut}>
-                <button
+                <Button
                   type="submit"
-                  className="text-destructive hover:text-destructive/90"
+                  variant="destructive"
                 >
                   Sair
-                </button>
+                </Button>
               </form>
             </>
           ) : (
