@@ -12,6 +12,8 @@ const operationSchema = z.object({
   categoryId: z.string().optional(),
 })
 
+import { parseCurrency } from '@/lib/currency';
+
 export async function createOperation(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await (await supabase).auth.getUser()
@@ -22,7 +24,7 @@ export async function createOperation(formData: FormData) {
 
   const dateString = formData.get('date') as string;
   const parsed = operationSchema.parse({
-    amount: Math.round(parseFloat(formData.get('amount') as string) * 100),
+    amount: parseCurrency(formData.get('amount') as string),
     type: formData.get('type') as 'INCOME' | 'EXPENSE',
     description: formData.get('description') as string,
     date: new Date(dateString).toISOString(),
@@ -61,7 +63,7 @@ export async function updateOperation(id: string, formData: FormData) {
 
   const dateString = formData.get('date') as string;
   const parsed = operationSchema.parse({
-    amount: Math.round(parseFloat(formData.get('amount') as string) * 100),
+    amount: parseCurrency(formData.get('amount') as string),
     type: formData.get('type') as 'INCOME' | 'EXPENSE',
     description: formData.get('description') as string,
     date: new Date(dateString).toISOString(),
