@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-
+import { ListIcon, XCircleIcon } from "@phosphor-icons/react";
 import { User } from "@supabase/supabase-js";
 
 // This component will receive user and signOut function as props
@@ -19,7 +18,7 @@ export default function MainNav({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="bg-card text-card-foreground shadow-sm py-4 sticky top-0 z-10">
+    <header className="bg-card text-card-foreground shadow-sm py-4 px-3 sticky top-0 z-10">
       <nav className="container mx-auto flex justify-between items-center">
         <Link
           href="/"
@@ -58,10 +57,7 @@ export default function MainNav({
                 Configurações
               </Link>
               <form action={signOut}>
-                <Button
-                  type="submit"
-                  variant="destructive"
-                >
+                <Button type="submit" variant="destructive">
                   Sair
                 </Button>
               </form>
@@ -85,7 +81,11 @@ export default function MainNav({
             variant="ghost"
             size="icon"
           >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isOpen ? (
+              <XCircleIcon className="h-6 w-6" />
+            ) : (
+              <ListIcon className="h-6 w-6" />
+            )}
           </Button>
         </div>
       </nav>

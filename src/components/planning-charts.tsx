@@ -1,7 +1,15 @@
-"use client"
+"use client";
 
-import { formatCurrency } from '@/lib/currency';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { formatCurrency } from "@/lib/currency";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ChartData {
   name: string;
@@ -13,12 +21,15 @@ interface PlanningChartsProps {
   data: ChartData[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function PlanningCharts({ data }: PlanningChartsProps) {
   return (
-    <div className="bg-white p-4 rounded shadow mb-8">
-      <h2 className="text-xl font-semibold mb-2">Visão Geral do Orçamento</h2>
+    <Card className="mb-8">
+      <CardHeader>
+        <CardTitle>Visão Geral do Orçamento</CardTitle>
+      </CardHeader>
+      <CardContent>
       <ResponsiveContainer width="100%" height={400}>
         <PieChart>
           <Pie
@@ -32,7 +43,10 @@ export default function PlanningCharts({ data }: PlanningChartsProps) {
             nameKey="name"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Pie
@@ -50,6 +64,7 @@ export default function PlanningCharts({ data }: PlanningChartsProps) {
           <Legend />
         </PieChart>
       </ResponsiveContainer>
-    </div>
-  )
+      </CardContent>
+    </Card>
+  );
 }

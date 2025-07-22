@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -19,13 +18,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MeusEnvelopes",
-  description: "Personal finance app with envelope budgeting.",
+  description: "Aplicativo de finanças pessoais com orçamento por envelopes.",
 };
 
 async function getUser() {
   "use server";
   const supabase = await createClient();
-  return await (await supabase).auth.getUser();
+  return await supabase.auth.getUser();
 }
 
 export default async function RootLayout({
@@ -40,7 +39,7 @@ export default async function RootLayout({
   const signOut = async () => {
     "use server";
     const supabase = await createClient();
-    await (await supabase).auth.signOut();
+    await supabase.auth.signOut();
     return redirect("/login");
   };
 

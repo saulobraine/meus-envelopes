@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 async function getUser() {
   "use server";
   const supabase = await createClient();
-  return await (await supabase).auth.getUser();
+  return await supabase.auth.getUser();
 }
 
 export default async function DashboardPage() {
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <H1 className="mb-4">Painel</H1>
+      <H1 className="mb-4 font-normal text-xl">Painel</H1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <Card>

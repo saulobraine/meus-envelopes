@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { inviteUserToSharedAccount, removeUserFromSharedAccount } from '@/app/_actions/shared-account'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function SharedAccountsPage() {
   const supabase = await createClient()
@@ -27,16 +28,23 @@ export default async function SharedAccountsPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Contas Compartilhadas</h1>
 
-      <div className="bg-white p-4 rounded shadow mb-8">
-        <h2 className="text-xl font-semibold mb-2">Convidar Usuário</h2>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Convidar Usuário</CardTitle>
+        </CardHeader>
+        <CardContent>
         <form action={inviteUserToSharedAccount} className="flex space-x-2">
           <Input type="email" name="email" placeholder="E-mail do usuário para convidar" required className="flex-grow" />
           <Button type="submit">Convidar</Button>
         </form>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div className="bg-white p-4 rounded shadow mb-8">
-        <h2 className="text-xl font-semibold mb-2">Suas Contas</h2>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Suas Contas</CardTitle>
+        </CardHeader>
+        <CardContent>
         <ul>
           {ownedAccounts.map(account => (
             <li key={account.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
@@ -50,10 +58,14 @@ export default async function SharedAccountsPage() {
             </li>
           ))}
         </ul>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Contas que Você Participa</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Contas que Você Participa</CardTitle>
+        </CardHeader>
+        <CardContent>
         <ul>
           {memberAccounts.map(account => (
             <li key={account.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
@@ -61,7 +73,8 @@ export default async function SharedAccountsPage() {
             </li>
           ))}
         </ul>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
