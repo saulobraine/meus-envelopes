@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { createOperation, deleteOperation } from "@/app/_actions/operation";
 import { createCategory, deleteCategory } from "@/app/_actions/category";
@@ -20,20 +20,8 @@ import {
 import { H1, P } from "@/components/ui/typography";
 import { Input } from "@/components/ui/input";
 
-async function getUser() {
-  "use server";
-  const supabase = await createClient();
-  return await supabase.auth.getUser();
-}
-
 export default async function DashboardPage() {
-  const {
-    data: { user },
-  } = await getUser();
-
-  if (!user) {
-    return <p>Por favor, faça login para ver seu painel.</p>;
-  }
+  const { user } = await getAuthenticatedUser();
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();

@@ -1,52 +1,48 @@
-
-'use server'
+"use server";
 
 import prisma from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
-import { cookies } from 'next/headers'
-import { z } from 'zod'
+import { getAuthenticatedUser } from "@/lib/supabase/server";
+import { z } from "zod";
 
 const resolveSchema = z.object({
   previewId: z.string(),
-  action: z.enum(['ADD', 'IGNORE']),
-})
+  action: z.enum(["ADD", "IGNORE"]),
+});
 
 export async function resolverDuplicata(input: unknown) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Usuário não autenticado')
+  const { user } = await getAuthenticatedUser();
 
-  const { previewId, action } = resolveSchema.parse(input)
+  const { previewId, action } = resolveSchema.parse(input);
 
   const previewItem = await prisma.importTransactionPreview.findUnique({
     where: { id: previewId },
     include: { importSession: true },
-  })
+  });
 
   if (!previewItem || previewItem.importSession.userId !== user.id) {
-    throw new Error('Item não encontrado ou não autorizado')
+    throw new Error("Item não encontrado ou não autorizado");
   }
 
-  if (action === 'IGNORE') {
+  if (action === "IGNORE") {
     await prisma.importTransactionPreview.update({
       where: { id: previewId },
       data: { resolved: true },
-    })
-  } else if (action === 'ADD') {
-    const tx = previewItem.data as any
-    const amount = Math.round(parseFloat(tx.VALOR.replace('.', '').replace(',', '.')) * 100)
-    const [day, month, year] = tx.DATA.split('/').map(Number);
+    });
+  } else if (action === "ADD") {
+    const tx = previewItem.data as any;
+    const amount = Math.round(
+      parseFloat(tx.VALOR.replace(".", "").replace(",", ".")) * 100
+    );
+    const [day, month, year] = tx.DATA.split("/").map(Number);
     const date = new Date(year, month - 1, day);
 
     let category = await prisma.category.findFirst({
       where: { name: tx.CATEGORIA, userId: user.id },
-    })
+    });
     if (!category) {
       category = await prisma.category.create({
-        data: { name: tx.CATEGORIA || 'Sem Categoria', userId: user.id },
-      })
+        data: { name: tx.CATEGORIA || "Sem Categoria", userId: user.id },
+      });
     }
 
     await prisma.operation.create({
@@ -55,17 +51,17 @@ export async function resolverDuplicata(input: unknown) {
         date,
         description: tx.DESCRIÇÃO,
         amount,
-        type: amount >= 0 ? 'INCOME' : 'EXPENSE',
+        type: amount >= 0 ? "INCOME" : "EXPENSE",
         categoryId: category.id,
         importSessionId: previewItem.importSessionId,
       },
-    })
+    });
 
     await prisma.importTransactionPreview.update({
       where: { id: previewId },
       data: { resolved: true },
-    })
+    });
   }
 
-  return { success: true }
+  return { success: true };
 }

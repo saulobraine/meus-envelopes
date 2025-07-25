@@ -1,9 +1,8 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { OperationType, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { getAuthenticatedUser } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
+import { OperationType } from "@prisma/client";
 
 async function getOrCreateDefaultCategory(userId: string) {
   const defaultCategoryName = "A classificar";
@@ -27,14 +26,7 @@ async function getOrCreateDefaultCategory(userId: string) {
 }
 
 export async function importarTransacoes(transactions: any[]) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("Usuário não autenticado");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const defaultCategoryId = await getOrCreateDefaultCategory(user.id);
 
@@ -119,14 +111,7 @@ export async function importarTransacoes(transactions: any[]) {
 }
 
 export async function resetarImportacao(sessionId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("Usuário não autenticado");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const session = await prisma.importSession.findUnique({
     where: { id: sessionId },

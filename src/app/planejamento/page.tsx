@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { BudgetEnvelope, Category, CategoryBudget } from "@prisma/client";
@@ -45,29 +45,12 @@ const categoryBudgetSchema = z
     }
   );
 
-async function getUser() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error) {
-    console.error("Error getting user:", error);
-    return { data: { user: null } };
-  }
-  return { data };
-}
-
 import { parseCurrency } from "@/lib/currency";
 import { Input } from "@/components/ui/input";
 
 export async function createMonthlyIncome(formData: FormData) {
   "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const fixedStr = (formData.get("fixed") as string) || "0";
   const variableStr = (formData.get("variable") as string) || "0";
@@ -96,14 +79,7 @@ export async function createMonthlyIncome(formData: FormData) {
 
 export async function createBudgetEnvelope(formData: FormData) {
   "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const parsed = budgetEnvelopeSchema.parse({
     name: formData.get("name") as string,
@@ -119,14 +95,7 @@ export async function createBudgetEnvelope(formData: FormData) {
 
 export async function deleteBudgetEnvelope(id: string) {
   "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const sharedAccounts = await prisma.sharedAccountAccess.findMany({
     where: { memberId: user.id },
@@ -146,14 +115,7 @@ export async function deleteBudgetEnvelope(id: string) {
 
 export async function createCategoryBudget(formData: FormData) {
   "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const parsed = categoryBudgetSchema.parse({
     categoryId: formData.get("categoryId") as string,
@@ -177,14 +139,7 @@ export async function createCategoryBudget(formData: FormData) {
 
 export async function deleteCategoryBudget(id: string) {
   "use server";
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  const { user } = await getAuthenticatedUser();
 
   const sharedAccounts = await prisma.sharedAccountAccess.findMany({
     where: { memberId: user.id },
@@ -203,13 +158,7 @@ export async function deleteCategoryBudget(id: string) {
 }
 
 export default async function PlanningPage() {
-  const {
-    data: { user },
-  } = await getUser();
-
-  if (!user) {
-    return <p>Por favor, faça login para ver seu planejamento.</p>;
-  }
+  const { user } = await getAuthenticatedUser();
 
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
@@ -270,11 +219,19 @@ export default async function PlanningPage() {
     {} as Record<string, number>
   );
 
-  const chartData = calculatedBudgets.map((cb: CategoryBudget & { category: Category; envelope: BudgetEnvelope | null; budgetedAmount: number; }) => ({
-    name: cb.category.name,
-    budgeted: cb.budgetedAmount / 100,
-    spent: (spendingByCategory[cb.categoryId] || 0) / 100,
-  }));
+  const chartData = calculatedBudgets.map(
+    (
+      cb: CategoryBudget & {
+        category: Category;
+        envelope: BudgetEnvelope | null;
+        budgetedAmount: number;
+      }
+    ) => ({
+      name: cb.category.name,
+      budgeted: cb.budgetedAmount / 100,
+      spent: (spendingByCategory[cb.categoryId] || 0) / 100,
+    })
+  );
 
   return (
     <div className="container mx-auto p-4">

@@ -1,21 +1,15 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { PreviewStatus } from "@prisma/client";
 
 export async function editarStatusTransacao(
   previewId: string,
   novoStatus: PreviewStatus
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("Não autorizado");
+  const { user } = await getAuthenticatedUser();
 
   const preview = await prisma.importTransactionPreview.findUnique({
     where: { id: previewId },
