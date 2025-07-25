@@ -32,6 +32,7 @@ model User {
   categoryBudgets CategoryBudget[]
   ownedAccounts SharedAccountAccess[] @relation("OwnerAccounts")
   memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
+  importSessions ImportSession[]
 }
 
 model Category {
@@ -46,17 +47,60 @@ model Category {
 }
 
 model Operation {
-  id          String        @id @default(uuid())
-  amount      Int
-  type        OperationType
-  description String?
-  date        DateTime      @default(now())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  categoryId  String?
-  category    Category?     @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id               String           @id @default(cuid())
+  userId           String
+  date             DateTime
+  description      String
+  amount           Int              // Armazenado em centavos
+  type             OperationType
+  categoryId       String
+  status           TransactionStatus @default(COMPLETED)
+  scheduledAt      DateTime?
+  processedAt      DateTime?
+  importSessionId  String?
+  importSession    ImportSession?   @relation(fields: [importSessionId], references: [id])
+
+  category         Category         @relation(fields: [categoryId], references: [id])
+  user             User             @relation(fields: [userId], references: [id])
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  SCHEDULED
+}
+
+model ImportSession {
+  id              String    @id @default(cuid())
+  userId          String
+  createdAt       DateTime @default(now())
+  fileName        String
+  importedCount   Int      @default(0)
+  ignoredCount    Int      @default(0)
+  errorCount      Int      @default(0)
+  transactions    Operation[]
+  errors          Json?
+  previewItems    ImportTransactionPreview[]
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model ImportTransactionPreview {
+  id              String   @id @default(cuid())
+  importSessionId String
+  status          PreviewStatus
+  resolved        Boolean @default(false)
+  data            Json
+
+  importSession   ImportSession @relation(fields: [importSessionId], references: [id])
+}
+
+enum PreviewStatus {
+  NEW
+  PENDING
+  DUPLICATE
+  ERROR
+  CONFIRMED
 }
 
 model MonthlyIncome {

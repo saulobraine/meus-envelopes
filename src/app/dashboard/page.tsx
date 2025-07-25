@@ -268,7 +268,6 @@ export default async function DashboardPage() {
                   <P
                     className={`text-sm ${operation.type === "INCOME" ? "text-green-600" : "text-red-600"}`}
                   >
-                    {operation.type === "INCOME" ? "+" : "-"}
                     {formatCurrency(operation.amount)}
                   </P>
                   {operation.category && (

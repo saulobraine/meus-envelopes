@@ -45,6 +45,12 @@ export default function MainNav({
                 Planejamento
               </Link>
               <Link
+                href="/importar"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Importar
+              </Link>
+              <Link
                 href="/contas-compartilhadas"
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -109,6 +115,13 @@ export default function MainNav({
                   onClick={() => setIsOpen(false)}
                 >
                   Planejamento
+                </Link>
+                <Link
+                  href="/importar"
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Importar
                 </Link>
                 <Link
                   href="/contas-compartilhadas"
