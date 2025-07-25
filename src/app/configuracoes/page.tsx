@@ -1,4 +1,4 @@
-import { updateUser } from "@/app/_actions/user";
+import { updateUserProfile } from "@/app/_actions/user";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import {
   Card,
@@ -26,7 +26,7 @@ export default async function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={updateUser} className="space-y-4">
+          <form action={updateUserProfile} className="space-y-4">
             <div>
               <Label htmlFor="name">Nome</Label>
               <Input

@@ -3,7 +3,7 @@
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function updateUser(formData: FormData) {
+export async function updateUserProfile(formData: FormData) {
   const name = formData.get("name") as string;
 
   const { client: supabase } = await getAuthenticatedUser();
@@ -13,8 +13,8 @@ export async function updateUser(formData: FormData) {
   });
 
   if (error) {
-    throw new Error(`Erro ao atualizar o usuário: ${error.message}`);
+    throw new Error(`Error updating user: ${error.message}`);
   }
 
-  revalidatePath("/settings");
+  revalidatePath("/configuracoes");
 }

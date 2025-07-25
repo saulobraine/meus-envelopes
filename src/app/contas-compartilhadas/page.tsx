@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   inviteUserToSharedAccount,
   removeUserFromSharedAccount,
-} from "@/app/_actions/shared-account";
+} from "@/app/_actions/sharedAccount";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
