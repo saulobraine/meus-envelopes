@@ -1,7 +1,7 @@
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
-import { createOperation, deleteOperation } from "@/app/_actions/operation";
-import { createEnvelope, deleteEnvelope } from "@/app/_actions/envelope";
+import { createOperation, deleteOperation } from "@/app/_actions/operation/operation";
+import { createEnvelope, deleteEnvelope, getEnvelopes } from "@/app/_actions/envelope";
 import { revalidatePath } from "next/cache";
 import { formatCurrency } from "@/lib/currency";
 
