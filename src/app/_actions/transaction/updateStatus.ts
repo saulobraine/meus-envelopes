@@ -43,19 +43,22 @@ export async function editarStatusTransacao(
       const [day, month, year] = txData.DATA.split("/").map(Number);
       const date = new Date(year, month - 1, day);
 
-      // Criar/obter categoria
-      let category = await tx.category.findFirst({
+      // Criar/obter envelope
+      let envelope = await tx.envelope.findFirst({
         where: {
-          name: txData.CATEGORIA || "Sem Categoria",
+          name: txData.ENVELOPE || "Sem Envelope",
           userId: user.id,
         },
       });
 
-      if (!category) {
-        category = await tx.category.create({
+      if (!envelope) {
+        envelope = await tx.envelope.create({
           data: {
-            name: txData.CATEGORIA || "Sem Categoria",
+            name: txData.ENVELOPE || "Sem Envelope",
             userId: user.id,
+            value: 0,
+            type: "MONETARY",
+            isDeletable: true,
           },
         });
       }
@@ -68,7 +71,7 @@ export async function editarStatusTransacao(
           description: txData.DESCRIÇÃO,
           amount,
           type: amount >= 0 ? "INCOME" : "EXPENSE",
-          categoryId: category.id,
+          envelopeId: envelope.id,
           importSessionId: preview.importSessionId,
         },
       });

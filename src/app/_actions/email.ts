@@ -18,14 +18,14 @@ export async function sendNewOperationEmail({
   amount,
   type,
   description,
-  categoryName,
+  envelopeName,
 }: {
   to: string
   userName: string
   amount: number
   type: 'INCOME' | 'EXPENSE'
   description?: string
-  categoryName?: string
+  envelopeName?: string
 }) {
   try {
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -41,7 +41,7 @@ export async function sendNewOperationEmail({
         amount: numericAmount,
         type,
         description: description || '',
-        categoryName: categoryName || ''
+        envelopeName: envelopeName || ''
       })
     )
 

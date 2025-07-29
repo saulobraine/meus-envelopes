@@ -4,31 +4,34 @@ import { getAuthenticatedUser } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { OperationType } from "@prisma/client";
 
-async function getOrCreateDefaultCategory(userId: string) {
-  const defaultCategoryName = "A classificar";
-  let category = await prisma.category.findFirst({
+async function getOrCreateDefaultEnvelope(userId: string) {
+  const defaultEnvelopeName = "A classificar";
+  let envelope = await prisma.envelope.findFirst({
     where: {
       userId,
-      name: defaultCategoryName,
+      name: defaultEnvelopeName,
     },
   });
 
-  if (!category) {
-    category = await prisma.category.create({
+  if (!envelope) {
+    envelope = await prisma.envelope.create({
       data: {
         userId,
-        name: defaultCategoryName,
+        name: defaultEnvelopeName,
+        value: 0,
+        type: "MONETARY",
+        isDeletable: true,
       },
     });
   }
 
-  return category.id;
+  return envelope.id;
 }
 
 export async function importarTransacoes(transactions: any[]) {
   const { user } = await getAuthenticatedUser();
 
-  const defaultCategoryId = await getOrCreateDefaultCategory(user.id);
+  const defaultEnvelopeId = await getOrCreateDefaultEnvelope(user.id);
 
   const importSession = await prisma.importSession.create({
     data: {
@@ -80,7 +83,7 @@ export async function importarTransacoes(transactions: any[]) {
           description: t.DESCRIÇÃO,
           amount: amount,
           type,
-          categoryId: defaultCategoryId,
+          envelopeId: defaultEnvelopeId,
           importSessionId: importSession.id,
         },
       });

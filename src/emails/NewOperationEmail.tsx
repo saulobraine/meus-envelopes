@@ -7,7 +7,7 @@ interface NewOperationEmailProps {
   amount: number
   type: 'INCOME' | 'EXPENSE'
   description?: string
-  categoryName?: string
+  envelopeName?: string
 }
 
 export default function NewOperationEmail({
@@ -15,7 +15,7 @@ export default function NewOperationEmail({
   amount,
   type,
   description,
-  categoryName,
+  envelopeName,
 }: NewOperationEmailProps) {
   const operationType = type === 'INCOME' ? 'entrada' : 'saída';
 
@@ -37,9 +37,9 @@ export default function NewOperationEmail({
               <strong>Descrição:</strong> {description || 'Sem descrição'}
             </Text>
           )}
-          {categoryName && (
+          {envelopeName && (
             <Text style={details}>
-              <strong>Categoria:</strong> {categoryName || 'Não categorizada'}
+              <strong>Envelope:</strong> {envelopeName || 'Não categorizada'}
             </Text>
           )}
           <Text style={paragraph}>

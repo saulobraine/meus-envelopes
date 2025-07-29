@@ -9,7 +9,7 @@ const operationSchema = z.object({
   type: z.enum(["INCOME", "EXPENSE"]),
   description: z.string().optional(),
   date: z.string().datetime(),
-  categoryId: z.string().optional(),
+  envelopeId: z.string().optional(),
 });
 
 import { parseCurrency } from "@/lib/currency";
@@ -23,12 +23,8 @@ export async function createOperation(formData: FormData) {
     type: formData.get("type") as "INCOME" | "EXPENSE",
     description: formData.get("description") as string,
     date: new Date(dateString).toISOString(),
-    categoryId: formData.get("categoryId") as string,
+    envelopeId: formData.get("envelopeId") as string,
   });
-
-  if (!parsed.categoryId) {
-    throw new Error("A categoria é obrigatória.");
-  }
 
   const newOperation = await prisma.operation.create({
     data: {
@@ -36,10 +32,10 @@ export async function createOperation(formData: FormData) {
       type: parsed.type,
       date: parsed.date,
       description: parsed.description || "",
-      categoryId: parsed.categoryId,
+      envelopeId: parsed.envelopeId,
       userId: user.id,
     },
-    include: { category: true },
+    include: { envelope: true },
   });
 
   if (user.email) {
@@ -49,7 +45,7 @@ export async function createOperation(formData: FormData) {
       amount: newOperation.amount,
       type: newOperation.type,
       description: newOperation.description || "",
-      categoryName: newOperation.category?.name || "",
+      envelopeName: newOperation.envelope?.name || "",
     });
   }
 
@@ -65,7 +61,7 @@ export async function updateOperation(id: string, formData: FormData) {
     type: formData.get("type") as "INCOME" | "EXPENSE",
     description: formData.get("description") as string,
     date: new Date(dateString).toISOString(),
-    categoryId: formData.get("categoryId") as string,
+    envelopeId: formData.get("envelopeId") as string,
   });
 
   const sharedAccounts = await prisma.sharedAccountAccess.findMany({

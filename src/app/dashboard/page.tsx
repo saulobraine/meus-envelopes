@@ -1,8 +1,7 @@
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { createOperation, deleteOperation } from "@/app/_actions/operation";
-import { createCategory, deleteCategory } from "@/app/_actions/category";
-import { getCalculatedBudgets } from "@/app/planejamento/page";
+import { createEnvelope, deleteEnvelope } from "@/app/_actions/envelope";
 import { revalidatePath } from "next/cache";
 import { formatCurrency } from "@/lib/currency";
 
@@ -23,19 +22,13 @@ import { Input } from "@/components/ui/input";
 export default async function DashboardPage() {
   const { user } = await getAuthenticatedUser();
 
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-
   const operations = await prisma.operation.findMany({
     where: { userId: user.id },
-    include: { category: true },
+    include: { envelope: true },
     orderBy: { date: "desc" },
   });
 
-  const categories = await prisma.category.findMany({
-    where: { userId: user.id },
-    orderBy: { name: "asc" },
-  });
+  const envelopes = await getEnvelopes();
 
   const income = operations
     .filter((op) => op.type === "INCOME")
@@ -44,22 +37,6 @@ export default async function DashboardPage() {
   const expense = operations
     .filter((op) => op.type === "EXPENSE")
     .reduce((sum, op) => sum + op.amount, 0);
-
-  const calculatedBudgets = await getCalculatedBudgets(
-    user.id,
-    currentMonth,
-    currentYear
-  );
-
-  const categoryExpenses = operations
-    .filter((op) => op.type === "EXPENSE" && op.categoryId)
-    .reduce(
-      (acc, op) => {
-        acc[op.categoryId!] = (acc[op.categoryId!] || 0) + op.amount;
-        return acc;
-      },
-      {} as Record<string, number>
-    );
 
   return (
     <div className="container mx-auto p-4">
@@ -88,45 +65,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Progresso Orçamentário</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul>
-            {calculatedBudgets.map(
-              (cb: {
-                id: string;
-                categoryId: string;
-                budgetedAmount: number;
-                category: { name: string };
-              }) => {
-                const spent = categoryExpenses[cb.categoryId] || 0;
-                return (
-                  <li
-                    key={cb.id}
-                    className="py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
-                  >
-                    <span>
-                      {cb.category.name}: Gastos {formatCurrency(spent)} de{" "}
-                      {formatCurrency(cb.budgetedAmount)}
-                    </span>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                      <div
-                        className="bg-blue-600 h-2.5 rounded-full"
-                        style={{
-                          width: `${(spent / cb.budgetedAmount) * 100}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </li>
-                );
-              }
-            )}
-          </ul>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <Card>
@@ -173,15 +111,15 @@ export default async function DashboardPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="categoryId">Categoria</Label>
-                <Select name="categoryId">
+                <Label htmlFor="envelopeId">Envelope</Label>
+                <Select name="envelopeId">
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecionar Categoria (Opcional)" />
+                    <SelectValue placeholder="Selecionar Envelope (Opcional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
+                    {envelopes.map((envelope) => (
+                      <SelectItem key={envelope.id} value={envelope.id}>
+                        {envelope.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -194,13 +132,13 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Categorias</CardTitle>
+            <CardTitle>Envelopes</CardTitle>
           </CardHeader>
           <CardContent>
             <form
               action={async (formData) => {
                 "use server";
-                await createCategory(formData);
+                await createEnvelope(formData);
                 revalidatePath("/painel");
               }}
               className="flex space-x-2 mb-4"
@@ -208,22 +146,22 @@ export default async function DashboardPage() {
               <Input
                 type="text"
                 name="name"
-                placeholder="Nome da Categoria"
+                placeholder="Nome do Envelope"
                 required
               />
-              <Button type="submit">Adicionar Categoria</Button>
+              <Button type="submit">Adicionar Envelope</Button>
             </form>
             <ul>
-              {categories.map((category) => (
+              {envelopes.map((envelope) => (
                 <li
-                  key={category.id}
+                  key={envelope.id}
                   className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
                 >
-                  <span>{category.name}</span>
+                  <span>{envelope.name}</span>
                   <form
                     action={async () => {
                       "use server";
-                      await deleteCategory(category.id);
+                      await deleteEnvelope(envelope.id);
                       revalidatePath("/painel");
                     }}
                   >
@@ -258,9 +196,9 @@ export default async function DashboardPage() {
                   >
                     {formatCurrency(operation.amount)}
                   </P>
-                  {operation.category && (
+                  {operation.envelope && (
                     <P className="text-xs text-gray-500 dark:text-gray-400">
-                      Categoria: {operation.category.name}
+                      Envelope: {operation.envelope.name}
                     </P>
                   )}
                   <P className="text-xs text-gray-500 dark:text-gray-400">

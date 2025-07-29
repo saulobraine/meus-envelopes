@@ -36,12 +36,18 @@ export async function resolverDuplicata(input: unknown) {
     const [day, month, year] = tx.DATA.split("/").map(Number);
     const date = new Date(year, month - 1, day);
 
-    let category = await prisma.category.findFirst({
-      where: { name: tx.CATEGORIA, userId: user.id },
+    let envelope = await prisma.envelope.findFirst({
+      where: { name: tx.ENVELOPE, userId: user.id },
     });
-    if (!category) {
-      category = await prisma.category.create({
-        data: { name: tx.CATEGORIA || "Sem Categoria", userId: user.id },
+    if (!envelope) {
+      envelope = await prisma.envelope.create({
+        data: {
+          name: tx.ENVELOPE || "Sem Envelope",
+          userId: user.id,
+          value: 0,
+          type: "MONETARY",
+          isDeletable: true,
+        },
       });
     }
 
@@ -52,7 +58,7 @@ export async function resolverDuplicata(input: unknown) {
         description: tx.DESCRIÇÃO,
         amount,
         type: amount >= 0 ? "INCOME" : "EXPENSE",
-        categoryId: category.id,
+        envelopeId: envelope.id,
         importSessionId: previewItem.importSessionId,
       },
     });

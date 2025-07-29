@@ -20,15 +20,15 @@ export async function exportarTransacoes(filters: {
       // status: filters.status, // Adicionar quando o campo status estiver no modelo
     },
     include: {
-      category: true,
+      envelope: true,
     },
   });
 
-  const header = "DATA,DESCRICAO,VALOR,CATEGORIA,STATUS\n";
+  const header = "DATA,DESCRICAO,VALOR,ENVELOPE,STATUS\n";
   const csv = operations
     .map((op) => {
       const amount = op.type === "EXPENSE" ? -op.amount : op.amount;
-      return `${op.date.toISOString()},${op.description},${amount / 100},${op.category?.name},${op.status}`;
+      return `${op.date.toISOString()},${op.description},${amount / 100},${op.envelope?.name},${op.status}`;
     })
     .join("\n");
 
