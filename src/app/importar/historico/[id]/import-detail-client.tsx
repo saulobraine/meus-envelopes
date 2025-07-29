@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { resolverDuplicata } from "@/app/_actions/resolverDuplicatas";
+import { resolverDuplicata } from "@/app/_actions/resolveDuplicates";
 import type { ImportSession, ImportTransactionPreview } from "@prisma/client";
 
 type SessionWithPreview = ImportSession & {
