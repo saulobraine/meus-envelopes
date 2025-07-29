@@ -9,13 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { H1, P } from "@/components/ui/typography";
 import { Input } from "@/components/ui/input";
 
@@ -158,17 +152,19 @@ export default async function DashboardPage() {
                   className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
                 >
                   <span>{envelope.name}</span>
-                  <form
-                    action={async () => {
-                      "use server";
-                      await deleteEnvelope(envelope.id);
-                      revalidatePath("/painel");
-                    }}
-                  >
-                    <Button type="submit" variant="destructive" size="sm">
-                      Excluir
-                    </Button>
-                  </form>
+                  {(!envelope.isGlobal) && (
+                    <form
+                      action={async () => {
+                        "use server";
+                        await deleteEnvelope(envelope.id);
+                        revalidatePath("/painel");
+                      }}
+                    >
+                      <Button type="submit" variant="destructive" size="sm">
+                        Excluir
+                      </Button>
+                    </form>
+                  )}
                 </li>
               ))}
             </ul>

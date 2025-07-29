@@ -10,6 +10,7 @@ const envelopeSchema = z.object({
 });
 
 export async function createEnvelope(formData: FormData) {
+  "use server";
   const { user } = await getAuthenticatedUser();
 
   const parsed = envelopeSchema.parse({
@@ -78,10 +79,7 @@ export async function getEnvelopes() {
 
   const envelopes = await prisma.envelope.findMany({
     where: {
-      OR: [
-        { userId: user.id },
-        { isGlobal: true },
-      ],
+      OR: [{ userId: user.id }, { isGlobal: true }],
     },
     orderBy: { name: "asc" },
   });
