@@ -1,28 +1,26 @@
-import { createClient } from '@/lib/supabase/server'
-import prisma from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
-import { inviteUserToSharedAccount, removeUserFromSharedAccount } from '@/app/_actions/shared-account'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { getAuthenticatedUser } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import {
+  inviteUserToSharedAccount,
+  removeUserFromSharedAccount,
+} from "@/app/_actions/sharedAccount";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function SharedAccountsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return <p>Por favor, faça login para ver contas compartilhadas.</p>
-  }
+  const { user } = await getAuthenticatedUser();
 
   const ownedAccounts = await prisma.sharedAccountAccess.findMany({
     where: { ownerId: user.id },
     include: { member: true },
-  })
+  });
 
   const memberAccounts = await prisma.sharedAccountAccess.findMany({
     where: { memberId: user.id },
     include: { owner: true },
-  })
+  });
 
   return (
     <div className="container mx-auto p-4">
@@ -33,10 +31,16 @@ export default async function SharedAccountsPage() {
           <CardTitle>Convidar Usuário</CardTitle>
         </CardHeader>
         <CardContent>
-        <form action={inviteUserToSharedAccount} className="flex space-x-2">
-          <Input type="email" name="email" placeholder="E-mail do usuário para convidar" required className="flex-grow" />
-          <Button type="submit">Convidar</Button>
-        </form>
+          <form action={inviteUserToSharedAccount} className="flex space-x-2">
+            <Input
+              type="email"
+              name="email"
+              placeholder="E-mail do usuário para convidar"
+              required
+              className="flex-grow"
+            />
+            <Button type="submit">Convidar</Button>
+          </form>
         </CardContent>
       </Card>
 
@@ -45,19 +49,26 @@ export default async function SharedAccountsPage() {
           <CardTitle>Suas Contas</CardTitle>
         </CardHeader>
         <CardContent>
-        <ul>
-          {ownedAccounts.map(account => (
-            <li key={account.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
-              <span>{account.member.name || account.member.email}</span>
-              <form action={async () => {
-                await removeUserFromSharedAccount(account.id)
-                revalidatePath('/shared-accounts')
-              }}>
-                <Button type="submit" variant="destructive" size="sm">Remover</Button>
-              </form>
-            </li>
-          ))}
-        </ul>
+          <ul>
+            {ownedAccounts.map((account) => (
+              <li
+                key={account.id}
+                className="flex justify-between items-center py-2 border-b last:border-b-0"
+              >
+                <span>{account.member.name || account.member.email}</span>
+                <form
+                  action={async () => {
+                    await removeUserFromSharedAccount(account.id);
+                    revalidatePath("/shared-accounts");
+                  }}
+                >
+                  <Button type="submit" variant="destructive" size="sm">
+                    Remover
+                  </Button>
+                </form>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
 
@@ -66,15 +77,18 @@ export default async function SharedAccountsPage() {
           <CardTitle>Contas que Você Participa</CardTitle>
         </CardHeader>
         <CardContent>
-        <ul>
-          {memberAccounts.map(account => (
-            <li key={account.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
-              <span>{account.owner.name || account.owner.email}</span>
-            </li>
-          ))}
-        </ul>
+          <ul>
+            {memberAccounts.map((account) => (
+              <li
+                key={account.id}
+                className="flex justify-between items-center py-2 border-b last:border-b-0"
+              >
+                <span>{account.owner.name || account.owner.email}</span>
+              </li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

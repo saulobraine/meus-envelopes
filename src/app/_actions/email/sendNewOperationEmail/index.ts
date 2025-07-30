@@ -1,16 +1,6 @@
 import { render } from '@react-email/render'
 import NewOperationEmail from '@/emails/NewOperationEmail'
-import nodemailer from 'nodemailer'
-
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+import { transporter } from '@/lib/email'
 
 export async function sendNewOperationEmail({
   to,
@@ -18,14 +8,14 @@ export async function sendNewOperationEmail({
   amount,
   type,
   description,
-  categoryName,
+  envelopeName,
 }: {
   to: string
   userName: string
   amount: number
   type: 'INCOME' | 'EXPENSE'
   description?: string
-  categoryName?: string
+  envelopeName?: string
 }) {
   try {
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
@@ -41,7 +31,7 @@ export async function sendNewOperationEmail({
         amount: numericAmount,
         type,
         description: description || '',
-        categoryName: categoryName || ''
+        envelopeName: envelopeName || ''
       })
     )
 
