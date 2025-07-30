@@ -1,54 +1,32 @@
-import { formatCurrency } from '@/lib/currency'
 import { Html, Head, Body, Container, Text, Link } from '@react-email/components'
 import * as React from 'react'
 
-interface NewOperationEmailProps {
+interface WelcomeEmailProps {
   userName: string
-  amount: number
-  type: 'INCOME' | 'EXPENSE'
-  description?: string
-  envelopeName?: string
 }
 
-export default function NewOperationEmail({
+export default function WelcomeEmail({
   userName,
-  amount,
-  type,
-  description,
-  envelopeName,
-}: NewOperationEmailProps) {
-  const operationType = type === 'INCOME' ? 'entrada' : 'saída';
-
+}: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
       <Body style={main}>
         <Container style={container}>
-          <Text style={heading}>Nova Operação Financeira no Meus Envelopes</Text>
+          <Text style={heading}>Bem-vindo(a) ao Meus Envelopes!</Text>
           <Text style={paragraph}>Olá {userName},</Text>
           <Text style={paragraph}>
-            Uma nova operação de {operationType} foi registrada:
+            Estamos muito felizes em ter você conosco. O Meus Envelopes foi criado para ajudar você a organizar suas finanças de forma simples e eficiente.
           </Text>
-          <Text style={details}>
-            <strong>Valor:</strong> {formatCurrency(amount)}
-          </Text>
-          {description && (
-            <Text style={details}>
-              <strong>Descrição:</strong> {description || 'Sem descrição'}
-            </Text>
-          )}
-          {envelopeName && (
-            <Text style={details}>
-              <strong>Envelope:</strong> {envelopeName || 'Não categorizada'}
-            </Text>
-          )}
           <Text style={paragraph}>
-            Você pode visualizar seu painel aqui:
+            Para começar a usar, acesse seu painel:
             <Link href="https://your-app-url.com/dashboard" style={link}>
-              Painel MeusEnvelopes
+              Acessar Painel
             </Link>
           </Text>
-          <Text style={footer}>Obrigado por usar o Meus Envelopes!</Text>
+          <Text style={footer}>Se precisar de ajuda, não hesite em nos contatar.</Text>
+          <Text style={footer}>Atenciosamente,</Text>
+          <Text style={footer}>A equipe Meus Envelopes</Text>
         </Container>
       </Body>
     </Html>
@@ -80,14 +58,6 @@ const paragraph = {
   padding: '0 30px',
   margin: '0',
   fontSize: '16px',
-  lineHeight: '1.5',
-  color: '#3c4149',
-}
-
-const details = {
-  padding: '0 30px',
-  margin: '0',
-  fontSize: '14px',
   lineHeight: '1.5',
   color: '#3c4149',
 }

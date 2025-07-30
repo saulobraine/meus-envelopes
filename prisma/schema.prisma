@@ -19,84 +19,107 @@ enum OperationType {
   EXPENSE
 }
 
-model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  operations Operation[]
-  categories Category[]
-  monthlyIncomes MonthlyIncome[]
-  budgetEnvelopes BudgetEnvelope[]
-  categoryBudgets CategoryBudget[]
-  ownedAccounts SharedAccountAccess[] @relation("OwnerAccounts")
-  memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
+enum BudgetType {
+  PERCENTAGE
+  MONETARY
 }
 
-model Category {
-  id        String    @id @default(uuid())
-  name      String
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  operations Operation[]
-  categoryBudgets CategoryBudget[]
+model User {
+  id             String                @id @default(uuid())
+  email          String                @unique
+  name           String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  operations     Operation[]
+  
+  ownedAccounts  SharedAccountAccess[] @relation("OwnerAccounts")
+  memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
+  importSessions ImportSession[]
+  envelopes      Envelope[]
+}
+
+model Envelope {
+  id          String      @id @default(uuid())
+  name        String
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id])
+  value       Int
+  type        BudgetType
+  isDeletable Boolean     @default(true)
+  isGlobal    Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  operations  Operation[]
+
+  @@index([userId])
 }
 
 model Operation {
-  id          String        @id @default(uuid())
-  amount      Int
-  type        OperationType
-  description String?
-  date        DateTime      @default(now())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  categoryId  String?
-  category    Category?     @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id              String            @id @default(cuid())
+  userId          String
+  date            DateTime
+  description     String
+  amount          Int // Stored in cents
+  type            OperationType
+  envelopeId      String
+  status          TransactionStatus @default(COMPLETED)
+  scheduledAt     DateTime?
+  processedAt     DateTime?
+  importSessionId String?
+  importSession   ImportSession?    @relation(fields: [importSessionId], references: [id])
+
+  envelope Envelope @relation(fields: [envelopeId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([envelopeId])
+  @@index([importSessionId])
 }
 
-model MonthlyIncome {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  month     Int
-  year      Int
-  fixed     Int
-  variable  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, month, year])
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  SCHEDULED
 }
 
-model BudgetEnvelope {
-  id          String         @id @default(uuid())
-  userId      String
-  user        User           @relation(fields: [userId], references: [id])
-  name        String
-  allocation  Int          // Percentage of total income (e.g., 30 for 30%)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  categoryBudgets CategoryBudget[]
+model ImportSession {
+  id            String                     @id @default(cuid())
+  userId        String
+  createdAt     DateTime                   @default(now())
+  fileName      String
+  importedCount Int                        @default(0)
+  ignoredCount  Int                        @default(0)
+  errorCount    Int                        @default(0)
+  transactions  Operation[]
+  errors        Json?
+  previewItems  ImportTransactionPreview[]
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
 
-model CategoryBudget {
-  id          String        @id @default(uuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  categoryId  String        @unique
-  category    Category      @relation(fields: [categoryId], references: [id])
-  amount      Int?        // Fixed amount in cents
-  percentage  Int?        // Percentage of a BudgetEnvelope
-  envelopeId  String?       // Optional: Link to a BudgetEnvelope
-  envelope    BudgetEnvelope? @relation(fields: [envelopeId], references: [id])
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+model ImportTransactionPreview {
+  id              String        @id @default(cuid())
+  importSessionId String
+  status          PreviewStatus
+  resolved        Boolean       @default(false)
+  data            Json
+
+  importSession ImportSession @relation(fields: [importSessionId], references: [id])
+
+  @@index([importSessionId])
 }
+
+enum PreviewStatus {
+  NEW
+  PENDING
+  DUPLICATE
+  ERROR
+  CONFIRMED
+}
+
+
 
 model SharedAccountAccess {
   id        String   @id @default(uuid())
@@ -108,4 +131,6 @@ model SharedAccountAccess {
   updatedAt DateTime @updatedAt
 
   @@unique([ownerId, memberId])
+  @@index([ownerId])
+  @@index([memberId])
 }
