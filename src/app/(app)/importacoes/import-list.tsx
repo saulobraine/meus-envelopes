@@ -1,6 +1,6 @@
 "use client";
 
-import { resetarImportacao } from "@/app/_actions/importarTransacoes";
+import { resetarImportacao } from "@/app/_actions/transaction/import";
 import { Button } from "@/components/ui/button";
 import type { ImportSession } from "@prisma/client";
 import Link from "next/link";
