@@ -37,7 +37,7 @@ export default async function SharedAccountsPage() {
               name="email"
               placeholder="E-mail do usuário para convidar"
               required
-              className="flex-grow"
+              className="grow"
             />
             <Button type="submit">Convidar</Button>
           </form>
