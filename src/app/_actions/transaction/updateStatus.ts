@@ -63,8 +63,8 @@ export async function editarStatusTransacao(
         });
       }
 
-      // Criar operação principal
-      await tx.operation.create({
+      // Criar transação principal
+      await tx.transaction.create({
         data: {
           userId: user.id,
           date,

@@ -1,8 +1,8 @@
 import { render } from '@react-email/render'
-import NewOperationEmail from '@/emails/NewOperationEmail'
+import NewTransactionEmail from '@/emails/NewTransactionEmail'
 import { transporter } from '@/lib/email'
 
-export async function sendNewOperationEmail({
+export async function sendNewTransactionEmail({
   to,
   userName,
   amount,
@@ -21,12 +21,12 @@ export async function sendNewOperationEmail({
     const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
     if (isNaN(numericAmount)) {
-      console.error('Invalid amount provided to sendNewOperationEmail:', amount);
+      console.error('Invalid amount provided to sendNewTransactionEmail:', amount);
       return; // Or handle the error as appropriate for your application
     }
 
     const emailHtml = await render(
-      NewOperationEmail({
+      NewTransactionEmail({
         userName,
         amount: numericAmount,
         type,
@@ -38,7 +38,7 @@ export async function sendNewOperationEmail({
     await transporter.sendMail({
       from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
       to: to,
-      subject: 'New Financial Operation Recorded',
+      subject: 'New Financial Transaction Recorded',
       html: emailHtml,
     })
   } catch (error) {

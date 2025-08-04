@@ -51,7 +51,7 @@ export async function resolverDuplicata(input: unknown) {
       });
     }
 
-    await prisma.operation.create({
+    await prisma.transaction.create({
       data: {
         userId: user.id,
         date,

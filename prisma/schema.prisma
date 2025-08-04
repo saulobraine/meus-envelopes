@@ -14,7 +14,7 @@ datasource db {
   relationMode = "prisma"
 }
 
-enum OperationType {
+enum TransactionType {
   INCOME
   EXPENSE
 }
@@ -30,7 +30,7 @@ model User {
   name           String?
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
-  operations     Operation[]
+  transactions     Transaction[]
   
   ownedAccounts  SharedAccountAccess[] @relation("OwnerAccounts")
   memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
@@ -49,18 +49,18 @@ model Envelope {
   isGlobal    Boolean     @default(false)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  operations  Operation[]
+  transactions  Transaction[]
 
   @@index([userId])
 }
 
-model Operation {
+model Transaction {
   id              String            @id @default(cuid())
   userId          String
   date            DateTime
   description     String
   amount          Int // Stored in cents
-  type            OperationType
+  type            TransactionType
   envelopeId      String
   status          TransactionStatus @default(COMPLETED)
   scheduledAt     DateTime?
@@ -90,7 +90,7 @@ model ImportSession {
   importedCount Int                        @default(0)
   ignoredCount  Int                        @default(0)
   errorCount    Int                        @default(0)
-  transactions  Operation[]
+  transactions  Transaction[]
   errors        Json?
   previewItems  ImportTransactionPreview[]
 

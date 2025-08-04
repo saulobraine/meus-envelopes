@@ -10,7 +10,7 @@ export async function exportarTransacoes(filters: {
 }) {
   const { user } = await getAuthenticatedUser();
 
-  const operations = await prisma.operation.findMany({
+  const transactions = await prisma.transaction.findMany({
     where: {
       userId: user.id,
       date: {
@@ -25,7 +25,7 @@ export async function exportarTransacoes(filters: {
   });
 
   const header = "DATA,DESCRICAO,VALOR,ENVELOPE,STATUS\n";
-  const csv = operations
+  const csv = transactions
     .map((op) => {
       const amount = op.type === "EXPENSE" ? -op.amount : op.amount;
       return `${op.date.toISOString()},${op.description},${amount / 100},${op.envelope?.name},${op.status}`;

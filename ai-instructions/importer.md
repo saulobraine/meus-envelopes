@@ -14,16 +14,16 @@ Desenvolver um sistema inteligente de **importação e exportação de transaç�
 
 ## 🧱 1. Modelos de Dados (Prisma)
 
-### Modelo `Operation`
+### Modelo `Transaction`
 
 ```ts
-model Operation {
+model Transaction {
   id               String           @id @default(cuid())
   userId           String
   date             DateTime
   description      String
   amount           Int              // Armazenado em centavos
-  type             OperationType
+  type             TransactionType
   categoryId       String
   status           TransactionStatus @default(COMPLETED)
   scheduledAt      DateTime?
@@ -59,7 +59,7 @@ model ImportSession {
   importedCount   Int      @default(0)
   ignoredCount    Int      @default(0)
   errorCount      Int      @default(0)
-  transactions    Operation[]
+  transactions    Transaction[]
   errors          Json?
   previewItems    ImportTransactionPreview[]
 
@@ -122,7 +122,7 @@ enum PreviewStatus {
    - Compara por: `userId`, `date`, `amount`, `description`, `type`
    - Se duplicada → salva como `ImportTransactionPreview` com status `DUPLICATE`
    - Se erro → `ERROR`
-   - Se válida → cria `Operation`
+   - Se válida → cria `Transaction`
 
 5. **Resumo**
 
@@ -178,7 +178,7 @@ enum PreviewStatus {
 | Ação      | Efeito                                      |
 | --------- | ------------------------------------------- |
 | Ignorar   | Marca como resolvida, não adiciona          |
-| Adicionar | Cria nova `Operation`, marca como resolvida |
+| Adicionar | Cria nova `Transaction`, marca como resolvida |
 
 ---
 

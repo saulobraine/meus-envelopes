@@ -53,7 +53,7 @@ Aqui estão os prompts detalhados para cada fase do desenvolvimento.
 >
 > **Instruções:**
 >
-> 1.  **Modelagem de Dados (Prisma):** No `schema.prisma`, defina os modelos `User`, `Category` e `Operation` (com Enum `OperationType` para `INCOME` e `EXPENSE`). Documente todos os campos.
+> 1.  **Modelagem de Dados (Prisma):** No `schema.prisma`, defina os modelos `User`, `Category` e `Transaction` (com Enum `TransactionType` para `INCOME` e `EXPENSE`). Documente todos os campos.
 > 2.  Gere e aplique a `migration` e atualize o Prisma Client.
 > 3.  **Autenticação:** Configure o provedor Google no Supabase. Crie a página de Login (`app/login/page.tsx`), a rota de callback (`app/auth/callback/route.ts`) e um `middleware.ts` para proteger as rotas da aplicação.
 
@@ -65,7 +65,7 @@ Aqui estão os prompts detalhados para cada fase do desenvolvimento.
 >
 > **Instruções:**
 >
-> 1.  **Server Actions:** Crie Server Actions para o CRUD completo de `Operation` e `Category`. Use Zod para validação e `revalidatePath` para atualizar a UI.
+> 1.  **Server Actions:** Crie Server Actions para o CRUD completo de `Transaction` e `Category`. Use Zod para validação e `revalidatePath` para atualizar a UI.
 > 2.  **Interface:** No dashboard (`app/dashboard/page.tsx`), desenvolva a UI para listar operações e um formulário para adicionar novas transações.
 > 3.  **Gráficos Iniciais:** Usando `recharts`, exiba um gráfico de barras (Receitas vs. Despesas do mês) e um gráfico de pizza (distribuição de despesas por categoria).
 
@@ -94,4 +94,4 @@ Aqui estão os prompts detalhados para cada fase do desenvolvimento.
 > **Instruções:**
 >
 > 1.  **Modo Família:** Modele a permissão com uma tabela `SharedAccountAccess` no Prisma. Crie a UI e as Server Actions para o fluxo de convite e gerenciamento. Adapte as Server Actions de leitura para incluir dados de contas compartilhadas.
-> 2.  **Notificações por E-mail:** Configure o Resend e instale o React Email. Crie um template para notificar novas transações. Crie uma Supabase Function acionada por um Database Webhook na tabela `Operation` para renderizar e enviar os e-mails personalizados.
+> 2.  **Notificações por E-mail:** Configure o Resend e instale o React Email. Crie um template para notificar novas transações. Crie uma Supabase Function acionada por um Database Webhook na tabela `Transaction` para renderizar e enviar os e-mails personalizados.

@@ -2,7 +2,7 @@
 
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
-import { OperationType } from "@prisma/client";
+import { TransactionType } from "@prisma/client";
 
 async function getOrCreateDefaultEnvelope(userId: string) {
   const defaultEnvelopeName = "A classificar";
@@ -46,7 +46,7 @@ export async function importarTransacoes(transactions: any[]) {
 
   for (const t of transactions) {
     try {
-      const existingTransaction = await prisma.operation.findFirst({
+      const existingTransaction = await prisma.transaction.findFirst({
         where: {
           description: t.DESCRIÇÃO,
           amount: Math.round(parseFloat(t.VALOR.replace(",", ".")) * 100),
@@ -67,16 +67,16 @@ export async function importarTransacoes(transactions: any[]) {
         continue;
       }
 
-      let type = "INCOME" as OperationType;
+      let type = "INCOME" as TransactionType;
 
       let amount = Math.round(parseFloat(t.VALOR.replace(",", ".")) * 100);
 
       if (amount < 0) {
         amount = amount * -1;
-        type = "EXPENSE" as OperationType;
+        type = "EXPENSE" as TransactionType;
       }
 
-      await prisma.operation.create({
+      await prisma.transaction.create({
         data: {
           userId: user.id,
           date: new Date(t.DATA.split("/").reverse().join("-")),
