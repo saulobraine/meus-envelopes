@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import MainNav from "@/components/main-nav";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
+
+import { Geist, Geist_Mono } from "next/font/google";
+
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,36 +23,22 @@ export const metadata: Metadata = {
   description: "Aplicativo de finanças pessoais com orçamento por envelopes.",
 };
 
-async function getUser() {
-  "use server";
-  const supabase = await createClient();
-  return await supabase.auth.getUser();
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const {
-    data: { user },
-  } = await getUser();
-
-  const signOut = async () => {
-    "use server";
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-    return redirect("/login");
-  };
-
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <MainNav user={user} signOut={signOut} />
-          <main>{children}</main>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            {children}
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

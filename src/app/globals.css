@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient 8s ease infinite;
+}
+
+@utility purple-gradient {
+  background: var(--gradient-primary);
+}
+
+@utility purple-gradient-subtle {
+  background: var(--gradient-subtle);
+}
+
+@utility shadow-purple {
+  box-shadow: var(--shadow-purple);
+}
+
+@utility shadow-purple-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 271 81% 56%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 270 95% 75%;
+    --secondary-foreground: 271 91% 25%;
+    --muted: 270 20% 96%;
+    --muted-foreground: 270 8% 46%;
+    --accent: 269 100% 85%;
+    --accent-foreground: 271 91% 25%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 270 20% 90%;
+    --input: 270 20% 90%;
+    --ring: 271 81% 56%;
+    --radius: 0.75rem;
+
+    /* Gradientes roxos personalizados */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(271 81% 56%),
+      hsl(280 100% 70%)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(270 95% 98%),
+      hsl(270 30% 96%)
+    );
+    --shadow-purple: 0 10px 30px -10px hsl(271 81% 56% / 0.3);
+    --shadow-glow: 0 0 40px hsl(280 100% 70% / 0.4);
+  }
+
+  .dark {
+    --background: 270 15% 8%;
+    --foreground: 270 30% 98%;
+    --card: 270 15% 10%;
+    --card-foreground: 270 30% 98%;
+    --popover: 270 15% 10%;
+    --popover-foreground: 270 30% 98%;
+    --primary: 271 81% 56%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 270 15% 20%;
+    --secondary-foreground: 270 30% 98%;
+    --muted: 270 15% 20%;
+    --muted-foreground: 270 15% 65%;
+    --accent: 270 15% 25%;
+    --accent-foreground: 270 30% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 270 15% 25%;
+    --input: 270 15% 25%;
+    --ring: 271 81% 56%;
+
+    /* Gradientes roxos modo escuro */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(271 81% 56%),
+      hsl(280 100% 70%)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(270 15% 12%),
+      hsl(270 15% 8%)
+    );
+    --shadow-purple: 0 10px 30px -10px hsl(271 81% 56% / 0.5);
+    --shadow-glow: 0 0 40px hsl(280 100% 70% / 0.6);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
