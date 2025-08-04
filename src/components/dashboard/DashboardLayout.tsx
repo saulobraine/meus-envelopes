@@ -19,6 +19,9 @@ import {
   Gear,
   SignOut,
   ArrowsLeftRight,
+  DownloadSimple,
+  UploadSimple,
+  CalendarBlank,
 } from "phosphor-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { FloatingMenu } from "@/components/ui/floating-menu";
@@ -46,14 +49,19 @@ import { usePathname } from "next/navigation";
 
 const menuItems = [
   { icon: ChartBar, label: "Visão Geral", path: "/dashboard" },
-  { icon: CreditCard, label: "Transações", path: "/transacoes" },
-  { icon: FolderOpen, label: "Envelopes", path: "/categories" },
-  { icon: Receipt, label: "Contas a Receber", path: "/receivables" },
-  {
-    icon: Repeat,
+  { icon: CreditCard, label: "Transações", path: "/operacoes" },
+  { icon: FolderOpen, label: "Envelopes", path: "/envelopes" },
+  { icon: Receipt, label: "Contas a Receber", path: "/contas-pendentes" },
+  { icon: Repeat,
     label: "Pagamentos Recorrentes",
-    path: "/recurring-payments",
+    path: "/pagamentos-recorrentes",
   },
+  { icon: Gear, label: "Configurações", path: "/configuracoes" },
+  { icon: Users, label: "Contas Compartilhadas", path: "/contas-compartilhadas" },
+  { icon: DownloadSimple, label: "Exportar", path: "/exportar" },
+  { icon: UploadSimple, label: "Importações", path: "/importacoes" },
+  { icon: UploadSimple, label: "Importar", path: "/importar" },
+  { icon: CalendarBlank, label: "Planejamento", path: "/planejamento" },
 ];
 
 const UserDropdown = () => {
