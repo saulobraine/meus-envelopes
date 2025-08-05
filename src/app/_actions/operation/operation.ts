@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { sendNewOperationEmail } from "../email/sendNewOperationEmail";
 

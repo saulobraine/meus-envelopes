@@ -17,54 +17,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getFinancialChartData } from "@/app/_actions/dashboard";
 
-const periodsData = {
-  "this-month": [
-    { name: "Sem 1", entradas: 15000, saidas: 8000 },
-    { name: "Sem 2", entradas: 18000, saidas: 12000 },
-    { name: "Sem 3", entradas: 22000, saidas: 9000 },
-    { name: "Sem 4", entradas: 25000, saidas: 11000 },
-  ],
-  "last-month": [
-    { name: "Sem 1", entradas: 12000, saidas: 7000 },
-    { name: "Sem 2", entradas: 16000, saidas: 10000 },
-    { name: "Sem 3", entradas: 19000, saidas: 8500 },
-    { name: "Sem 4", entradas: 21000, saidas: 9500 },
-  ],
-  "6-months": [
-    { name: "Fev", entradas: 72000, saidas: 32000 },
-    { name: "Mar", entradas: 69000, saidas: 29000 },
-    { name: "Abr", entradas: 83000, saidas: 35000 },
-    { name: "Mai", entradas: 78000, saidas: 31000 },
-    { name: "Jun", entradas: 91000, saidas: 38000 },
-    { name: "Jul", entradas: 95000, saidas: 40000 },
-  ],
-  "12-months": [
-    { name: "Ago", entradas: 45000, saidas: 20000 },
-    { name: "Set", entradas: 52000, saidas: 22000 },
-    { name: "Out", entradas: 48000, saidas: 21000 },
-    { name: "Nov", entradas: 58000, saidas: 25000 },
-    { name: "Dez", entradas: 62000, saidas: 28000 },
-    { name: "Jan", entradas: 65000, saidas: 30000 },
-    { name: "Fev", entradas: 72000, saidas: 32000 },
-    { name: "Mar", entradas: 69000, saidas: 29000 },
-    { name: "Abr", entradas: 83000, saidas: 35000 },
-    { name: "Mai", entradas: 78000, saidas: 31000 },
-    { name: "Jun", entradas: 91000, saidas: 38000 },
-    { name: "Jul", entradas: 95000, saidas: 40000 },
-  ],
-  "all-time": [
-    { name: "2022", entradas: 580000, saidas: 240000 },
-    { name: "2023", entradas: 720000, saidas: 310000 },
-    { name: "2024", entradas: 890000, saidas: 380000 },
-  ],
-};
+interface FinancialChartProps {
+  initialChartData: any[];
+}
 
-export const FinancialChart = () => {
-  const [selectedPeriod, setSelectedPeriod] =
-    useState<keyof typeof periodsData>("this-month");
-  const currentData = periodsData[selectedPeriod];
+export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
+  const [selectedPeriod, setSelectedPeriod] = useState<"this-month" | "last-month" | "6-months" | "12-months" | "all-time">("this-month");
+  const [chartData, setChartData] = useState<any[]>(initialChartData);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const data = await getFinancialChartData(selectedPeriod);
+      setChartData(data);
+      setLoading(false);
+    };
+    if (selectedPeriod !== "this-month") { // Only fetch if not initial data
+      fetchData();
+    }
+  }, [selectedPeriod]);
 
   return (
     <Card className="p-6 mt-6">
@@ -72,7 +47,7 @@ export const FinancialChart = () => {
         <h3 className="text-lg font-semibold">Evolução Patrimonial</h3>
         <Select
           value={selectedPeriod}
-          onValueChange={(value: keyof typeof periodsData) =>
+          onValueChange={(value) =>
             setSelectedPeriod(value)
           }
         >
@@ -91,7 +66,7 @@ export const FinancialChart = () => {
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={currentData}
+            data={chartData}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

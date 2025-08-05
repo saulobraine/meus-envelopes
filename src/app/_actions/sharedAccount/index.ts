@@ -1,7 +1,7 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/supabase/server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 

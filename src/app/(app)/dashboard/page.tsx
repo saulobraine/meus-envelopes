@@ -1,9 +1,10 @@
-"use client";
-
+import { Suspense } from "react";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
 import { FinancialChart } from "@/components/dashboard/FinancialChart";
+import { getFinancialChartData } from "@/app/_actions/dashboard";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const initialChartData = await getFinancialChartData("this-month");
 
   return (
     <div className="space-y-6">
@@ -13,8 +14,12 @@ export default function DashboardPage() {
           Acompanhe suas finanças em um só lugar
         </p>
       </div>
-      <OverviewCards />
-      <FinancialChart />
+      <Suspense fallback={<div>Loading overview cards...</div>}>
+        <OverviewCards />
+      </Suspense>
+      <Suspense fallback={<div>Loading financial chart...</div>}>
+        <FinancialChart initialChartData={initialChartData} />
+      </Suspense>
 
     </div>
   );

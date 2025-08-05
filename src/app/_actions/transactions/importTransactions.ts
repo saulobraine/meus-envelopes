@@ -1,7 +1,7 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/supabase/server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { TransactionType } from "@prisma/client";
 
 async function getOrCreateDefaultEnvelope(userId: string) {

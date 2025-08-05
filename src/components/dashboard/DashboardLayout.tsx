@@ -49,7 +49,7 @@ import { usePathname } from "next/navigation";
 
 const menuItems = [
   { icon: ChartBar, label: "Visão Geral", path: "/dashboard" },
-  { icon: CreditCard, label: "Transações", path: "/operacoes" },
+  { icon: CreditCard, label: "Transações", path: "/transacoes" },
   { icon: FolderOpen, label: "Envelopes", path: "/envelopes" },
   { icon: Receipt, label: "Contas a Receber", path: "/contas-pendentes" },
   { icon: Repeat,

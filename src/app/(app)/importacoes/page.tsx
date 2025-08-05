@@ -1,5 +1,5 @@
 import { ImportList } from "./import-list";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 

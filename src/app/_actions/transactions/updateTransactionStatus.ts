@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { PreviewStatus } from "@prisma/client";

@@ -1,38 +1,41 @@
 import { Card } from "@/components/ui/card";
 import { DollarSign, TrendingUp, CreditCard, Receipt } from "lucide-react";
+import { getDashboardOverview } from "@/app/_actions/dashboard";
+import { formatCurrency } from "@/lib/utils";
 
-const metrics = [
-  {
-    title: "Saldo Total",
-    value: "R$ 84.950,00",
-    change: "+12,3%",
-    icon: DollarSign,
-    trend: "up",
-  },
-  {
-    title: "Entradas",
-    value: "R$ 104.950,00",
-    change: "+15,2%",
-    icon: TrendingUp,
-    trend: "up",
-  },
-  {
-    title: "Saídas",
-    value: "R$ 20.000,00",
-    change: "-2,5%",
-    icon: CreditCard,
-    trend: "down",
-  },
-  {
-    title: "A Receber",
-    value: "R$ 12.500,00",
-    change: "+8,1%",
-    icon: Receipt,
-    trend: "up",
-  },
-];
+export const OverviewCards = async () => {
+  const { totalBalance, monthlyIncome, monthlyExpenses, amountToReceive } = await getDashboardOverview();
 
-export const OverviewCards = () => {
+  const metrics = [
+    {
+      title: "Saldo Total",
+      value: formatCurrency(totalBalance),
+      change: "", // Change will be calculated or fetched separately if needed
+      icon: DollarSign,
+      trend: "",
+    },
+    {
+      title: "Entradas",
+      value: formatCurrency(monthlyIncome),
+      change: "",
+      icon: TrendingUp,
+      trend: "",
+    },
+    {
+      title: "Saídas",
+      value: formatCurrency(monthlyExpenses),
+      change: "",
+      icon: CreditCard,
+      trend: "",
+    },
+    {
+      title: "A Receber",
+      value: formatCurrency(amountToReceive),
+      change: "",
+      icon: Receipt,
+      trend: "",
+    },
+  ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric) => (
