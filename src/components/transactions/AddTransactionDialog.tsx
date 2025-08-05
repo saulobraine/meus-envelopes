@@ -20,12 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { addTransaction } from "@/app/_actions/transactions";
+import { create as addTransaction } from "@/app/_actions/transactions/create";
 import { useRouter } from "next/navigation";
 import { Plus, TrendingUp, TrendingDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { TransactionType } from "@prisma/client";
 
 export function AddTransactionDialog() {
   const router = useRouter();

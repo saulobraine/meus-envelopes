@@ -15,7 +15,6 @@ import {
   FolderOpen,
   Receipt,
   Repeat,
-  User,
   Gear,
   SignOut,
   ArrowsLeftRight,
@@ -49,19 +48,15 @@ import { usePathname } from "next/navigation";
 
 const menuItems = [
   { icon: ChartBar, label: "Visão Geral", path: "/dashboard" },
-  { icon: CreditCard, label: "Transações", path: "/transacoes" },
   { icon: FolderOpen, label: "Envelopes", path: "/envelopes" },
+  { icon: CreditCard, label: "Transações", path: "/transacoes" },
   { icon: Receipt, label: "Contas a Receber", path: "/contas-pendentes" },
-  { icon: Repeat,
+  {
+    icon: Repeat,
     label: "Pagamentos Recorrentes",
     path: "/pagamentos-recorrentes",
   },
   { icon: Gear, label: "Configurações", path: "/configuracoes" },
-  { icon: Users, label: "Contas Compartilhadas", path: "/contas-compartilhadas" },
-  { icon: DownloadSimple, label: "Exportar", path: "/exportar" },
-  { icon: UploadSimple, label: "Importações", path: "/importacoes" },
-  { icon: UploadSimple, label: "Importar", path: "/importar" },
-  { icon: CalendarBlank, label: "Planejamento", path: "/planejamento" },
 ];
 
 const UserDropdown = () => {

@@ -1,3 +1,5 @@
+"use server";
+
 import { render } from '@react-email/render'
 import WelcomeEmail from '@/emails/WelcomeEmail'
 import { transporter } from '@/lib/email'

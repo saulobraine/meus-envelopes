@@ -1,3 +1,5 @@
+"use server";
+
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +15,7 @@ const transactionSchema = z.object({
   envelopeId: z.string().optional(),
 });
 
-export async function updateTransaction(id: string, formData: FormData) {
+export async function update(id: string, formData: FormData) {
   const { user } = await getAuthenticatedUser();
 
   const dateString = formData.get("date") as string;
@@ -25,17 +27,8 @@ export async function updateTransaction(id: string, formData: FormData) {
     envelopeId: formData.get("envelopeId") as string,
   });
 
-  const sharedAccounts = await prisma.sharedAccountAccess.findMany({
-    where: { memberId: user.id },
-    select: { ownerId: true },
-  });
-  const accessibleUserIds = [
-    user.id,
-    ...sharedAccounts.map((sa: any) => sa.ownerId),
-  ];
-
   await prisma.transaction.update({
-    where: { id, userId: { in: accessibleUserIds } },
+    where: { id, userId: { in: [user.id] } },
     data: parsed,
   });
 

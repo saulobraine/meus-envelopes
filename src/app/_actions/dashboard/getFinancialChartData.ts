@@ -1,10 +1,12 @@
+"use server";
+
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 export async function getFinancialChartData(
   period: "this-month" | "last-month" | "6-months" | "12-months" | "all-time"
 ) {
-  const { userId } = await getAuthenticatedUser();
+  const { user } = await getAuthenticatedUser();
 
   let startDate: Date;
   let endDate: Date;
@@ -41,7 +43,7 @@ export async function getFinancialChartData(
 
   const transactions = await prisma.transaction.findMany({
     where: {
-      userId: userId,
+      userId: user.id,
       date: {
         gte: startDate.toISOString(),
         lte: endDate.toISOString(),
@@ -96,7 +98,7 @@ export async function getFinancialChartData(
       }
     });
     // Ensure all months in the range are present
-    let currentMonth = new Date(startDate);
+    const currentMonth = new Date(startDate);
     while (currentMonth <= endDate) {
       const monthKey = currentMonth.toLocaleString("pt-BR", { month: "short" });
       aggregatedData.push({

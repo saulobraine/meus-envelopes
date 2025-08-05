@@ -6,14 +6,12 @@ import { getAuthenticatedUser } from "@/lib/supabase/server";
 export async function get() {
   const { user } = await getAuthenticatedUser();
 
-  const transactions = await prisma.transaction.findMany({
+  const envelopes = await prisma.envelope.findMany({
     where: {
-      userId: user.id,
+      OR: [{ userId: user.id }, { isGlobal: true }],
     },
-    orderBy: {
-      date: "desc",
-    },
+    orderBy: { name: "asc" },
   });
 
-  return transactions;
+  return envelopes;
 }

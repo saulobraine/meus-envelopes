@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect } from "react";
-import { getTransactions } from "@/app/_actions/transactions";
+import { get as getTransactions } from "@/app/_actions/transactions/get";
 import { formatCurrency } from "@/lib/utils";
 import { Suspense } from "react";
 import { EditTransactionDialog } from "@/components/transactions/EditTransactionDialog";
@@ -317,10 +317,6 @@ function TransacoesPageContent() {
           transaction={editingTransaction}
           open={!!editingTransaction}
           onOpenChange={(open) => !open && setEditingTransaction(null)}
-          onSave={(updatedTransaction) => {
-            // In a real app, you would update the transaction in your data source
-            setEditingTransaction(null);
-          }}
         />
       )}
     </div>

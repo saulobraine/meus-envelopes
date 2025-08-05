@@ -1,3 +1,5 @@
+"use server";
+
 import { render } from '@react-email/render'
 import NewTransactionEmail from '@/emails/NewTransactionEmail'
 import { transporter } from '@/lib/email'

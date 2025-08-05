@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { DollarSign, TrendingUp, CreditCard, Receipt } from "lucide-react";
-import { getDashboardOverview } from "@/app/_actions/dashboard";
+import { getDashboardOverview } from "@/app/_actions/dashboard/getDashboardOverview";
 import { formatCurrency } from "@/lib/utils";
 
 export const OverviewCards = async () => {

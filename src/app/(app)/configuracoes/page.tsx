@@ -1,4 +1,4 @@
-import { updateUserProfile } from "@/app/_actions/user";
+import { updateUserProfile } from "@/app/_actions/user/updateUserProfile";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import {
   Card,

@@ -18,16 +18,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import { getFinancialChartData } from "@/app/_actions/dashboard";
+import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
 
 interface FinancialChartProps {
   initialChartData: any[];
 }
 
 export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
-  const [selectedPeriod, setSelectedPeriod] = useState<"this-month" | "last-month" | "6-months" | "12-months" | "all-time">("this-month");
-  const [chartData, setChartData] = useState<any[]>(initialChartData);
-  const [loading, setLoading] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<
+    "this-month" | "last-month" | "6-months" | "12-months" | "all-time"
+  >("this-month");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +36,8 @@ export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
       setChartData(data);
       setLoading(false);
     };
-    if (selectedPeriod !== "this-month") { // Only fetch if not initial data
+    if (selectedPeriod !== "this-month") {
+      // Only fetch if not initial data
       fetchData();
     }
   }, [selectedPeriod]);
@@ -47,9 +48,7 @@ export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
         <h3 className="text-lg font-semibold">Evolução Patrimonial</h3>
         <Select
           value={selectedPeriod}
-          onValueChange={(value) =>
-            setSelectedPeriod(value)
-          }
+          onValueChange={(value) => setSelectedPeriod(value)}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Selecione o período" />
@@ -66,7 +65,7 @@ export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
       <div className="h-[400px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={chartData}
+            data={initialChartData}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -103,3 +102,6 @@ export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
     </Card>
   );
 };
+function setLoading(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}

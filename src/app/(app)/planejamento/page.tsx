@@ -13,17 +13,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  createEnvelope,
-  deleteEnvelope,
-  getEnvelopes,
+  create as createEnvelope,
+  remove as deleteEnvelope,
+  get as getEnvelopes,
 } from "@/app/_actions/envelope";
 
 export default async function PlanningPage() {
-  const { user } = await getAuthenticatedUser();
-
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
-
   const [envelopes] = await Promise.all([getEnvelopes()]);
 
   return (
@@ -72,7 +67,7 @@ export default async function PlanningPage() {
                       : `${envelope.value}%`}
                     )
                   </span>
-                  {(!envelope.isGlobal) && (
+                  {!envelope.isGlobal && (
                     <form
                       action={async () => {
                         "use server";

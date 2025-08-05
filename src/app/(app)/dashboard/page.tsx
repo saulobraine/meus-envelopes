@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
 import { FinancialChart } from "@/components/dashboard/FinancialChart";
-import { getFinancialChartData } from "@/app/_actions/dashboard";
+import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
 
 export default async function DashboardPage() {
   const initialChartData = await getFinancialChartData("this-month");
@@ -20,7 +20,6 @@ export default async function DashboardPage() {
       <Suspense fallback={<div>Loading financial chart...</div>}>
         <FinancialChart initialChartData={initialChartData} />
       </Suspense>
-
     </div>
   );
 }

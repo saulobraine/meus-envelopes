@@ -25,112 +25,52 @@ enum BudgetType {
 }
 
 model User {
-  id             String                @id @default(uuid())
-  email          String                @unique
-  name           String?
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  transactions     Transaction[]
-  
-  ownedAccounts  SharedAccountAccess[] @relation("OwnerAccounts")
-  memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
-  importSessions ImportSession[]
-  envelopes      Envelope[]
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+  envelopes    Envelope[]
 }
 
 model Envelope {
-  id          String      @id @default(uuid())
-  name        String
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
-  value       Int
-  type        BudgetType
-  isDeletable Boolean     @default(true)
-  isGlobal    Boolean     @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  transactions  Transaction[]
+  id           String        @id @default(uuid())
+  name         String
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id])
+  value        Int
+  type         BudgetType
+  isDeletable  Boolean       @default(true)
+  isGlobal     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
 
   @@index([userId])
 }
 
 model Transaction {
-  id              String            @id @default(cuid())
-  userId          String
-  date            DateTime
-  description     String
-  amount          Int // Stored in cents
-  type            TransactionType
-  envelopeId      String
-  status          TransactionStatus @default(COMPLETED)
-  scheduledAt     DateTime?
-  processedAt     DateTime?
-  importSessionId String?
-  importSession   ImportSession?    @relation(fields: [importSessionId], references: [id])
+  id          String            @id @default(cuid())
+  userId      String
+  date        DateTime
+  description String
+  amount      Int // Stored in cents
+  type        TransactionType
+  envelopeId  String
+  status      TransactionStatus @default(COMPLETED)
+  scheduledAt DateTime?
+  processedAt DateTime?
 
   envelope Envelope @relation(fields: [envelopeId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([envelopeId])
-  @@index([importSessionId])
 }
 
 enum TransactionStatus {
   COMPLETED
   PENDING
   SCHEDULED
-}
-
-model ImportSession {
-  id            String                     @id @default(cuid())
-  userId        String
-  createdAt     DateTime                   @default(now())
-  fileName      String
-  importedCount Int                        @default(0)
-  ignoredCount  Int                        @default(0)
-  errorCount    Int                        @default(0)
-  transactions  Transaction[]
-  errors        Json?
-  previewItems  ImportTransactionPreview[]
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-}
-
-model ImportTransactionPreview {
-  id              String        @id @default(cuid())
-  importSessionId String
-  status          PreviewStatus
-  resolved        Boolean       @default(false)
-  data            Json
-
-  importSession ImportSession @relation(fields: [importSessionId], references: [id])
-
-  @@index([importSessionId])
-}
-
-enum PreviewStatus {
-  NEW
-  PENDING
-  DUPLICATE
-  ERROR
-  CONFIRMED
-}
-
-
-
-model SharedAccountAccess {
-  id        String   @id @default(uuid())
-  ownerId   String
-  owner     User     @relation("OwnerAccounts", fields: [ownerId], references: [id])
-  memberId  String
-  member    User     @relation("MemberAccounts", fields: [memberId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([ownerId, memberId])
-  @@index([ownerId])
-  @@index([memberId])
 }

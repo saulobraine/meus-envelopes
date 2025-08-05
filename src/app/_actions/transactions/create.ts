@@ -1,3 +1,5 @@
+"use server";
+
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +16,7 @@ const transactionSchema = z.object({
   envelopeId: z.string().optional(),
 });
 
-export async function createTransaction(formData: FormData) {
+export async function create(formData: FormData) {
   const { user } = await getAuthenticatedUser();
 
   const dateString = formData.get("date") as string;
