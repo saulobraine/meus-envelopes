@@ -15,12 +15,9 @@ import {
   FolderOpen,
   Receipt,
   Repeat,
-  Gear,
+  GearSix,
   SignOut,
   ArrowsLeftRight,
-  DownloadSimple,
-  UploadSimple,
-  CalendarBlank,
 } from "phosphor-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { FloatingMenu } from "@/components/ui/floating-menu";
@@ -42,7 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, Settings, Users, Building } from "lucide-react";
+import { TrendUp, Users, Buildings } from "phosphor-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -56,7 +53,7 @@ const menuItems = [
     label: "Pagamentos Recorrentes",
     path: "/pagamentos-recorrentes",
   },
-  { icon: Gear, label: "Configurações", path: "/configuracoes" },
+  { icon: GearSix, label: "Configurações", path: "/configuracoes" },
 ];
 
 const UserDropdown = () => {
@@ -136,7 +133,7 @@ const UserDropdown = () => {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          <Gear className="mr-2 h-4 w-4" />
+          <GearSix className="mr-2 h-4 w-4" />
           <span>Configurações do perfil</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setShowAccountSwitcher(true)}>
@@ -170,9 +167,9 @@ const SharedAccountSidebar = () => {
   };
 
   const sharedMenuItems = [
-    { name: "Visão Geral", path: "/shared/overview", icon: TrendingUp },
+    { name: "Visão Geral", path: "/shared/overview", icon: TrendUp },
     { name: "Membros", path: "/shared/members", icon: Users },
-    { name: "Configurações", path: "/shared/settings", icon: Settings },
+    { name: "Configurações", path: "/shared/settings", icon: GearSix },
   ];
 
   if (!hasSharedAccount) return null;
@@ -184,7 +181,7 @@ const SharedAccountSidebar = () => {
           <TooltipProvider>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Building className="h-4 w-4 text-primary" />
+                <Buildings className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">Conta Compartilhada</span>
               </div>
 
@@ -229,7 +226,7 @@ const SharedAccountSidebar = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="sm" className="w-full p-2">
-                  <Building className="h-4 w-4" />
+                  <Buildings className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">

@@ -4,7 +4,8 @@ import { getDashboardOverview } from "@/app/_actions/dashboard/getDashboardOverv
 import { formatCurrency } from "@/lib/utils";
 
 export const OverviewCards = async () => {
-  const { totalBalance, monthlyIncome, monthlyExpenses, amountToReceive } = await getDashboardOverview();
+  const { totalBalance, monthlyIncome, monthlyExpenses, amountToReceive } =
+    await getDashboardOverview();
 
   const metrics = [
     {

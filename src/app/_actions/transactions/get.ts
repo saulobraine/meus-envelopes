@@ -10,6 +10,9 @@ export async function get() {
     where: {
       userId: user.id,
     },
+    include: {
+      envelope: true,
+    },
     orderBy: {
       date: "desc",
     },

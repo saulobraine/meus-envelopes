@@ -1,6 +1,12 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingDown, TrendingUp, Search, Edit, Filter } from "lucide-react";
+import {
+  TrendDown,
+  TrendUp,
+  MagnifyingGlass,
+  PencilSimple,
+  Faders,
+} from "phosphor-react";
 import { AddTransactionDialog } from "@/components/transactions/AddTransactionDialog";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -25,16 +31,7 @@ import { get as getTransactions } from "@/app/_actions/transactions/get";
 import { formatCurrency } from "@/lib/utils";
 import { Suspense } from "react";
 import { EditTransactionDialog } from "@/components/transactions/EditTransactionDialog";
-
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  date: Date;
-  type: "INCOME" | "EXPENSE";
-  envelopeId: string | null;
-  envelope: { name: string } | null;
-}
+import { Transaction } from "@/types/transaction";
 
 export default function TransacoesPageWrapper() {
   return (
@@ -107,7 +104,7 @@ function TransacoesPageContent() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Entradas</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
+            <TrendUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">
@@ -123,7 +120,7 @@ function TransacoesPageContent() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Saídas</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-500" />
+            <TrendDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-500">
@@ -163,7 +160,7 @@ function TransacoesPageContent() {
             <CardTitle>Histórico de Transações</CardTitle>
             <div className="flex flex-col md:flex-row gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder="Pesquisar..."
                   value={searchTerm}
@@ -175,7 +172,7 @@ function TransacoesPageContent() {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Faders className="h-4 w-4 text-muted-foreground" />
                 <Select
                   value={selectedEnvelope}
                   onValueChange={(value) => {
@@ -253,7 +250,7 @@ function TransacoesPageContent() {
                           }
                         }}
                       >
-                        <Edit className="h-4 w-4" />
+                        <PencilSimple className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -317,6 +314,14 @@ function TransacoesPageContent() {
           transaction={editingTransaction}
           open={!!editingTransaction}
           onOpenChange={(open) => !open && setEditingTransaction(null)}
+          onSave={(updatedTransaction) => {
+            setTransactions((prev) =>
+              prev.map((t) =>
+                t.id === updatedTransaction.id ? updatedTransaction : t
+              )
+            );
+            setEditingTransaction(null);
+          }}
         />
       )}
     </div>

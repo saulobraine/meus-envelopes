@@ -20,6 +20,17 @@ export async function create(formData: FormData) {
     type: formData.get("type") as string,
   });
 
+  const existingEnvelope = await prisma.envelope.findFirst({
+    where: {
+      name: parsed.name,
+      userId: user.id,
+    },
+  });
+
+  if (existingEnvelope) {
+    throw new Error("Já existe um envelope com este nome.");
+  }
+
   await prisma.envelope.create({
     data: {
       ...parsed,

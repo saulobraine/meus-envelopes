@@ -8,14 +8,14 @@ import { Input } from "@/components/ui/input";
 import {
   Plus,
   Calendar,
-  DollarSign,
+  CurrencyDollar,
   User,
   Clock,
-  Search,
-  RefreshCw,
+  MagnifyingGlass,
+  ArrowClockwise,
   Repeat,
-  Edit,
-} from "lucide-react";
+  PencilSimple,
+} from "phosphor-react";
 import { AddReceivableDialog } from "./AddReceivableDialog";
 import { EditReceivableDialog } from "./EditReceivableDialog";
 import {
@@ -114,7 +114,7 @@ export function ReceivablesManager() {
       case "weekly":
         return <Clock className="h-4 w-4 text-blue-500" />;
       case "monthly":
-        return <RefreshCw className="h-4 w-4 text-green-500" />;
+        return <ArrowClockwise className="h-4 w-4 text-green-500" />;
       case "yearly":
         return <Calendar className="h-4 w-4 text-purple-500" />;
       default:
@@ -163,7 +163,7 @@ export function ReceivablesManager() {
             <CardTitle className="text-sm font-medium">
               Total a Receber
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
@@ -218,7 +218,7 @@ export function ReceivablesManager() {
         <CardContent className="space-y-4">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Pesquisar por descrição ou cliente..."
               value={searchTerm}
@@ -269,7 +269,7 @@ export function ReceivablesManager() {
                         size="sm"
                         onClick={() => setEditingReceivable(receivable)}
                       >
-                        <Edit className="h-4 w-4" />
+                        <PencilSimple className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="text-sm text-muted-foreground flex items-center gap-1">

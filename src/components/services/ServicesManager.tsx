@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Package } from "phosphor-react";
-import { Search, DollarSign } from "lucide-react";
+import { Plus, Archive } from "phosphor-react";
+import { MagnifyingGlass, CurrencyDollar } from "phosphor-react";
 import { AddServiceDialog } from "./AddServiceDialog";
 
 export interface Service {
@@ -99,7 +99,7 @@ export function ServicesManager() {
             <CardTitle className="text-sm font-medium">
               Total de Serviços
             </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <Archive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{services.length}</div>
@@ -111,7 +111,7 @@ export function ServicesManager() {
             <CardTitle className="text-sm font-medium">
               Serviços Ativos
             </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <Archive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -123,7 +123,7 @@ export function ServicesManager() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -136,7 +136,7 @@ export function ServicesManager() {
       {/* Header with Search and Add Button */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Buscar serviços..."
             value={searchTerm}
@@ -189,7 +189,7 @@ export function ServicesManager() {
 
       {filteredServices.length === 0 && (
         <div className="text-center py-12">
-          <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <Archive className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">
             {searchTerm
               ? "Nenhum serviço encontrado"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Home, RefreshCw } from "lucide-react";
+import { House, ArrowClockwise } from "phosphor-react";
 
 export default function NotFound() {
   return (
@@ -29,7 +29,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild variant="default" size="lg">
             <Link href="/">
-              <Home className="mr-2 h-4 w-4" />
+              <House className="mr-2 h-4 w-4" />
               Voltar ao Início
             </Link>
           </Button>
@@ -38,7 +38,7 @@ export default function NotFound() {
             size="lg"
             onClick={() => window.location.reload()}
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
+            <ArrowClockwise className="mr-2 h-4 w-4" />
             Tentar Novamente
           </Button>
         </div>

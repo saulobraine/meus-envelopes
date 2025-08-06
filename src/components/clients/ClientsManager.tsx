@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Users } from "phosphor-react";
-import { Search, Mail, Phone } from "lucide-react";
+import { MagnifyingGlass, Envelope, Phone } from "phosphor-react";
 import { AddClientDialog } from "./AddClientDialog";
 
 export interface Client {
@@ -138,7 +138,7 @@ export function ClientsManager() {
       {/* Header with Search and Add Button */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Buscar clientes..."
             value={searchTerm}
@@ -179,7 +179,7 @@ export function ClientsManager() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <Envelope className="h-4 w-4 text-muted-foreground" />
                       <span>{client.email}</span>
                     </div>
                     <div className="flex items-center gap-2">
