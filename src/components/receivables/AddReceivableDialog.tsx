@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -19,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 interface AddReceivableDialogProps {
   open: boolean;
@@ -40,109 +40,115 @@ export function AddReceivableDialog({
   onOpenChange,
   onAdd,
 }: AddReceivableDialogProps) {
-  const [formData, setFormData] = useState<{
-    description: string;
-    amount: string;
-    dueDate: string;
-    client: string;
-    status: "pending" | "received" | "overdue";
-    isRecurring: boolean;
-    frequency: "weekly" | "monthly" | "yearly";
-    envelope: string;
-  }>({
+  const [formData, setFormData] = useState({
     description: "",
     amount: "",
     dueDate: "",
     client: "",
-    status: "pending",
+    status: "pending" as "pending" | "received" | "overdue",
     isRecurring: false,
-    frequency: "monthly",
+    frequency: "monthly" as "weekly" | "monthly" | "yearly",
     envelope: "",
   });
 
   const envelopes = [
-    "Receitas",
-    "Trabalho Extra",
-    "Prestação de Serviços",
     "Vendas",
+    "Serviços",
     "Consultoria",
-    "Freelance",
-    "Investimentos",
+    "Licenciamento",
     "Outros",
+  ];
+
+  const clients = [
+    "Cliente A",
+    "Cliente B",
+    "Cliente C",
+    "Cliente D",
+    "Cliente E",
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (
-      formData.description &&
-      formData.amount &&
-      formData.dueDate &&
-      formData.client &&
-      formData.envelope
+      !formData.description ||
+      !formData.amount ||
+      !formData.dueDate ||
+      !formData.client
     ) {
-      onAdd({
-        description: formData.description,
-        amount: parseFloat(formData.amount),
-        dueDate: formData.dueDate,
-        client: formData.client,
-        status: formData.status,
-        isRecurring: formData.isRecurring,
-        frequency: formData.isRecurring ? formData.frequency : undefined,
-        envelope: formData.envelope,
-      });
-      setFormData({
-        description: "",
-        amount: "",
-        dueDate: "",
-        client: "",
-        status: "pending",
-        isRecurring: false,
-        frequency: "monthly",
-        envelope: "",
-      });
-      onOpenChange(false);
+      return;
     }
+
+    onAdd({
+      description: formData.description,
+      amount: parseFloat(formData.amount.replace(/\D/g, "")) / 100,
+      dueDate: formData.dueDate,
+      client: formData.client,
+      status: formData.status,
+      isRecurring: formData.isRecurring,
+      frequency: formData.isRecurring ? formData.frequency : undefined,
+      envelope: formData.envelope || undefined,
+    });
+
+    setFormData({
+      description: "",
+      amount: "",
+      dueDate: "",
+      client: "",
+      status: "pending",
+      isRecurring: false,
+      frequency: "monthly",
+      envelope: "",
+    });
+
+    onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Nova Conta a Receber</DialogTitle>
+          <DialogTitle>Novo Recebível</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
-            <Textarea
+            <Input
               id="description"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder="Descrição do serviço/produto"
+              placeholder="Ex: Venda de produto, Serviço de consultoria..."
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="client">Cliente</Label>
-            <Input
-              id="client"
+            <Select
               value={formData.client}
-              onChange={(e) =>
-                setFormData({ ...formData, client: e.target.value })
+              onValueChange={(value) =>
+                setFormData({ ...formData, client: value })
               }
-              placeholder="Nome do cliente"
-              required
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map((client) => (
+                  <SelectItem key={client} value={client}>
+                    {client}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="amount">Valor</Label>
-            <Input
+            <CurrencyInput
               id="amount"
-              type="number"
-              step="0.01"
               value={formData.amount}
               onChange={(e) =>
                 setFormData({ ...formData, amount: e.target.value })
@@ -252,10 +258,7 @@ export function AddReceivableDialog({
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              className="flex-1 purple-gradient shadow-purple-glow"
-            >
+            <Button type="submit" className="flex-1">
               Adicionar
             </Button>
           </div>

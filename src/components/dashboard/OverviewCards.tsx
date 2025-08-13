@@ -1,48 +1,88 @@
-import { Card } from "@/components/ui/card";
-import { DollarSign, TrendingUp, CreditCard, Receipt } from "lucide-react";
-import { getDashboardOverview } from "@/app/_actions/dashboard/getDashboardOverview";
-import { formatCurrency } from "@/lib/utils";
+"use client";
 
-export const OverviewCards = async () => {
-  const { totalBalance, monthlyIncome, monthlyExpenses, amountToReceive } =
-    await getDashboardOverview();
+import { Card } from "@/components/ui/card";
+import { CurrencyDollar, TrendUp, CreditCard, Receipt } from "phosphor-react";
+import { getDashboardOverview } from "@/app/_actions/dashboard/getDashboardOverview";
+import { formatCurrency } from "@/lib/currency";
+import { useEffect, useState } from "react";
+
+export const OverviewCards = () => {
+  const [data, setData] = useState({
+    totalBalance: 0,
+    monthlyIncome: 0,
+    monthlyExpenses: 0,
+    amountToReceive: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getDashboardOverview();
+        setData(result);
+      } catch (error) {
+        console.error("Erro ao carregar dados do dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="p-6">
+            <div className="animate-pulse">
+              <div className="h-8 w-8 bg-muted rounded mb-4"></div>
+              <div className="h-4 w-24 bg-muted rounded mb-2"></div>
+              <div className="h-8 w-32 bg-muted rounded"></div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   const metrics = [
     {
       title: "Saldo Total",
-      value: formatCurrency(totalBalance),
-      change: "", // Change will be calculated or fetched separately if needed
-      icon: DollarSign,
+      value: formatCurrency(data.totalBalance),
+      change: "",
+      icon: CurrencyDollar,
       trend: "",
     },
     {
       title: "Entradas",
-      value: formatCurrency(monthlyIncome),
+      value: formatCurrency(data.monthlyIncome),
       change: "",
-      icon: TrendingUp,
+      icon: TrendUp,
       trend: "",
     },
     {
       title: "Saídas",
-      value: formatCurrency(monthlyExpenses),
+      value: formatCurrency(data.monthlyExpenses),
       change: "",
       icon: CreditCard,
       trend: "",
     },
     {
       title: "A Receber",
-      value: formatCurrency(amountToReceive),
+      value: formatCurrency(data.amountToReceive),
       change: "",
       icon: Receipt,
       trend: "",
     },
   ];
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric) => (
         <Card
           key={metric.title}
-          className="p-6 hover:shadow-lg transition-shadow"
+          className="p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <metric.icon className="h-8 w-8 text-secondary" />

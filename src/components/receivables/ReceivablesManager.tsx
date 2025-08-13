@@ -26,6 +26,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { formatCurrency } from "@/lib/currency";
 
 interface Receivable {
   id: string;
@@ -43,34 +44,30 @@ export function ReceivablesManager() {
   const [receivables, setReceivables] = useState<Receivable[]>([
     {
       id: "1",
-      description: "Projeto Website",
-      amount: 2500.0,
-      dueDate: "2024-01-15",
+      description: "Consultoria Financeira",
+      amount: 250000, // R$ 2.500,00 em centavos
+      dueDate: "2024-02-15",
       client: "Empresa ABC",
       status: "pending",
-      isRecurring: true,
-      frequency: "monthly",
-      envelope: "Prestação de Serviços",
-    },
-    {
-      id: "2",
-      description: "Consultoria Marketing",
-      amount: 1800.0,
-      dueDate: "2024-01-10",
-      client: "Cliente XYZ",
-      status: "overdue",
       envelope: "Consultoria",
     },
     {
+      id: "2",
+      description: "Desenvolvimento de Software",
+      amount: 500000, // R$ 5.000,00 em centavos
+      dueDate: "2024-02-20",
+      client: "Startup XYZ",
+      status: "received",
+      envelope: "Tecnologia",
+    },
+    {
       id: "3",
-      description: "Serviço Mensal",
-      amount: 1200.0,
-      dueDate: "2024-02-01",
-      client: "Empresa DEF",
-      status: "pending",
-      isRecurring: true,
-      frequency: "weekly",
-      envelope: "Trabalho Extra",
+      description: "Marketing Digital",
+      amount: 180000, // R$ 1.800,00 em centavos
+      dueDate: "2024-02-10",
+      client: "Loja Online",
+      status: "overdue",
+      envelope: "Marketing",
     },
   ]);
 
@@ -135,13 +132,6 @@ export function ReceivablesManager() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(amount);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
@@ -158,7 +148,7 @@ export function ReceivablesManager() {
     <div className="space-y-6">
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="shadow-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total a Receber
@@ -172,7 +162,7 @@ export function ReceivablesManager() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total em Atraso
@@ -186,7 +176,7 @@ export function ReceivablesManager() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total de Contas
@@ -208,7 +198,7 @@ export function ReceivablesManager() {
             <CardTitle>Contas a Receber</CardTitle>
             <Button
               onClick={() => setIsDialogOpen(true)}
-              className="purple-gradient shadow-purple-glow"
+              className="purple-gradient"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nova Conta
@@ -224,7 +214,7 @@ export function ReceivablesManager() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page when searching
+                setCurrentPage(1); // Voltar para primeira página ao pesquisar
               }}
               className="pl-10"
             />
@@ -289,7 +279,7 @@ export function ReceivablesManager() {
             )}
           </div>
 
-          {/* Pagination */}
+          {/* Paginação */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-6">
               <Pagination>

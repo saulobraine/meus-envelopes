@@ -10,7 +10,7 @@ export default function NotFound() {
       <div className="text-center max-w-2xl px-8">
         {/* Imagem cômica do gato */}
         <div className="mb-8">
-          <div className="mx-auto rounded-lg shadow-lg w-64 h-48 bg-muted flex items-center justify-center">
+          <div className="mx-auto rounded-lg w-64 h-48 bg-muted flex items-center justify-center">
             <span className="text-6xl">🐱</span>
           </div>
         </div>

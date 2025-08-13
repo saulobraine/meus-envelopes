@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Service } from "./ServicesManager";
 
 interface AddServiceDialogProps {
@@ -35,11 +36,11 @@ export function AddServiceDialog({
     name: "",
     description: "",
     price: "",
-    category: "",
+    envelope: "",
     isActive: true,
   });
 
-  const categories = [
+  const envelopes = [
     "Consultoria",
     "Tecnologia",
     "Marketing",
@@ -52,15 +53,15 @@ export function AddServiceDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.price || !formData.category) {
+    if (!formData.name || !formData.price || !formData.envelope) {
       return;
     }
 
     onAdd({
       name: formData.name,
       description: formData.description,
-      price: parseFloat(formData.price),
-      category: formData.category,
+      price: parseFloat(formData.price.replace(/\D/g, "")) / 100,
+      envelope: formData.envelope,
       isActive: formData.isActive,
     });
 
@@ -68,7 +69,7 @@ export function AddServiceDialog({
       name: "",
       description: "",
       price: "",
-      category: "",
+      envelope: "",
       isActive: true,
     });
 
@@ -115,11 +116,8 @@ export function AddServiceDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="price">Preço (R$)</Label>
-              <Input
+              <CurrencyInput
                 id="price"
-                type="number"
-                min="0"
-                step="0.01"
                 value={formData.price}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, price: e.target.value }))
@@ -130,11 +128,11 @@ export function AddServiceDialog({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="category">Categoria</Label>
+              <Label htmlFor="envelope">Envelope</Label>
               <Select
-                value={formData.category}
+                value={formData.envelope}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, category: value }))
+                  setFormData((prev) => ({ ...prev, envelope: value }))
                 }
                 required
               >
@@ -142,9 +140,9 @@ export function AddServiceDialog({
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+                  {envelopes.map((envelope) => (
+                    <SelectItem key={envelope} value={envelope}>
+                      {envelope}
                     </SelectItem>
                   ))}
                 </SelectContent>

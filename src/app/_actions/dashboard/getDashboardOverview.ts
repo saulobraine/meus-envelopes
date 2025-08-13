@@ -6,15 +6,31 @@ import { prisma } from "@/lib/prisma";
 export async function getDashboardOverview() {
   const { user } = await getAuthenticatedUser();
 
-  // Fetch total balance
-  const totalBalance = await prisma.transaction.aggregate({
+  // Fetch total income
+  const totalIncome = await prisma.transaction.aggregate({
     _sum: {
       amount: true,
     },
     where: {
       userId: user.id,
+      type: "INCOME",
     },
   });
+
+  // Fetch total expenses
+  const totalExpenses = await prisma.transaction.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      userId: user.id,
+      type: "EXPENSE",
+    },
+  });
+
+  // Calculate total balance (income - expenses)
+  const totalBalance =
+    (totalIncome._sum.amount || 0) - (totalExpenses._sum.amount || 0);
 
   // Fetch total income for the current month
   const startOfMonth = new Date();
@@ -73,7 +89,7 @@ export async function getDashboardOverview() {
   });
 
   return {
-    totalBalance: totalBalance._sum.amount || 0,
+    totalBalance: totalBalance,
     monthlyIncome: monthlyIncome._sum.amount || 0,
     monthlyExpenses: monthlyExpenses._sum.amount || 0,
     amountToReceive: amountToReceive._sum.amount || 0,

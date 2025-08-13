@@ -99,14 +99,6 @@
   background: var(--gradient-subtle);
 }
 
-@utility shadow-purple {
-  box-shadow: var(--shadow-purple);
-}
-
-@utility shadow-purple-glow {
-  box-shadow: var(--shadow-glow);
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -141,8 +133,6 @@
       hsl(270 95% 98%),
       hsl(270 30% 96%)
     );
-    --shadow-purple: 0 10px 30px -10px hsl(271 81% 56% / 0.3);
-    --shadow-glow: 0 0 40px hsl(280 100% 70% / 0.4);
   }
 
   .dark {
@@ -177,8 +167,6 @@
       hsl(270 15% 12%),
       hsl(270 15% 8%)
     );
-    --shadow-purple: 0 10px 30px -10px hsl(271 81% 56% / 0.5);
-    --shadow-glow: 0 0 40px hsl(280 100% 70% / 0.6);
   }
 }
 

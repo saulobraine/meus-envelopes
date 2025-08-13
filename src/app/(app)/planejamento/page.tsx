@@ -1,4 +1,4 @@
-import { getAuthenticatedUser } from "@/lib/supabase/server";
+import { Suspense } from "react";
 import { formatCurrency } from "@/lib/currency";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,17 @@ import {
   remove as deleteEnvelope,
   get as getEnvelopes,
 } from "@/app/_actions/envelope";
+import { PlanningSkeleton } from "@/components/ui/skeletons";
 
-export default async function PlanningPage() {
+export default function PlanningPageWrapper() {
+  return (
+    <Suspense fallback={<PlanningSkeleton />}>
+      <PlanningPageContent />
+    </Suspense>
+  );
+}
+
+async function PlanningPageContent() {
   const [envelopes] = await Promise.all([getEnvelopes()]);
 
   return (

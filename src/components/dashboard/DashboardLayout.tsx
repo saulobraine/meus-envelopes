@@ -68,7 +68,7 @@ const UserDropdown = () => {
   if (showAccountSwitcher) {
     return (
       <div className="relative">
-        <Card className="w-80 shadow-lg absolute right-0 top-0 z-50">
+        <Card className="w-80 absolute right-0 top-0 z-50">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm">Trocar de Conta</CardTitle>

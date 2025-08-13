@@ -7,26 +7,55 @@ import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { sendNewTransactionEmail } from "../email/sendNewTransactionEmail";
 import { parseCurrency } from "@/lib/currency";
 import { TransactionType } from "@prisma/client";
+import { getOrCreateDefaultEnvelope } from "@/lib/envelope";
 
 const transactionSchema = z.object({
   amount: z.number().int().positive(),
   type: z.enum(["INCOME", "EXPENSE"]),
   description: z.string().optional(),
   date: z.coerce.date(),
-  envelopeId: z.string().optional(),
+  envelopeId: z
+    .string()
+    .optional()
+    .nullable()
+    .or(z.undefined())
+    .or(z.literal(""))
+    .or(z.literal("null"))
+    .or(z.literal("undefined"))
+    .or(z.literal("0")),
 });
 
 export async function create(formData: FormData) {
   const { user } = await getAuthenticatedUser();
 
   const dateString = formData.get("date") as string;
+  const envelopeIdFromForm = formData.get("envelopeId") as string | null;
+
   const parsed = transactionSchema.parse({
     amount: parseCurrency(formData.get("amount") as string),
     type: formData.get("type") as "INCOME" | "EXPENSE",
     description: formData.get("description") as string,
     date: new Date(dateString).toISOString(),
-    envelopeId: formData.get("envelopeId") as string,
+    envelopeId:
+      envelopeIdFromForm === "" ||
+      envelopeIdFromForm === "null" ||
+      envelopeIdFromForm === "undefined" ||
+      envelopeIdFromForm === "0"
+        ? undefined
+        : envelopeIdFromForm,
   });
+
+  // Ensure we have a valid envelope ID
+  let envelopeId = parsed.envelopeId;
+  if (
+    !envelopeId ||
+    envelopeId.trim() === "" ||
+    envelopeId === "null" ||
+    envelopeId === "undefined" ||
+    envelopeId === "0"
+  ) {
+    envelopeId = await getOrCreateDefaultEnvelope();
+  }
 
   const newTransaction = await prisma.transaction.create({
     data: {
@@ -34,7 +63,7 @@ export async function create(formData: FormData) {
       type: parsed.type as TransactionType,
       date: parsed.date,
       description: parsed.description ?? "",
-      envelopeId: parsed.envelopeId ?? "",
+      envelopeId,
       userId: user.id,
     },
     include: { envelope: true },
@@ -52,4 +81,6 @@ export async function create(formData: FormData) {
   }
 
   revalidatePath("/dashboard");
+
+  return newTransaction;
 }

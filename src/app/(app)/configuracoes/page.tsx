@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { updateUserProfile } from "@/app/_actions/user/updateUserProfile";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import {
@@ -10,8 +11,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { SettingsSkeleton } from "@/components/ui/skeletons";
 
-export default async function SettingsPage() {
+export default function SettingsPageWrapper() {
+  return (
+    <Suspense fallback={<SettingsSkeleton />}>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
+
+async function SettingsPageContent() {
   const { user } = await getAuthenticatedUser();
 
   return (

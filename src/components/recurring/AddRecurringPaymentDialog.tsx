@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 interface AddRecurringPaymentDialogProps {
   open: boolean;
@@ -25,9 +26,9 @@ interface AddRecurringPaymentDialogProps {
     amount: number;
     frequency: "monthly" | "quarterly" | "yearly";
     nextPayment: string;
-    category: string;
+    envelope: string;
     isActive: boolean;
-    envelope?: string;
+    envelopeType?: string;
   }) => void;
 }
 
@@ -41,17 +42,17 @@ export function AddRecurringPaymentDialog({
     amount: string;
     frequency: "monthly" | "quarterly" | "yearly";
     nextPayment: string;
-    category: string;
-    isActive: boolean;
     envelope: string;
+    isActive: boolean;
+    envelopeType: string;
   }>({
     description: "",
     amount: "",
     frequency: "monthly",
     nextPayment: "",
-    category: "",
-    isActive: true,
     envelope: "",
+    isActive: true,
+    envelopeType: "",
   });
 
   const envelopes = [
@@ -72,26 +73,26 @@ export function AddRecurringPaymentDialog({
       formData.description &&
       formData.amount &&
       formData.nextPayment &&
-      formData.category &&
-      formData.envelope
+      formData.envelope &&
+      formData.envelopeType
     ) {
       onAdd({
         description: formData.description,
-        amount: parseFloat(formData.amount),
+        amount: parseFloat(formData.amount.replace(/\D/g, "")) / 100,
         frequency: formData.frequency,
         nextPayment: formData.nextPayment,
-        category: formData.category,
-        isActive: formData.isActive,
         envelope: formData.envelope,
+        isActive: formData.isActive,
+        envelopeType: formData.envelopeType,
       });
       setFormData({
         description: "",
         amount: "",
         frequency: "monthly",
         nextPayment: "",
-        category: "",
-        isActive: true,
         envelope: "",
+        isActive: true,
+        envelopeType: "",
       });
       onOpenChange(false);
     }
@@ -118,12 +119,12 @@ export function AddRecurringPaymentDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Categoria</Label>
+            <Label htmlFor="envelope">Envelope</Label>
             <Input
-              id="category"
-              value={formData.category}
+              id="envelope"
+              value={formData.envelope}
               onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
+                setFormData({ ...formData, envelope: e.target.value })
               }
               placeholder="Ex: Moradia, Utilities, Saúde..."
               required
@@ -132,10 +133,8 @@ export function AddRecurringPaymentDialog({
 
           <div className="space-y-2">
             <Label htmlFor="amount">Valor</Label>
-            <Input
+            <CurrencyInput
               id="amount"
-              type="number"
-              step="0.01"
               value={formData.amount}
               onChange={(e) =>
                 setFormData({ ...formData, amount: e.target.value })
@@ -170,9 +169,9 @@ export function AddRecurringPaymentDialog({
           <div className="space-y-2">
             <Label htmlFor="envelope">Envelope</Label>
             <Select
-              value={formData.envelope}
+              value={formData.envelopeType}
               onValueChange={(value) =>
-                setFormData({ ...formData, envelope: value })
+                setFormData({ ...formData, envelopeType: value })
               }
             >
               <SelectTrigger>
@@ -212,7 +211,7 @@ export function AddRecurringPaymentDialog({
             </Button>
             <Button
               type="submit"
-              className="flex-1 purple-gradient shadow-purple-glow"
+              className="flex-1 purple-gradient"
             >
               Adicionar
             </Button>

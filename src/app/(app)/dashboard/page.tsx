@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
-import { FinancialChart } from "@/components/dashboard/FinancialChart";
 import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
+import { ChartSkeleton } from "@/components/ui/skeletons";
 
 export default async function DashboardPage() {
   const initialChartData = await getFinancialChartData("this-month");
@@ -14,11 +14,14 @@ export default async function DashboardPage() {
           Acompanhe suas finanças em um só lugar
         </p>
       </div>
-      <Suspense fallback={<div>Loading overview cards...</div>}>
-        <OverviewCards />
-      </Suspense>
-      <Suspense fallback={<div>Loading financial chart...</div>}>
-        <FinancialChart initialChartData={initialChartData} />
+      <OverviewCards />
+      <Suspense fallback={<ChartSkeleton />}>
+        <div className="p-6 mt-6 bg-card rounded-lg">
+          <h3 className="text-lg font-semibold mb-4">Evolução Patrimonial</h3>
+          <p className="text-muted-foreground">
+            Gráfico temporariamente indisponível
+          </p>
+        </div>
       </Suspense>
     </div>
   );

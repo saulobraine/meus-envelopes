@@ -1,18 +1,20 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Plus,
-  Calendar,
-  CurrencyDollar,
-  Repeat,
   Clock,
-  PencilSimple,
+  ArrowClockwise,
+  Calendar,
+  Repeat,
+  CurrencyDollar,
 } from "phosphor-react";
 import { AddRecurringPaymentDialog } from "./AddRecurringPaymentDialog";
 import { EditRecurringPaymentDialog } from "./EditRecurringPaymentDialog";
+import { formatCurrency } from "@/lib/currency";
 
 interface RecurringPayment {
   id: string;
@@ -20,9 +22,9 @@ interface RecurringPayment {
   amount: number;
   frequency: "monthly" | "quarterly" | "yearly";
   nextPayment: string;
-  category: string;
+  envelope: string;
   isActive: boolean;
-  envelope?: string;
+  envelopeType?: string;
 }
 
 export function RecurringPaymentsManager() {
@@ -30,19 +32,19 @@ export function RecurringPaymentsManager() {
     {
       id: "1",
       description: "Aluguel",
-      amount: 1200.0,
+      amount: 120000, // R$ 1.200,00 em centavos
       frequency: "monthly",
       nextPayment: "2024-02-01",
-      category: "Moradia",
+      envelope: "Moradia",
       isActive: true,
     },
     {
       id: "2",
       description: "Internet",
-      amount: 89.9,
+      amount: 8990, // R$ 89,90 em centavos
       frequency: "monthly",
       nextPayment: "2024-01-20",
-      category: "Utilities",
+      envelope: "Utilities",
       isActive: true,
     },
   ]);
@@ -79,13 +81,6 @@ export function RecurringPaymentsManager() {
     return labels[frequency];
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(amount);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
@@ -99,6 +94,15 @@ export function RecurringPaymentsManager() {
       return sum;
     }, 0);
 
+  const totalYearly = payments
+    .filter((p) => p.isActive)
+    .reduce((sum, p) => {
+      if (p.frequency === "monthly") return sum + p.amount * 12;
+      if (p.frequency === "quarterly") return sum + p.amount * 4;
+      if (p.frequency === "yearly") return sum + p.amount;
+      return sum;
+    }, 0);
+
   const activePayments = payments.filter((p) => p.isActive).length;
   const upcomingPayments = payments.filter((p) => {
     const nextDate = new Date(p.nextPayment);
@@ -107,13 +111,15 @@ export function RecurringPaymentsManager() {
     return nextDate <= nextWeek && p.isActive;
   }).length;
 
+  const filteredPayments = payments.filter((p) => p.isActive);
+
   return (
     <div className="space-y-6">
       {/* Cards de Resumo */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="shadow-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Gasto Mensal</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Mensal</CardTitle>
             <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -123,29 +129,27 @@ export function RecurringPaymentsManager() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Próximos 7 dias
-            </CardTitle>
-            <Clock className="h-4 w-4 text-orange-500" />
+            <CardTitle className="text-sm font-medium">Total Anual</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-500">
-              {upcomingPayments}
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalYearly)}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Pagamentos Ativos
+              Total de Pagamentos
             </CardTitle>
             <Repeat className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activePayments}</div>
+            <div className="text-2xl font-bold">{filteredPayments.length}</div>
           </CardContent>
         </Card>
       </div>
@@ -157,7 +161,7 @@ export function RecurringPaymentsManager() {
             <CardTitle>Pagamentos Recorrentes</CardTitle>
             <Button
               onClick={() => setIsDialogOpen(true)}
-              className="purple-gradient shadow-purple-glow"
+              className="purple-gradient"
             >
               <Plus className="h-4 w-4 mr-2" />
               Novo Pagamento
@@ -186,10 +190,10 @@ export function RecurringPaymentsManager() {
                     </Badge>
                   </div>
                   <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <span>{payment.category}</span>
-                    {payment.envelope && (
+                    <span>{payment.envelope}</span>
+                    {payment.envelopeType && (
                       <Badge variant="outline" className="text-xs">
-                        {payment.envelope}
+                        {payment.envelopeType}
                       </Badge>
                     )}
                   </div>
@@ -209,7 +213,7 @@ export function RecurringPaymentsManager() {
                     size="sm"
                     onClick={() => setEditingPayment(payment)}
                   >
-                    <PencilSimple className="h-4 w-4" />
+                    {/* <PencilSimple className="h-4 w-4" /> */}
                   </Button>
                   <Button
                     variant="outline"

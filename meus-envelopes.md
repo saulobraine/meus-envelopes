@@ -2,7 +2,7 @@
 
 ### **1. Resumo do Projeto**
 
-**"MeusEnvelopes"** é um aplicativo de controle financeiro pessoal, projetado para ser simples, intuitivo e poderoso. Seu principal diferencial é um sistema de "orçamento por envelopes", que permite aos usuários alocar sua renda mensal em categorias de gastos de forma flexível e adaptável, seja por valores fixos ou por porcentagens da renda. O objetivo é dar ao usuário clareza total sobre seu fluxo de caixa e capacitá-lo a tomar decisões financeiras inteligentes.
+**"MeusEnvelopes"** é um aplicativo de controle financeiro pessoal, projetado para ser simples, intuitivo e poderoso. Seu principal diferencial é um sistema de "orçamento por envelopes", que permite aos usuários alocar sua renda mensal em envelopes de gastos de forma flexível e adaptável, seja por valores fixos ou por porcentagens da renda. O objetivo é dar ao usuário clareza total sobre seu fluxo de caixa e capacitá-lo a tomar decisões financeiras inteligentes.
 
 ### **2. Nome e Identidade Visual**
 
@@ -53,7 +53,7 @@ Aqui estão os prompts detalhados para cada fase do desenvolvimento.
 >
 > **Instruções:**
 >
-> 1.  **Modelagem de Dados (Prisma):** No `schema.prisma`, defina os modelos `User`, `Category` e `Transaction` (com Enum `TransactionType` para `INCOME` e `EXPENSE`). Documente todos os campos.
+> 1.  **Modelagem de Dados (Prisma):** No `schema.prisma`, defina os modelos `User`, `Envelope` e `Transaction` (com Enum `TransactionType` para `INCOME` e `EXPENSE`). Documente todos os campos.
 > 2.  Gere e aplique a `migration` e atualize o Prisma Client.
 > 3.  **Autenticação:** Configure o provedor Google no Supabase. Crie a página de Login (`app/login/page.tsx`), a rota de callback (`app/auth/callback/route.ts`) e um `middleware.ts` para proteger as rotas da aplicação.
 
@@ -61,13 +61,13 @@ Aqui estão os prompts detalhados para cada fase do desenvolvimento.
 
 > **Prompt para IA - Etapa 2**
 >
-> **Assunto:** CRUD de Operações, Categorias e Construção do Dashboard Visual.
+> **Assunto:** CRUD de Operações, Envelopes e Construção do Dashboard Visual.
 >
 > **Instruções:**
 >
-> 1.  **Server Actions:** Crie Server Actions para o CRUD completo de `Transaction` e `Category`. Use Zod para validação e `revalidatePath` para atualizar a UI.
+> 1.  **Server Actions:** Crie Server Actions para o CRUD completo de `Transaction` e `Envelope`. Use Zod para validação e `revalidatePath` para atualizar a UI.
 > 2.  **Interface:** No dashboard (`app/dashboard/page.tsx`), desenvolva a UI para listar operações e um formulário para adicionar novas transações.
-> 3.  **Gráficos Iniciais:** Usando `recharts`, exiba um gráfico de barras (Receitas vs. Despesas do mês) e um gráfico de pizza (distribuição de despesas por categoria).
+> 3.  **Gráficos Iniciais:** Usando `recharts`, exiba um gráfico de barras (Receitas vs. Despesas do mês) e um gráfico de pizza (distribuição de despesas por envelope).
 
 #### **Etapa 3: Sistema de Planejamento e Envelopes de Gastos**
 
@@ -77,12 +77,12 @@ Aqui estão os prompts detalhados para cada fase do desenvolvimento.
 >
 > **Instruções:**
 >
-> 1.  **Modelagem de Dados (Prisma):** Adicione os modelos `MonthlyIncome` (renda mensal), `BudgetEnvelope` (envelopes principais com % de alocação) e `CategoryBudget` (orçamento da categoria, fixo ou % de um envelope). Execute a `migration`.
+> 1.  **Modelagem de Dados (Prisma):** Adicione os modelos `MonthlyIncome` (renda mensal), `BudgetEnvelope` (envelopes principais com % de alocação) e `EnvelopeBudget` (orçamento do envelope, fixo ou % de um envelope). Execute a `migration`.
 > 2.  **Página de Planejamento (`app/planning/page.tsx`):** Crie a interface para o usuário:
 >     - Registrar a renda do mês (fixa + variável).
 >     - Criar e gerenciar seus `BudgetEnvelopes`.
->     - Configurar o orçamento para cada categoria (valor fixo ou porcentagem de um envelope).
-> 3.  **Server Actions (`app/_actions/planning.ts`):** Implemente as ações para o CRUD dos novos modelos e uma função `getCalculatedBudgets(userId, month, year)` para calcular os limites de gasto em R$ para cada categoria.
+>     - Configurar o orçamento para cada envelope (valor fixo ou porcentagem de um envelope).
+> 3.  **Server Actions (`app/_actions/planning.ts`):** Implemente as ações para o CRUD dos novos modelos e uma função `getCalculatedBudgets(userId, month, year)` para calcular os limites de gasto em R$ para cada envelope.
 > 4.  **Integração com o Dashboard:** Atualize o dashboard para exibir o progresso dos gastos em relação aos limites calculados dinamicamente (ex: "Alimentação: Gasto R$ 250 de R$ 415").
 
 #### **Etapa 4: Colaboração e Notificações**

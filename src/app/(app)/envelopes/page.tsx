@@ -11,7 +11,7 @@ import { Trash } from "phosphor-react";
 import { useToast } from "@/hooks/use-toast";
 import { Envelope } from "@prisma/client";
 import { get, remove } from "@/app/_actions/envelope";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,8 +24,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { EnvelopeForm } from "@/components/envelopes/EnvelopeForm";
+import { EnvelopesSkeleton } from "@/components/ui/skeletons";
 
-export default function EnvelopesPage() {
+export default function EnvelopesPageWrapper() {
+  return (
+    <Suspense fallback={<EnvelopesSkeleton />}>
+      <EnvelopesPageContent />
+    </Suspense>
+  );
+}
+
+function EnvelopesPageContent() {
   const { toast } = useToast();
   const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
 

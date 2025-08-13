@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Archive } from "phosphor-react";
 import { MagnifyingGlass, CurrencyDollar } from "phosphor-react";
 import { AddServiceDialog } from "./AddServiceDialog";
+import { formatCurrency } from "@/lib/currency";
 
 export interface Service {
   id: string;
   name: string;
   description: string;
   price: number;
-  category: string;
+  envelope: string;
   isActive: boolean;
   createdAt: Date;
 }
@@ -25,8 +26,8 @@ export function ServicesManager() {
       id: "1",
       name: "Consultoria Financeira",
       description: "Análise e planejamento financeiro empresarial",
-      price: 2500,
-      category: "Consultoria",
+      price: 250000, // R$ 2.500,00 em centavos
+      envelope: "Consultoria",
       isActive: true,
       createdAt: new Date("2024-01-15"),
     },
@@ -34,8 +35,8 @@ export function ServicesManager() {
       id: "2",
       name: "Desenvolvimento de Software",
       description: "Criação de aplicações web personalizadas",
-      price: 5000,
-      category: "Tecnologia",
+      price: 500000, // R$ 5.000,00 em centavos
+      envelope: "Tecnologia",
       isActive: true,
       createdAt: new Date("2024-02-10"),
     },
@@ -43,8 +44,8 @@ export function ServicesManager() {
       id: "3",
       name: "Marketing Digital",
       description: "Gestão de campanhas e redes sociais",
-      price: 1800,
-      category: "Marketing",
+      price: 180000, // R$ 1.800,00 em centavos
+      envelope: "Marketing",
       isActive: false,
       createdAt: new Date("2024-01-20"),
     },
@@ -57,7 +58,7 @@ export function ServicesManager() {
     return services.filter(
       (service) =>
         service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.category.toLowerCase().includes(searchTerm.toLowerCase())
+        service.envelope.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [services, searchTerm]);
 
@@ -78,13 +79,6 @@ export function ServicesManager() {
           : service
       )
     );
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
   };
 
   const activeServices = services.filter((s) => s.isActive);
@@ -162,7 +156,7 @@ export function ServicesManager() {
                     <Badge variant={service.isActive ? "default" : "secondary"}>
                       {service.isActive ? "Ativo" : "Inativo"}
                     </Badge>
-                    <Badge variant="outline">{service.category}</Badge>
+                    <Badge variant="outline">{service.envelope}</Badge>
                   </div>
                   <p className="text-muted-foreground">{service.description}</p>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">

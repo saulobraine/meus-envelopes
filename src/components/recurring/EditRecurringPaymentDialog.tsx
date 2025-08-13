@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { toast } from "sonner";
 
 interface RecurringPayment {
@@ -24,9 +25,9 @@ interface RecurringPayment {
   amount: number;
   frequency: "monthly" | "quarterly" | "yearly";
   nextPayment: string;
-  category: string;
+  envelope: string;
   isActive: boolean;
-  envelope?: string;
+  envelopeType?: string;
 }
 
 interface EditRecurringPaymentDialogProps {
@@ -47,17 +48,17 @@ export function EditRecurringPaymentDialog({
     amount: string;
     frequency: "monthly" | "quarterly" | "yearly";
     nextPayment: string;
-    category: string;
-    isActive: boolean;
     envelope: string;
+    isActive: boolean;
+    envelopeType: string;
   }>({
     description: "",
     amount: "",
     frequency: "monthly",
     nextPayment: "",
-    category: "",
-    isActive: true,
     envelope: "",
+    isActive: true,
+    envelopeType: "",
   });
 
   const envelopes = [
@@ -76,12 +77,12 @@ export function EditRecurringPaymentDialog({
     if (payment) {
       setFormData({
         description: payment.description,
-        amount: payment.amount.toString(),
+        amount: (payment.amount * 100).toString(), // Converte para centavos para o CurrencyInput
         frequency: payment.frequency,
         nextPayment: payment.nextPayment,
-        category: payment.category,
+        envelope: payment.envelope,
         isActive: payment.isActive,
-        envelope: payment.envelope || "",
+        envelopeType: payment.envelopeType || "",
       });
     }
   }, [payment]);
@@ -94,18 +95,18 @@ export function EditRecurringPaymentDialog({
       formData.description &&
       formData.amount &&
       formData.nextPayment &&
-      formData.category &&
-      formData.envelope
+      formData.envelope &&
+      formData.envelopeType
     ) {
       const updatedPayment = {
         ...payment,
         description: formData.description,
-        amount: parseFloat(formData.amount),
+        amount: parseFloat(formData.amount.replace(/\D/g, "")) / 100,
         frequency: formData.frequency,
         nextPayment: formData.nextPayment,
-        category: formData.category,
-        isActive: formData.isActive,
         envelope: formData.envelope,
+        isActive: formData.isActive,
+        envelopeType: formData.envelopeType,
       };
 
       onSave(updatedPayment);
@@ -136,12 +137,12 @@ export function EditRecurringPaymentDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Categoria</Label>
+            <Label htmlFor="envelope">Envelope</Label>
             <Input
-              id="category"
-              value={formData.category}
+              id="envelope"
+              value={formData.envelope}
               onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
+                setFormData({ ...formData, envelope: e.target.value })
               }
               placeholder="Ex: Moradia, Utilities, Saúde..."
               required
@@ -150,10 +151,8 @@ export function EditRecurringPaymentDialog({
 
           <div className="space-y-2">
             <Label htmlFor="amount">Valor</Label>
-            <Input
+            <CurrencyInput
               id="amount"
-              type="number"
-              step="0.01"
               value={formData.amount}
               onChange={(e) =>
                 setFormData({ ...formData, amount: e.target.value })
@@ -188,9 +187,9 @@ export function EditRecurringPaymentDialog({
           <div className="space-y-2">
             <Label htmlFor="envelope">Envelope</Label>
             <Select
-              value={formData.envelope}
+              value={formData.envelopeType}
               onValueChange={(value) =>
-                setFormData({ ...formData, envelope: value })
+                setFormData({ ...formData, envelopeType: value })
               }
             >
               <SelectTrigger>
@@ -230,7 +229,7 @@ export function EditRecurringPaymentDialog({
             </Button>
             <Button
               type="submit"
-              className="flex-1 purple-gradient shadow-purple-glow"
+              className="flex-1 purple-gradient"
             >
               Salvar
             </Button>
