@@ -18,6 +18,7 @@ import {
   GearSix,
   SignOut,
   ArrowsLeftRight,
+  Upload,
 } from "phosphor-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { FloatingMenu } from "@/components/ui/floating-menu";
@@ -117,7 +118,7 @@ const UserDropdown = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt="@usuario" />
+            <AvatarImage src="" alt="@usuario" />
             <AvatarFallback>JS</AvatarFallback>
           </Avatar>
         </Button>
@@ -139,6 +140,12 @@ const UserDropdown = () => {
         <DropdownMenuItem onClick={() => setShowAccountSwitcher(true)}>
           <ArrowsLeftRight className="mr-2 h-4 w-4" />
           <span>Trocar de conta</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/transacoes/importacoes">
+            <Upload className="mr-2 h-4 w-4" />
+            <span>Importações</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Receipt className="mr-2 h-4 w-4" />

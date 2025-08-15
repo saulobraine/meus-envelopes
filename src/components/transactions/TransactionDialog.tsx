@@ -20,13 +20,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useEffect, useState } from "react";
 import { create as addTransaction } from "@/app/_actions/transactions/create";
 import { update as updateTransaction } from "@/app/_actions/transactions/update";
 import { get as getEnvelopes } from "@/app/_actions/envelope/get";
 import { useRouter } from "next/navigation";
-import { Plus, TrendUp, TrendDown, Calendar as CalendarIcon } from "phosphor-react";
+import {
+  Plus,
+  TrendUp,
+  TrendDown,
+  Calendar as CalendarIcon,
+} from "phosphor-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -47,7 +56,7 @@ export function TransactionDialog({
   onOpenChange,
   onTransactionAdded,
   onTransactionUpdated,
-  defaultType = "expense",
+  defaultType = "income",
   transaction = null,
   mode = "add",
 }: TransactionDialogProps) {
@@ -229,10 +238,9 @@ export function TransactionDialog({
             {mode === "edit" ? "Editar Transação" : "Adicionar Transação"}
           </DialogTitle>
           <DialogDescription>
-            {mode === "edit" 
-              ? "Edite os detalhes da transação" 
-              : "Preencha os detalhes da nova transação"
-            }
+            {mode === "edit"
+              ? "Edite os detalhes da transação"
+              : "Preencha os detalhes da nova transação"}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -279,14 +287,18 @@ export function TransactionDialog({
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? date.toLocaleDateString("pt-BR") : "Selecione uma data"}
+                    {date
+                      ? date.toLocaleDateString("pt-BR")
+                      : "Selecione uma data"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={(selectedDate) => selectedDate && setDate(selectedDate)}
+                    onSelect={(selectedDate) =>
+                      selectedDate && setDate(selectedDate)
+                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -351,10 +363,13 @@ export function TransactionDialog({
           </div>
           <DialogFooter>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading 
-                ? (mode === "edit" ? "Salvando..." : "Salvando...") 
-                : (mode === "edit" ? "Atualizar Transação" : "Salvar Transação")
-              }
+              {loading
+                ? mode === "edit"
+                  ? "Salvando..."
+                  : "Salvando..."
+                : mode === "edit"
+                  ? "Atualizar Transação"
+                  : "Salvar Transação"}
             </Button>
           </DialogFooter>
         </form>

@@ -27,6 +27,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { formatCurrency } from "@/lib/currency";
+import { APP_CONFIG } from "@/lib/config";
 
 interface Receivable {
   id: string;
@@ -77,7 +78,7 @@ export function ReceivablesManager() {
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = APP_CONFIG.PAGINATION.ITEMS_PER_PAGE;
 
   const addReceivable = (receivable: Omit<Receivable, "id">) => {
     const newReceivable = {

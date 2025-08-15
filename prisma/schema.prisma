@@ -25,13 +25,16 @@ enum BudgetType {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  transactions Transaction[]
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   envelopes    Envelope[]
+  transactions Transaction[]
+  importJobs   ImportJob[]
 }
 
 model Envelope {
@@ -61,16 +64,110 @@ model Transaction {
   status      TransactionStatus @default(COMPLETED)
   scheduledAt DateTime?
   processedAt DateTime?
+  importJobId String?
 
-  envelope Envelope @relation(fields: [envelopeId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  envelope     Envelope      @relation(fields: [envelopeId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  importJob    ImportJob?    @relation(fields: [importJobId], references: [id])
+  importRecord ImportRecord? // Relacionamento com o registro de importação
 
   @@index([userId])
   @@index([envelopeId])
+  @@index([importJobId])
 }
 
 enum TransactionStatus {
   COMPLETED
   PENDING
   SCHEDULED
+}
+
+model ImportJob {
+  id            String          @id @default(cuid())
+  userId        String
+  filename      String
+  mimeType      String
+  size          Int
+  status        ImportJobStatus @default(QUEUED)
+  totalRows     Int             @default(0)
+  processedRows Int             @default(0)
+  importedRows  Int             @default(0)
+  errorRows     Int             @default(0)
+  skippedRows   Int             @default(0)
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  logs          Json[]          @default([])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events       ImportEvent[]
+  transactions Transaction[]
+  records      ImportRecord[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model ImportEvent {
+  id        String          @id @default(cuid())
+  jobId     String
+  type      ImportEventType
+  message   String
+  data      Json?
+  createdAt DateTime        @default(now())
+
+  job ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([createdAt])
+}
+
+enum ImportJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+enum ImportEventType {
+  PROGRESS
+  LOG
+  WARNING
+  ERROR
+  METRIC
+}
+
+model ImportRecord {
+  id           String             @id @default(cuid())
+  jobId        String
+  rowNumber    Int // Número da linha no arquivo original
+  rawData      Json // Dados brutos da linha
+  status       ImportRecordStatus @default(PENDING)
+  errorMessage String? // Mensagem de erro se houver
+  processedAt  DateTime?
+
+  // Dados processados
+  date        DateTime?
+  description String?
+  amount      Int? // Em centavos
+  envelope    String?
+
+  // Relacionamentos
+  importJob     ImportJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId String?      @unique // ID da transação criada
+
+  @@index([jobId])
+  @@index([status])
+  @@index([rowNumber])
+}
+
+enum ImportRecordStatus {
+  PENDING // Aguardando processamento
+  PROCESSING // Em processamento
+  IMPORTED // Importado com sucesso
+  SKIPPED // Ignorado (duplicado, inválido, etc.)
+  ERROR // Erro no processamento
 }
