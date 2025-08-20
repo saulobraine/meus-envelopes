@@ -169,7 +169,7 @@ async function processImportJob(
                 }
 
                 const amount = Math.round(parseFloat(cleanAmountStr) * 100);
-                return isNegative ? -amount : amount;
+                return Math.abs(amount); // Always store positive amounts
               })()
             : null,
           envelope: rowData[columnMapping.envelope] || null,
@@ -267,7 +267,7 @@ async function processImportJob(
         }
 
         const amount = Math.round(parseFloat(cleanAmountStr) * 100);
-        const finalAmount = isNegative ? -amount : amount;
+        const finalAmount = Math.abs(amount); // Always store positive amounts
 
         if (isNaN(finalAmount)) {
           await prisma.importRecord.update({
@@ -348,6 +348,7 @@ async function processImportJob(
             date: parseBrazilianDate(date),
             description,
             amount: finalAmount,
+            type: isNegative ? "EXPENSE" : "INCOME", // Check both amount and type
           },
         });
 
@@ -360,7 +361,7 @@ async function processImportJob(
               errorMessage: "Transação duplicada",
               date: parseBrazilianDate(date),
               description,
-              amount: finalAmount,
+              amount: finalAmount, // Positive amount
               envelope: targetEnvelope?.name || "Padrão",
               processedAt: new Date(),
               // Não vincular à transação existente para duplicatas
@@ -378,7 +379,7 @@ async function processImportJob(
             date: parseBrazilianDate(date),
             description,
             amount: finalAmount,
-            type: finalAmount > 0 ? "INCOME" : "EXPENSE",
+            type: isNegative ? "EXPENSE" : "INCOME", // Use original sign from CSV
             envelopeId: targetEnvelope.id,
             status: "COMPLETED",
             importJobId: jobId,
@@ -392,7 +393,7 @@ async function processImportJob(
             status: "IMPORTED",
             date: parseBrazilianDate(date),
             description,
-            amount: finalAmount,
+            amount: finalAmount, // Positive amount
             envelope: targetEnvelope.name,
             processedAt: new Date(),
             transactionId: transaction.id,

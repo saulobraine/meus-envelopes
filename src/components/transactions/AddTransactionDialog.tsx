@@ -37,7 +37,7 @@ import {
   Calendar as CalendarIcon,
 } from "phosphor-react";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, ColorUtility } from "@/lib/utils";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Envelope, Transaction } from "@prisma/client";
 
@@ -317,7 +317,7 @@ export function TransactionDialog({
                   className={cn(
                     "flex-1",
                     type === "expense" &&
-                      "bg-red-500 hover:bg-red-600 text-white"
+                      ColorUtility.getBackgroundColorClass(-1)
                   )}
                   onClick={() => setType("expense")}
                 >
@@ -329,8 +329,7 @@ export function TransactionDialog({
                   variant={type === "income" ? "default" : "outline"}
                   className={cn(
                     "flex-1",
-                    type === "income" &&
-                      "bg-green-500 hover:bg-green-600 text-white"
+                    type === "income" && ColorUtility.getBackgroundColorClass(1)
                   )}
                   onClick={() => setType("income")}
                 >

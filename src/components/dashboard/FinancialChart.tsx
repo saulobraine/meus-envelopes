@@ -1,116 +1,302 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import { TrendUp, TrendDown } from "phosphor-react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useState, useEffect } from "react";
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { useState, useEffect, useMemo } from "react";
 import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
+import { formatChartValue, formatYAxisValue, ColorUtility } from "@/lib/utils";
 
 interface FinancialChartProps {
-  initialChartData: Array<{
-    name: string;
-    entradas: number;
-    saidas: number;
-  }>;
+  initialChartData: Record<string, any>[];
+  envelopes: string[];
 }
 
-export const FinancialChart = ({ initialChartData }: FinancialChartProps) => {
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    "this-month" | "last-month" | "6-months" | "12-months" | "all-time"
-  >("this-month");
-  const [chartData, setChartData] = useState(initialChartData);
+export const FinancialChart = ({
+  initialChartData,
+  envelopes,
+}: FinancialChartProps) => {
+  const [rawChartData, setRawChartData] = useState(initialChartData);
+  const [currentEnvelopes, setCurrentEnvelopes] = useState(envelopes);
 
+  // Update data when props change
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getFinancialChartData(selectedPeriod);
-      setChartData(data);
-    };
-    if (selectedPeriod !== "this-month") {
-      // Only fetch if not initial data
-      fetchData();
-    } else {
-      setChartData(initialChartData);
+    setRawChartData(initialChartData);
+    setCurrentEnvelopes(envelopes);
+  }, [initialChartData, envelopes]);
+
+  // Process data to separate positive and negative values
+  const chartData = useMemo(() => {
+    if (!rawChartData || rawChartData.length === 0) {
+      return [];
     }
-  }, [selectedPeriod, initialChartData]);
+
+    return rawChartData.map((dataPoint) => {
+      let positiveTotal = 0;
+      let negativeTotal = 0;
+
+      currentEnvelopes.forEach((envelope) => {
+        const value = dataPoint[envelope] || 0;
+        if (value > 0) {
+          positiveTotal += value;
+        } else if (value < 0) {
+          negativeTotal += value;
+        }
+      });
+
+      return {
+        period: dataPoint.period || dataPoint.name || dataPoint.date || "N/A",
+        receitas: positiveTotal,
+        despesas: negativeTotal,
+      };
+    });
+  }, [rawChartData, currentEnvelopes]);
+
+  // Chart config for the two lines
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {
+      receitas: {
+        label: "Receitas",
+        color: "#22c55e", // Green
+      },
+      despesas: {
+        label: "Despesas",
+        color: "#ef4444", // Red
+      },
+    };
+    return config;
+  }, []);
+
+  if (!chartData || chartData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Evolução Financeira</CardTitle>
+          <CardDescription>Análise detalhada por envelope</CardDescription>
+        </CardHeader>
+        <CardContent className="px-4">
+          <div className="flex items-center justify-center h-[250px] text-muted-foreground">
+            Nenhum dado disponível para exibir o gráfico
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Calculate trend based on net balance (receitas + despesas)
+  const calculateTrend = () => {
+    if (chartData.length < 2) {
+      const saldoUnico =
+        chartData.length === 1
+          ? (chartData[0].receitas || 0) + (chartData[0].despesas || 0)
+          : 0;
+      return { trend: 0, isPositive: true, saldo: saldoUnico };
+    }
+
+    // Compare first and last periods
+    const primeiroPeriodo = chartData[0];
+    const ultimoPeriodo = chartData[chartData.length - 1];
+
+    const saldoInicial =
+      (primeiroPeriodo.receitas || 0) + (primeiroPeriodo.despesas || 0);
+    const saldoFinal =
+      (ultimoPeriodo.receitas || 0) + (ultimoPeriodo.despesas || 0);
+
+    const trend =
+      saldoInicial !== 0
+        ? ((saldoFinal - saldoInicial) / Math.abs(saldoInicial)) * 100
+        : 0;
+
+    return { trend: Math.abs(trend), isPositive: trend > 0, saldo: saldoFinal };
+  };
+
+  const { trend, isPositive, saldo } = calculateTrend();
+
+  const getPeriodDescription = () => {
+    const firstPeriod = rawChartData[0]?.period || rawChartData[0]?.name || "";
+    const lastPeriod =
+      rawChartData[rawChartData.length - 1]?.period ||
+      rawChartData[rawChartData.length - 1]?.name ||
+      "";
+
+    if (firstPeriod && lastPeriod) {
+      return `${firstPeriod} - ${lastPeriod}`;
+    }
+    return "Período selecionado";
+  };
 
   return (
-    <Card className="p-6 mt-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold">Evolução Patrimonial</h3>
-        <Select
-          value={selectedPeriod}
-          onValueChange={(
-            value:
-              | "this-month"
-              | "last-month"
-              | "6-months"
-              | "12-months"
-              | "all-time"
-          ) => setSelectedPeriod(value)}
+    <Card>
+      <CardHeader>
+        <CardTitle>Evolução Financeira</CardTitle>
+        <CardDescription>Análise detalhada por envelope</CardDescription>
+      </CardHeader>
+      <CardContent className="px-4">
+        <ChartContainer
+          config={chartConfig}
+          className="min-h-[250px] max-h-[400px] w-full aspect-auto"
         >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Selecione o período" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="this-month">Este mês</SelectItem>
-            <SelectItem value="last-month">Último mês</SelectItem>
-            <SelectItem value="6-months">Últimos 6 meses</SelectItem>
-            <SelectItem value="12-months">Últimos 12 meses</SelectItem>
-            <SelectItem value="all-time">Máximo</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="h-[400px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
+          <AreaChart
+            accessibilityLayer
             data={chartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" stroke="#888" />
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="period"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => {
+                // Format based on the data type
+                if (value.includes(",")) {
+                  // Daily format: "Seg, 15"
+                  return value.split(",")[0];
+                } else if (value.length <= 3) {
+                  // Monthly format: "Jan"
+                  return value;
+                } else {
+                  // Other formats
+                  return value.slice(0, 3);
+                }
+              }}
+            />
             <YAxis
-              stroke="#888"
-              tickFormatter={(value) => `R$ ${value.toLocaleString()}`}
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              width={80}
+              tickFormatter={(value) => formatYAxisValue(Number(value))}
             />
-            <Tooltip
-              formatter={(value: number, name: string) => [
-                `R$ ${value.toLocaleString()}`,
-                name === "entradas" ? "Entradas" : "Saídas",
-              ]}
+            <ChartTooltip
+              cursor={false}
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="rounded-lg border bg-background p-3 shadow-sm">
+                      <div className="grid gap-2">
+                        <div className="font-medium text-sm">{label}</div>
+                        {payload.map((entry, index) => {
+                          const isNegative = Number(entry.value) < 0;
+                          return (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <div
+                                className="h-2.5 w-2.5 rounded-full"
+                                style={{
+                                  backgroundColor: entry.color,
+                                }}
+                              />
+                              <span className="text-muted-foreground">
+                                {entry.dataKey === "receitas"
+                                  ? "Receitas"
+                                  : "Despesas"}
+                              </span>
+                              <span
+                                className={`font-medium tabular-nums ${
+                                  isNegative
+                                    ? "text-red-600 dark:text-red-400"
+                                    : "text-green-600 dark:text-green-400"
+                                }`}
+                              >
+                                {formatChartValue(Number(entry.value))}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
             />
-            <Line
-              type="monotone"
-              dataKey="entradas"
-              stroke="#22c55e"
+            <defs>
+              <linearGradient id="fillReceitas" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-receitas)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-receitas)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id="fillDespesas" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-despesas)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-despesas)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+            </defs>
+            <Area
+              dataKey="receitas"
+              type="natural"
+              fill="url(#fillReceitas)"
+              fillOpacity={0.4}
+              stroke="var(--color-receitas)"
               strokeWidth={2}
-              dot={{ fill: "#22c55e" }}
-              activeDot={{ r: 8 }}
             />
-            <Line
-              type="monotone"
-              dataKey="saidas"
-              stroke="#ef4444"
+            <Area
+              dataKey="despesas"
+              type="natural"
+              fill="url(#fillDespesas)"
+              fillOpacity={0.4}
+              stroke="var(--color-despesas)"
               strokeWidth={2}
-              dot={{ fill: "#ef4444" }}
-              activeDot={{ r: 8 }}
             />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+          </AreaChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter>
+        <div className="flex w-full items-start gap-2 text-sm">
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2 leading-none font-medium">
+              {isPositive ? (
+                <>
+                  Tendência positiva de {trend.toFixed(1)}% no período{" "}
+                  <TrendUp className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Tendência negativa de {trend.toFixed(1)}% no período{" "}
+                  <TrendDown className="h-4 w-4" />
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2 leading-none text-muted-foreground">
+              {getPeriodDescription()} • Saldo Total:{" "}
+              {formatChartValue(saldo || 0)}
+            </div>
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   );
 };

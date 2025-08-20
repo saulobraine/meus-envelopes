@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/pagination";
 import { formatCurrency } from "@/lib/currency";
 import { APP_CONFIG } from "@/lib/config";
+import { ColorUtility } from "@/lib/utils";
 
 interface Receivable {
   id: string;
@@ -157,7 +158,9 @@ export function ReceivablesManager() {
             <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">
+            <div
+              className={`text-2xl font-bold ${ColorUtility.getValueColorClass(totalPending)}`}
+            >
               {formatCurrency(totalPending)}
             </div>
           </CardContent>
@@ -168,10 +171,14 @@ export function ReceivablesManager() {
             <CardTitle className="text-sm font-medium">
               Total em Atraso
             </CardTitle>
-            <Calendar className="h-4 w-4 text-destructive" />
+            <Calendar
+              className={`h-4 w-4 ${ColorUtility.getTrendColorClass(false)}`}
+            />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-destructive">
+            <div
+              className={`text-2xl font-bold ${ColorUtility.getValueColorClass(-totalOverdue)}`}
+            >
               {formatCurrency(totalOverdue)}
             </div>
           </CardContent>

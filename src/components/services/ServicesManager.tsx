@@ -9,6 +9,7 @@ import { Plus, Archive } from "phosphor-react";
 import { MagnifyingGlass, CurrencyDollar } from "phosphor-react";
 import { AddServiceDialog } from "./AddServiceDialog";
 import { formatCurrency } from "@/lib/currency";
+import { ColorUtility } from "@/lib/utils";
 
 export interface Service {
   id: string;
@@ -108,7 +109,9 @@ export function ServicesManager() {
             <Archive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div
+              className={`text-2xl font-bold ${ColorUtility.getValueColorClass(activeServices.length)}`}
+            >
               {activeServices.length}
             </div>
           </CardContent>
@@ -120,7 +123,9 @@ export function ServicesManager() {
             <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div
+              className={`text-2xl font-bold ${ColorUtility.getValueColorClass(totalValue)}`}
+            >
               {formatCurrency(totalValue)}
             </div>
           </CardContent>

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Users } from "phosphor-react";
 import { MagnifyingGlass, Envelope, Phone } from "phosphor-react";
 import { AddClientDialog } from "./AddClientDialog";
+import { ColorUtility } from "@/lib/utils";
 
 export interface Client {
   id: string;
@@ -116,7 +117,9 @@ export function ClientsManager() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div
+              className={`text-2xl font-bold ${ColorUtility.getValueColorClass(activeClients.length)}`}
+            >
               {activeClients.length}
             </div>
           </CardContent>
