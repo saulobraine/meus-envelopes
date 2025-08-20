@@ -14,13 +14,16 @@ import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useEffect, useState } from "react";
 import { formatChartValue, ColorUtility } from "@/lib/utils";
 
 interface StackedBarChartProps {
-  initialChartData: any[];
+  initialChartData: Array<{
+    period?: string;
+    name?: string;
+    [key: string]: string | number | undefined;
+  }>;
   envelopes: string[];
 }
 
@@ -28,7 +31,14 @@ export const StackedBarChart = ({
   initialChartData,
   envelopes,
 }: StackedBarChartProps) => {
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<
+    Array<{
+      envelope: string;
+      value: number;
+      originalValue: number;
+      isNegative: boolean;
+    }>
+  >([]);
   const [currentEnvelopes, setCurrentEnvelopes] = useState(envelopes);
 
   // Update chart data when props change
@@ -166,11 +176,20 @@ export const StackedBarChart = ({
 
 class EnvelopeAggregator {
   constructor(
-    private readonly chartData: any[],
+    private readonly chartData: Array<{
+      period?: string;
+      name?: string;
+      [key: string]: string | number | undefined;
+    }>,
     private readonly envelopes: string[]
   ) {}
 
-  aggregate(): any[] {
+  aggregate(): Array<{
+    envelope: string;
+    value: number;
+    originalValue: number;
+    isNegative: boolean;
+  }> {
     const envelopeTotals = this.calculateEnvelopeTotals();
     return this.createChartEntries(envelopeTotals);
   }
@@ -183,7 +202,9 @@ class EnvelopeAggregator {
     this.chartData.forEach((period) => {
       this.envelopes.forEach((envelope) => {
         const currentValue = totals.get(envelope) || 0;
-        const periodValue = period[envelope] || 0;
+        const rawPeriodValue = period[envelope] || 0;
+        const periodValue =
+          typeof rawPeriodValue === "number" ? rawPeriodValue : 0;
         totals.set(envelope, currentValue + periodValue);
       });
     });
@@ -191,8 +212,18 @@ class EnvelopeAggregator {
     return totals;
   }
 
-  private createChartEntries(totals: Map<string, number>): any[] {
-    const entries: any[] = [];
+  private createChartEntries(totals: Map<string, number>): Array<{
+    envelope: string;
+    value: number;
+    originalValue: number;
+    isNegative: boolean;
+  }> {
+    const entries: Array<{
+      envelope: string;
+      value: number;
+      originalValue: number;
+      isNegative: boolean;
+    }> = [];
 
     totals.forEach((value, envelope) => {
       if (value !== 0) {
@@ -235,7 +266,14 @@ class ChartConfigBuilder {
 }
 
 class TrendCalculator {
-  constructor(private readonly chartData: any[]) {}
+  constructor(
+    private readonly chartData: Array<{
+      envelope: string;
+      value: number;
+      originalValue: number;
+      isNegative: boolean;
+    }>
+  ) {}
 
   calculate(): { percentage: number; isPositive: boolean } {
     if (this.chartData.length < 2) {
@@ -259,7 +297,13 @@ class TrendCalculator {
 }
 
 class PeriodDescriptor {
-  constructor(private readonly chartData: any[]) {}
+  constructor(
+    private readonly chartData: Array<{
+      period?: string;
+      name?: string;
+      [key: string]: string | number | undefined;
+    }>
+  ) {}
 
   getDescription(): string {
     if (this.chartData.length === 0) {

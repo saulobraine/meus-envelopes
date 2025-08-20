@@ -6,7 +6,6 @@ import {
   MagnifyingGlass,
   PencilSimple,
   Trash,
-  Faders,
   Warning,
   ArrowClockwise,
   Upload,
@@ -23,7 +22,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Pagination,
@@ -41,7 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { get as getTransactions } from "@/app/_actions/transactions/get";
 import { remove as removeTransaction } from "@/app/_actions/transactions/remove";
 import { removeAllTransactions } from "@/app/_actions/transactions/removeAll";
@@ -81,7 +79,7 @@ function useAnimatedCounter(targetValue: number, duration: number = 1000) {
     if (targetValue !== displayValue) {
       requestAnimationFrame(animate);
     }
-  }, [targetValue, duration]);
+  }, [targetValue, duration, displayValue]);
 
   return displayValue;
 }
@@ -137,21 +135,20 @@ export default function Page() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+
   const itemsPerPage = APP_CONFIG.PAGINATION.ITEMS_PER_PAGE;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [envelopes, setEnvelopes] = useState<string[]>([]);
   const { toast } = useToast();
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const data = await getTransactions();
       setTransactions(data);
       setEnvelopes([...new Set(data.map((t) => t.envelope?.name || ""))]);
-      setRetryCount(0); // Reset retry count on success
     } catch (error) {
       console.error("Erro ao carregar transações:", error);
       const errorMessage =
@@ -183,16 +180,15 @@ export default function Page() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleRetry = () => {
-    setRetryCount((prev) => prev + 1);
     fetchTransactions();
   };
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   const handleTransactionAdded = () => {
     // Recarrega os dados do servidor para garantir consistência
@@ -675,8 +671,9 @@ export default function Page() {
                             acima e comece sua jornada financeira!
                           </p>
                           <p className="text-xs text-gray-400 dark:text-gray-400 italic">
-                            🏦 "Meus Envelopes" - Porque dinheiro não cresce em
-                            árvore, mas pode ser organizado em envelopes! 🌳
+                            🏦 &quot;Meus Envelopes&quot; - Porque dinheiro não
+                            cresce em árvore, mas pode ser organizado em
+                            envelopes! 🌳
                           </p>
                         </div>
                       </div>

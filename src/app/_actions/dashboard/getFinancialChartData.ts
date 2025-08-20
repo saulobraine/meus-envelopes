@@ -3,6 +3,20 @@
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
+type Transaction = {
+  id: string;
+  amount: number;
+  type: string;
+  date: Date;
+  envelope?: { id: string; name: string };
+};
+
+type Envelope = {
+  id: string;
+  name: string;
+  color?: string;
+};
+
 export async function getFinancialChartData(
   period:
     | "7-days"
@@ -55,16 +69,42 @@ class ChartDataService {
   }
 
   private async getEnvelopesWithTransactions(
-    transactions: any[],
+    transactions: Array<{
+      id: string;
+      amount: number;
+      type: string;
+      date: Date;
+      envelope?: { id: string; name: string };
+    }>,
     userId: string
   ) {
     const envelopeRepository = new EnvelopeRepository();
-    return envelopeRepository.findByTransactions(transactions, userId);
+    const transactionsWithEnvelopes = transactions.filter(
+      (
+        transaction
+      ): transaction is {
+        id: string;
+        amount: number;
+        type: string;
+        date: Date;
+        envelope: { id: string; name: string };
+      } => transaction.envelope !== undefined
+    );
+    return envelopeRepository.findByTransactions(
+      transactionsWithEnvelopes,
+      userId
+    );
   }
 
   private aggregateTransactionData(
-    transactions: any[],
-    envelopes: any[],
+    transactions: Array<{
+      id: string;
+      amount: number;
+      type: string;
+      date: Date;
+      envelope?: { id: string; name: string };
+    }>,
+    envelopes: Array<{ id: string; name: string; color?: string }>,
     period: string,
     dateRange: DateRange
   ) {
@@ -227,7 +267,12 @@ class TransactionRepository {
 }
 
 class EnvelopeRepository {
-  async findByTransactions(transactions: any[], userId: string) {
+  async findByTransactions(
+    transactions: Array<{
+      envelope: { name: string };
+    }>,
+    userId: string
+  ) {
     const envelopeNames = this.extractEnvelopeNames(transactions);
 
     return prisma.envelope.findMany({
@@ -241,7 +286,11 @@ class EnvelopeRepository {
     });
   }
 
-  private extractEnvelopeNames(transactions: any[]): string[] {
+  private extractEnvelopeNames(
+    transactions: Array<{
+      envelope: { name: string };
+    }>
+  ): string[] {
     const envelopeNames = new Set<string>();
     transactions.forEach((transaction) => {
       envelopeNames.add(transaction.envelope.name);
@@ -252,13 +301,26 @@ class EnvelopeRepository {
 
 class TransactionAggregator {
   constructor(
-    private readonly transactions: any[],
-    private readonly envelopes: any[],
+    private readonly transactions: Array<{
+      id: string;
+      amount: number;
+      type: string;
+      date: Date;
+      envelope?: { id: string; name: string };
+    }>,
+    private readonly envelopes: Array<{
+      id: string;
+      name: string;
+      color?: string;
+    }>,
     private readonly period: string,
     private readonly dateRange: DateRange
   ) {}
 
-  aggregate(): Record<string, any>[] {
+  aggregate(): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
     const strategy = this.createAggregationStrategy();
     return strategy.aggregate(
       this.transactions,
@@ -285,26 +347,38 @@ class TransactionAggregator {
 
 interface AggregationStrategy {
   aggregate(
-    transactions: any[],
-    envelopes: any[],
+    transactions: Array<{
+      id: string;
+      amount: number;
+      type: string;
+      date: Date;
+      envelope?: { id: string; name: string };
+    }>,
+    envelopes: Array<{ id: string; name: string; color?: string }>,
     dateRange: DateRange
-  ): Record<string, any>[];
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }>;
 }
 
 class DailyAggregationStrategy implements AggregationStrategy {
   constructor(private readonly period: string) {}
 
   aggregate(
-    transactions: any[],
-    envelopes: any[],
+    transactions: Transaction[],
+    envelopes: Envelope[],
     dateRange: DateRange
-  ): Record<string, any>[] {
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
     const dayMap = this.createDayMap(transactions);
     return this.generateDailyEntries(dayMap, envelopes, dateRange);
   }
 
   private createDayMap(
-    transactions: any[]
+    transactions: Transaction[]
   ): Map<string, Record<string, number>> {
     const dayMap = new Map<string, Record<string, number>>();
 
@@ -327,10 +401,16 @@ class DailyAggregationStrategy implements AggregationStrategy {
 
   private generateDailyEntries(
     dayMap: Map<string, Record<string, number>>,
-    envelopes: any[],
+    envelopes: Envelope[],
     dateRange: DateRange
-  ): Record<string, any>[] {
-    const entries: Record<string, any>[] = [];
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
+    const entries: Array<{
+      period: string;
+      [key: string]: string | number;
+    }> = [];
     const currentDay = new Date(dateRange.startDate);
 
     while (currentDay <= dateRange.endDate) {
@@ -356,12 +436,18 @@ class DailyAggregationStrategy implements AggregationStrategy {
   private createDayEntry(
     date: Date,
     envelopeData: Record<string, number>,
-    envelopes: any[]
-  ): Record<string, any> {
+    envelopes: Envelope[]
+  ): {
+    period: string;
+    [key: string]: string | number;
+  } {
     const dayNameFormatter = new DayNameFormatter(this.period);
     const dayName = dayNameFormatter.format(date);
 
-    const entry: Record<string, any> = { name: dayName };
+    const entry: {
+      period: string;
+      [key: string]: string | number;
+    } = { period: dayName };
 
     envelopes.forEach((envelope) => {
       entry[envelope.name] = envelopeData[envelope.name] || 0;
@@ -373,16 +459,19 @@ class DailyAggregationStrategy implements AggregationStrategy {
 
 class MonthlyAggregationStrategy implements AggregationStrategy {
   aggregate(
-    transactions: any[],
-    envelopes: any[],
+    transactions: Transaction[],
+    envelopes: Envelope[],
     dateRange: DateRange
-  ): Record<string, any>[] {
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
     const monthMap = this.createMonthMap(transactions);
     return this.generateMonthlyEntries(monthMap, envelopes, dateRange);
   }
 
   private createMonthMap(
-    transactions: any[]
+    transactions: Transaction[]
   ): Map<string, Record<string, number>> {
     const monthMap = new Map<string, Record<string, number>>();
 
@@ -405,10 +494,16 @@ class MonthlyAggregationStrategy implements AggregationStrategy {
 
   private generateMonthlyEntries(
     monthMap: Map<string, Record<string, number>>,
-    envelopes: any[],
+    envelopes: Envelope[],
     dateRange: DateRange
-  ): Record<string, any>[] {
-    const entries: Record<string, any>[] = [];
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
+    const entries: Array<{
+      period: string;
+      [key: string]: string | number;
+    }> = [];
     const currentMonth = new Date(dateRange.startDate);
 
     while (currentMonth <= dateRange.endDate) {
@@ -434,9 +529,15 @@ class MonthlyAggregationStrategy implements AggregationStrategy {
   private createMonthEntry(
     monthKey: string,
     envelopeData: Record<string, number>,
-    envelopes: any[]
-  ): Record<string, any> {
-    const entry: Record<string, any> = { name: monthKey };
+    envelopes: Envelope[]
+  ): {
+    period: string;
+    [key: string]: string | number;
+  } {
+    const entry: {
+      period: string;
+      [key: string]: string | number;
+    } = { period: monthKey };
 
     envelopes.forEach((envelope) => {
       entry[envelope.name] = envelopeData[envelope.name] || 0;
@@ -447,13 +548,21 @@ class MonthlyAggregationStrategy implements AggregationStrategy {
 }
 
 class YearlyAggregationStrategy implements AggregationStrategy {
-  aggregate(transactions: any[], envelopes: any[]): Record<string, any>[] {
+  aggregate(
+    transactions: Transaction[],
+    envelopes: Envelope[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _dateRange: DateRange
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
     const yearMap = this.createYearMap(transactions);
     return this.generateYearlyEntries(yearMap, envelopes);
   }
 
   private createYearMap(
-    transactions: any[]
+    transactions: Transaction[]
   ): Map<string, Record<string, number>> {
     const yearMap = new Map<string, Record<string, number>>();
 
@@ -476,9 +585,15 @@ class YearlyAggregationStrategy implements AggregationStrategy {
 
   private generateYearlyEntries(
     yearMap: Map<string, Record<string, number>>,
-    envelopes: any[]
-  ): Record<string, any>[] {
-    const entries: Record<string, any>[] = [];
+    envelopes: Envelope[]
+  ): Array<{
+    period: string;
+    [key: string]: string | number;
+  }> {
+    const entries: Array<{
+      period: string;
+      [key: string]: string | number;
+    }> = [];
 
     Array.from(yearMap.entries())
       .sort(([a], [b]) => parseInt(a) - parseInt(b))
@@ -493,9 +608,15 @@ class YearlyAggregationStrategy implements AggregationStrategy {
   private createYearEntry(
     year: string,
     envelopeData: Record<string, number>,
-    envelopes: any[]
-  ): Record<string, any> {
-    const entry: Record<string, any> = { name: year };
+    envelopes: Envelope[]
+  ): {
+    period: string;
+    [key: string]: string | number;
+  } {
+    const entry: {
+      period: string;
+      [key: string]: string | number;
+    } = { period: year };
 
     envelopes.forEach((envelope) => {
       entry[envelope.name] = envelopeData[envelope.name] || 0;
@@ -506,7 +627,7 @@ class YearlyAggregationStrategy implements AggregationStrategy {
 }
 
 class TransactionProcessor {
-  constructor(private readonly transaction: any) {}
+  constructor(private readonly transaction: Transaction) {}
 
   getDayKey(): string {
     return this.transaction.date.getDate().toString().padStart(2, "0");
@@ -521,7 +642,7 @@ class TransactionProcessor {
   }
 
   getEnvelopeName(): string {
-    return this.transaction.envelope.name;
+    return this.transaction.envelope?.name || "Remuneração";
   }
 
   getAmount(): number {
