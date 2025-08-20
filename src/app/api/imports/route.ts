@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { user } = await getAuthenticatedUser();
-    
+
     if (!user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
@@ -13,15 +13,15 @@ export async function GET(request: NextRequest) {
     // Buscar todos os jobs do usuário
     const importJobs = await prisma.importJob.findMany({
       where: {
-        userId: user.id
+        userId: user.id,
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     });
 
     // Formatar para o formato esperado
-    const formattedJobs = importJobs.map(job => ({
+    const formattedJobs = importJobs.map((job) => ({
       id: job.id,
       filename: job.filename,
       status: job.status,
@@ -30,11 +30,10 @@ export async function GET(request: NextRequest) {
       importedRows: job.importedRows,
       errorRows: job.errorRows,
       createdAt: job.createdAt.toISOString(),
-      finishedAt: job.finishedAt?.toISOString()
+      finishedAt: job.finishedAt?.toISOString(),
     }));
 
     return NextResponse.json(formattedJobs);
-
   } catch (error) {
     console.error("Erro ao buscar jobs:", error);
     return NextResponse.json(

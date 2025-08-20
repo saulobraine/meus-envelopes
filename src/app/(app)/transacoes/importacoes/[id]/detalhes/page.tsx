@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,7 +46,7 @@ interface ImportedTransaction {
   amount: number;
   envelope?: string;
   errorMessage?: string;
-  rawData: any;
+  rawData: Record<string, unknown>;
   rowNumber?: number;
   processedAt?: string;
 }
@@ -75,7 +75,7 @@ export default function ImportDetailsPage() {
   });
 
   // Buscar estatísticas da importação
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const response = await fetch(`/api/imports/${jobId}/stats`);
       if (response.ok) {
@@ -85,10 +85,10 @@ export default function ImportDetailsPage() {
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error);
     }
-  };
+  }, [jobId]);
 
   // Buscar transações
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setIsLoading(true);
       const url = `/api/imports/${jobId}/transactions?page=${currentPage}&limit=${itemsPerPage}&status=${statusFilter}&search=${searchTerm}`;
@@ -117,7 +117,7 @@ export default function ImportDetailsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [jobId, currentPage, itemsPerPage, statusFilter, searchTerm]);
 
   // Reprocessar transações com erro
   const handleReprocessErrors = async () => {
@@ -191,20 +191,20 @@ export default function ImportDetailsPage() {
   useEffect(() => {
     fetchStats();
     fetchTransactions();
-  }, [jobId]);
+  }, [jobId, fetchStats, fetchTransactions]);
 
   // Recarregar transações quando filtros mudarem
   useEffect(() => {
     setCurrentPage(1); // Reset para primeira página
     fetchTransactions();
-  }, [statusFilter, searchTerm]);
+  }, [statusFilter, searchTerm, fetchTransactions]);
 
   // Recarregar transações quando página mudar
   useEffect(() => {
     if (currentPage >= 1) {
       fetchTransactions();
     }
-  }, [currentPage]);
+  }, [currentPage, fetchTransactions]);
 
   // Não precisamos mais filtrar no frontend, pois a API já retorna os dados filtrados
   const currentTransactions = transactions;

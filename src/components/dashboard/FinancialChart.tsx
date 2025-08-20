@@ -14,14 +14,16 @@ import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useState, useEffect, useMemo } from "react";
-import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
-import { formatChartValue, formatYAxisValue, ColorUtility } from "@/lib/utils";
+import { formatYAxisValue, formatChartValue } from "@/lib/utils";
 
 interface FinancialChartProps {
-  initialChartData: Record<string, any>[];
+  initialChartData: Array<{
+    period?: string;
+    name?: string;
+    [key: string]: string | number | undefined;
+  }>;
   envelopes: string[];
 }
 
@@ -49,7 +51,8 @@ export const FinancialChart = ({
       let negativeTotal = 0;
 
       currentEnvelopes.forEach((envelope) => {
-        const value = dataPoint[envelope] || 0;
+        const rawValue = dataPoint[envelope] || 0;
+        const value = typeof rawValue === "number" ? rawValue : 0;
         if (value > 0) {
           positiveTotal += value;
         } else if (value < 0) {

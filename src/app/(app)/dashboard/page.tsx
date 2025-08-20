@@ -1,17 +1,25 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
 import { FinancialChart } from "@/components/dashboard/FinancialChart";
 import { StackedBarChart } from "@/components/dashboard/StackedBarChart";
 import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
-import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
 import { ChartSkeleton } from "@/components/ui/skeletons";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { getFinancialChartData } from "@/app/_actions/dashboard/getFinancialChartData";
+
+interface ChartData {
+  data: Array<{
+    period: string;
+    [key: string]: string | number;
+  }>;
+  envelopes: string[];
+}
 
 export default function DashboardPage() {
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
+  const { loading: authLoading, isAuthenticated } = useAuth();
 
   const [selectedPeriod, setSelectedPeriod] = useState<
     | "7-days"
@@ -23,7 +31,7 @@ export default function DashboardPage() {
     | "all-time"
   >("7-days");
 
-  const [chartData, setChartData] = useState<any>({
+  const [chartData, setChartData] = useState<ChartData>({
     data: [],
     envelopes: [],
   });
@@ -43,7 +51,7 @@ export default function DashboardPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await getFinancialChartData(selectedPeriod);
+        const response: ChartData = await getFinancialChartData(selectedPeriod);
         setChartData(response);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);

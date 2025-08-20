@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -38,7 +38,6 @@ import {
   Check,
   X,
   ArrowRight,
-  Eye,
 } from "phosphor-react";
 import { formatCurrency } from "@/lib/currency";
 import { parseBrazilianDate } from "@/lib/utils";
@@ -85,13 +84,146 @@ export function ImportTransactionsDialog({
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
-      setFile(file);
-      processFile(file);
-    }
-  }, []);
+  const { toast } = useToast();
+
+  const processFile = useCallback(
+    async (file: File) => {
+      try {
+        const text = await file.text();
+        const lines = text.split("\n").map((line) => parseCSVLine(line));
+        setFilePreview(lines); // Todas as linhas para preview
+
+        // Auto-detect column mapping
+        if (lines.length > 0 && lines[0].length > 0) {
+          const headers = lines[0].filter(
+            (header) => header && header.trim() !== ""
+          );
+
+          if (headers.length === 0) {
+            throw new Error("Arquivo não contém cabeçalhos válidos");
+          }
+
+          const autoMapping: ColumnMapping = {
+            date: "",
+            description: "",
+            amount: "",
+            envelope: "",
+          };
+
+          console.log(`[AutoMapping] Headers disponíveis:`, headers);
+
+          headers.forEach((header) => {
+            const lowerHeader = header.toLowerCase();
+            console.log(
+              `[AutoMapping] Analisando header "${header}" (${lowerHeader})`
+            );
+
+            // Mapeamento para data
+            if (
+              lowerHeader.includes("data") ||
+              lowerHeader.includes("date") ||
+              lowerHeader.includes("dia")
+            ) {
+              console.log(`[AutoMapping] Mapeando "${header}" para date`);
+              autoMapping.date = header;
+            }
+            // Mapeamento para descrição
+            else if (
+              lowerHeader.includes("descricao") ||
+              lowerHeader.includes("descrição") ||
+              lowerHeader.includes("description") ||
+              lowerHeader.includes("histórico") ||
+              lowerHeader.includes("historico") ||
+              lowerHeader.includes("memo") ||
+              lowerHeader.includes("observação") ||
+              lowerHeader.includes("observacao")
+            ) {
+              console.log(
+                `[AutoMapping] Mapeando "${header}" para description`
+              );
+              autoMapping.description = header;
+            }
+            // Mapeamento para valor
+            else if (
+              lowerHeader.includes("valor") ||
+              lowerHeader.includes("amount") ||
+              lowerHeader.includes("quantia") ||
+              lowerHeader.includes("montante") ||
+              lowerHeader.includes("price") ||
+              lowerHeader.includes("preço")
+            ) {
+              console.log(`[AutoMapping] Mapeando "${header}" para amount`);
+              autoMapping.amount = header;
+            }
+            // Mapeamento para envelope/categoria
+            else if (
+              lowerHeader.includes("categoria") ||
+              lowerHeader.includes("category") ||
+              lowerHeader.includes("envelope") ||
+              lowerHeader.includes("tipo") ||
+              lowerHeader.includes("type") ||
+              lowerHeader.includes("classificação") ||
+              lowerHeader.includes("classificacao")
+            ) {
+              console.log(`[AutoMapping] Mapeando "${header}" para envelope`);
+              autoMapping.envelope = header;
+            }
+          });
+
+          console.log(`[AutoMapping] Mapeamento final:`, autoMapping);
+          setColumnMapping(autoMapping);
+
+          // Generate preview rows
+          const previewData = lines.slice(1, 11).map((row, index) => {
+            const amountStr = autoMapping.amount
+              ? row[headers.indexOf(autoMapping.amount)] || "0"
+              : "0";
+            const amount = parseFloat(amountStr.replace(/[^0-9.-]/g, "")) || 0;
+
+            return {
+              id: index + 1,
+              date: autoMapping.date
+                ? row[headers.indexOf(autoMapping.date)] || ""
+                : "",
+              description: autoMapping.description
+                ? row[headers.indexOf(autoMapping.description)] || ""
+                : "",
+              amount: amount,
+              envelope: autoMapping.envelope
+                ? row[headers.indexOf(autoMapping.envelope)] || ""
+                : "",
+              isValid: true,
+              errors: [],
+            };
+          });
+
+          setPreviewRows(previewData);
+        }
+      } catch (error) {
+        console.error("Erro ao processar arquivo:", error);
+        toast({
+          title: "Erro",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Erro ao processar o arquivo",
+          variant: "destructive",
+        });
+      }
+    },
+    [toast]
+  );
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (file) {
+        setFile(file);
+        processFile(file);
+      }
+    },
+    [processFile]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -140,81 +272,6 @@ export function ImportTransactionsDialog({
     console.log(`[parseCSVLine] Campos extraídos:`, cleanedResult);
 
     return cleanedResult;
-  };
-
-  const processFile = async (file: File) => {
-    try {
-      const text = await file.text();
-      const lines = text.split("\n").map((line) => parseCSVLine(line));
-      setFilePreview(lines); // Todas as linhas para preview
-
-      // Auto-detect column mapping
-      if (lines.length > 0 && lines[0].length > 0) {
-        const headers = lines[0].filter(
-          (header) => header && header.trim() !== ""
-        );
-
-        if (headers.length === 0) {
-          throw new Error("Arquivo não contém cabeçalhos válidos");
-        }
-
-        const autoMapping: ColumnMapping = {
-          date: "",
-          description: "",
-          amount: "",
-          envelope: "",
-        };
-
-        console.log(`[AutoMapping] Headers disponíveis:`, headers);
-
-        headers.forEach((header, index) => {
-          const lowerHeader = header.toLowerCase();
-          console.log(
-            `[AutoMapping] Analisando header "${header}" (${lowerHeader})`
-          );
-
-          if (lowerHeader.includes("data") || lowerHeader.includes("date")) {
-            autoMapping.date = header;
-            console.log(`[AutoMapping] ✅ Data mapeada: "${header}"`);
-          } else if (
-            lowerHeader.includes("desc") ||
-            lowerHeader.includes("descrição")
-          ) {
-            autoMapping.description = header;
-            console.log(`[AutoMapping] ✅ Descrição mapeada: "${header}"`);
-          } else if (
-            lowerHeader.includes("valor") ||
-            lowerHeader.includes("amount")
-          ) {
-            autoMapping.amount = header;
-            console.log(`[AutoMapping] ✅ Valor mapeado: "${header}"`);
-          } else if (
-            lowerHeader.includes("categoria") ||
-            lowerHeader.includes("category") ||
-            lowerHeader.includes("envelope") ||
-            lowerHeader.includes("categ")
-          ) {
-            autoMapping.envelope = header;
-            console.log(`[AutoMapping] ✅ Envelope mapeado: "${header}"`);
-          }
-        });
-
-        console.log(`[AutoMapping] Mapeamento final:`, autoMapping);
-
-        setColumnMapping(autoMapping);
-      } else {
-        throw new Error("Arquivo vazio ou sem cabeçalhos");
-      }
-
-      setStep("mapping");
-    } catch (error) {
-      console.error("Erro ao processar arquivo:", error);
-      // Resetar estado em caso de erro
-      setFile(null);
-      setFilePreview([]);
-      setStep("upload");
-      // Aqui você pode mostrar um toast de erro
-    }
   };
 
   const generatePreview = () => {
@@ -406,7 +463,7 @@ export function ImportTransactionsDialog({
         throw new Error("Erro ao processar importação");
       }
 
-      const { status, totalRows } = await confirmResponse.json();
+      const { status } = await confirmResponse.json();
 
       // Simular progresso baseado no status
       if (status === "RUNNING") {

@@ -73,7 +73,15 @@ class DashboardOverviewService {
     };
   }
 
-  private async getCurrentPeriodData(calculators: any, period: string) {
+  private async getCurrentPeriodData(
+    calculators: {
+      incomeCalculator: IncomeCalculator;
+      expenseCalculator: ExpenseCalculator;
+      balanceCalculator: BalanceCalculator;
+      receivableCalculator: ReceivableCalculator;
+    },
+    period: string
+  ) {
     const dateRange = this.createDateRange(period);
 
     return {
@@ -83,7 +91,15 @@ class DashboardOverviewService {
     };
   }
 
-  private async getPreviousPeriodData(calculators: any, period: string) {
+  private async getPreviousPeriodData(
+    calculators: {
+      incomeCalculator: IncomeCalculator;
+      expenseCalculator: ExpenseCalculator;
+      balanceCalculator: BalanceCalculator;
+      receivableCalculator: ReceivableCalculator;
+    },
+    period: string
+  ) {
     const dateRange = this.createPreviousDateRange(period);
 
     return {
@@ -93,7 +109,15 @@ class DashboardOverviewService {
     };
   }
 
-  private async getAdditionalData(calculators: any, period: string) {
+  private async getAdditionalData(
+    calculators: {
+      incomeCalculator: IncomeCalculator;
+      expenseCalculator: ExpenseCalculator;
+      balanceCalculator: BalanceCalculator;
+      receivableCalculator: ReceivableCalculator;
+    },
+    period: string
+  ) {
     // For all-time, use total; otherwise use scheduled for current period
     if (period === "all-time") {
       return {
@@ -282,7 +306,7 @@ class PreviousPeriodCalculator {
       case "12-months":
         return this.calculatePrevious12Months(now);
       case "all-time":
-        return this.calculatePreviousAllTime(now);
+        return this.calculatePreviousAllTime();
       default:
         return this.calculatePreviousMonth(now);
     }
@@ -368,7 +392,7 @@ class PreviousPeriodCalculator {
     return new CustomDateRangeImpl(startDate, endDate);
   }
 
-  private calculatePreviousAllTime(now: Date): CustomDateRange {
+  private calculatePreviousAllTime(): CustomDateRange {
     const startDate = new Date(2019, 0, 1); // Year before all-time start
     startDate.setHours(0, 0, 0, 0);
 
