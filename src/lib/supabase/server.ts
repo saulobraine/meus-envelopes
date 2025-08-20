@@ -38,5 +38,5 @@ export async function getAuthenticatedUser() {
   if (!user) {
     throw new Error("User not authenticated.");
   }
-  return { client, user };
+  return { user };
 }

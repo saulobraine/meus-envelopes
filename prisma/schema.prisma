@@ -14,7 +14,7 @@ datasource db {
   relationMode = "prisma"
 }
 
-enum OperationType {
+enum TransactionType {
   INCOME
   EXPENSE
 }
@@ -25,55 +25,55 @@ enum BudgetType {
 }
 
 model User {
-  id             String                @id @default(uuid())
-  email          String                @unique
-  name           String?
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  operations     Operation[]
-  
-  ownedAccounts  SharedAccountAccess[] @relation("OwnerAccounts")
-  memberAccounts SharedAccountAccess[] @relation("MemberAccounts")
-  importSessions ImportSession[]
-  envelopes      Envelope[]
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  envelopes    Envelope[]
+  transactions Transaction[]
+  importJobs   ImportJob[]
 }
 
 model Envelope {
-  id          String      @id @default(uuid())
-  name        String
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id])
-  value       Int
-  type        BudgetType
-  isDeletable Boolean     @default(true)
-  isGlobal    Boolean     @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  operations  Operation[]
+  id           String        @id @default(uuid())
+  name         String
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id])
+  value        Int
+  type         BudgetType
+  isDeletable  Boolean       @default(true)
+  isGlobal     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
 
   @@index([userId])
 }
 
-model Operation {
-  id              String            @id @default(cuid())
-  userId          String
-  date            DateTime
-  description     String
-  amount          Int // Stored in cents
-  type            OperationType
-  envelopeId      String
-  status          TransactionStatus @default(COMPLETED)
-  scheduledAt     DateTime?
-  processedAt     DateTime?
-  importSessionId String?
-  importSession   ImportSession?    @relation(fields: [importSessionId], references: [id])
+model Transaction {
+  id          String            @id @default(cuid())
+  userId      String
+  date        DateTime
+  description String
+  amount      Int // Stored in cents
+  type        TransactionType
+  envelopeId  String
+  status      TransactionStatus @default(COMPLETED)
+  scheduledAt DateTime?
+  processedAt DateTime?
+  importJobId String?
 
-  envelope Envelope @relation(fields: [envelopeId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  envelope     Envelope      @relation(fields: [envelopeId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  importJob    ImportJob?    @relation(fields: [importJobId], references: [id])
+  importRecord ImportRecord? // Relacionamento com o registro de importação
 
   @@index([userId])
   @@index([envelopeId])
-  @@index([importSessionId])
+  @@index([importJobId])
 }
 
 enum TransactionStatus {
@@ -82,55 +82,92 @@ enum TransactionStatus {
   SCHEDULED
 }
 
-model ImportSession {
-  id            String                     @id @default(cuid())
+model ImportJob {
+  id            String          @id @default(cuid())
   userId        String
-  createdAt     DateTime                   @default(now())
-  fileName      String
-  importedCount Int                        @default(0)
-  ignoredCount  Int                        @default(0)
-  errorCount    Int                        @default(0)
-  transactions  Operation[]
-  errors        Json?
-  previewItems  ImportTransactionPreview[]
+  filename      String
+  mimeType      String
+  size          Int
+  status        ImportJobStatus @default(QUEUED)
+  totalRows     Int             @default(0)
+  processedRows Int             @default(0)
+  importedRows  Int             @default(0)
+  errorRows     Int             @default(0)
+  skippedRows   Int             @default(0)
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  logs          Json[]          @default([])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
-  user User @relation(fields: [userId], references: [id])
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events       ImportEvent[]
+  transactions Transaction[]
+  records      ImportRecord[]
 
   @@index([userId])
+  @@index([status])
 }
 
-model ImportTransactionPreview {
-  id              String        @id @default(cuid())
-  importSessionId String
-  status          PreviewStatus
-  resolved        Boolean       @default(false)
-  data            Json
+model ImportEvent {
+  id        String          @id @default(cuid())
+  jobId     String
+  type      ImportEventType
+  message   String
+  data      Json?
+  createdAt DateTime        @default(now())
 
-  importSession ImportSession @relation(fields: [importSessionId], references: [id])
+  job ImportJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
-  @@index([importSessionId])
+  @@index([jobId])
+  @@index([createdAt])
 }
 
-enum PreviewStatus {
-  NEW
-  PENDING
-  DUPLICATE
+enum ImportJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+enum ImportEventType {
+  PROGRESS
+  LOG
+  WARNING
   ERROR
-  CONFIRMED
+  METRIC
 }
 
+model ImportRecord {
+  id           String             @id @default(cuid())
+  jobId        String
+  rowNumber    Int // Número da linha no arquivo original
+  rawData      Json // Dados brutos da linha
+  status       ImportRecordStatus @default(PENDING)
+  errorMessage String? // Mensagem de erro se houver
+  processedAt  DateTime?
 
+  // Dados processados
+  date        DateTime?
+  description String?
+  amount      Int? // Em centavos
+  envelope    String?
 
-model SharedAccountAccess {
-  id        String   @id @default(uuid())
-  ownerId   String
-  owner     User     @relation("OwnerAccounts", fields: [ownerId], references: [id])
-  memberId  String
-  member    User     @relation("MemberAccounts", fields: [memberId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Relacionamentos
+  importJob     ImportJob    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId String?      @unique // ID da transação criada
 
-  @@unique([ownerId, memberId])
-  @@index([ownerId])
-  @@index([memberId])
+  @@index([jobId])
+  @@index([status])
+  @@index([rowNumber])
+}
+
+enum ImportRecordStatus {
+  PENDING // Aguardando processamento
+  PROCESSING // Em processamento
+  IMPORTED // Importado com sucesso
+  SKIPPED // Ignorado (duplicado, inválido, etc.)
+  ERROR // Erro no processamento
 }
