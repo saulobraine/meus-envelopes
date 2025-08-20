@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Plus,
-  Clock,
-  ArrowClockwise,
-  Calendar,
-  Repeat,
-  CurrencyDollar,
-} from "phosphor-react";
+import { Plus, Calendar, Repeat, CurrencyDollar } from "phosphor-react";
 import { AddRecurringPaymentDialog } from "./AddRecurringPaymentDialog";
 import { EditRecurringPaymentDialog } from "./EditRecurringPaymentDialog";
 import { formatCurrency } from "@/lib/currency";
@@ -102,14 +95,6 @@ export function RecurringPaymentsManager() {
       if (p.frequency === "yearly") return sum + p.amount;
       return sum;
     }, 0);
-
-  const activePayments = payments.filter((p) => p.isActive).length;
-  const upcomingPayments = payments.filter((p) => {
-    const nextDate = new Date(p.nextPayment);
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    return nextDate <= nextWeek && p.isActive;
-  }).length;
 
   const filteredPayments = payments.filter((p) => p.isActive);
 

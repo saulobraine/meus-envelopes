@@ -66,13 +66,13 @@ export async function GET(
     };
 
     // Filtros de status
-    let statusFilters: any = {};
+    const statusFilters: Record<string, unknown> = {};
     if (status !== "all") {
       statusFilters.status = status.toUpperCase();
     }
 
     // Filtros de busca
-    let searchFilters: any = {};
+    const searchFilters: Record<string, unknown> = {};
     if (search && search.trim()) {
       searchFilters.OR = [
         { description: { contains: search.trim(), mode: "insensitive" } },
@@ -81,13 +81,13 @@ export async function GET(
     }
 
     // Combinar todos os filtros
-    const where: any = { ...baseFilters };
+    const where: Record<string, unknown> = { ...baseFilters };
     if (Object.keys(statusFilters).length > 0) {
       where.AND = [statusFilters];
     }
     if (Object.keys(searchFilters).length > 0) {
-      if (where.AND) {
-        where.AND.push(searchFilters);
+      if (where.AND && Array.isArray(where.AND)) {
+        (where.AND as unknown[]).push(searchFilters);
       } else {
         where.AND = [searchFilters];
       }
@@ -117,13 +117,18 @@ export async function GET(
     // Formatar registros para o formato esperado
     const formattedTransactions = importRecords.map((record) => {
       // Determinar status baseado no registro
-      let transactionStatus:
+      const transactionStatus:
         | "imported"
         | "error"
         | "skipped"
         | "pending"
-        | "processing" = record.status.toLowerCase() as any;
-      let errorMessage: string | undefined = record.errorMessage;
+        | "processing" = record.status.toLowerCase() as
+        | "imported"
+        | "error"
+        | "skipped"
+        | "pending"
+        | "processing";
+      const errorMessage: string | undefined = record.errorMessage ?? undefined;
 
       // Formatar dados
       const formattedRecord = {

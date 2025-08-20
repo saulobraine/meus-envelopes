@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Download, Eye, Clock, Check, X, Warning } from "phosphor-react";
 import { ImportTransactionsDialog } from "@/components/import/ImportTransactionsDialog";
-import { formatCurrency } from "@/lib/currency";
 
 interface ImportJob {
   id: string;
@@ -31,12 +30,12 @@ export default function ImportacoesPage() {
 
   const fetchImportJobs = async () => {
     try {
-      const response = await fetch('/api/imports');
+      const response = await fetch("/api/imports");
       if (response.ok) {
         const data = await response.json();
         setImportJobs(data);
       } else {
-        console.error('Erro ao buscar importações');
+        console.error("Erro ao buscar importações");
       }
     } catch (error) {
       console.error("Erro ao buscar importações:", error);
@@ -51,14 +50,17 @@ export default function ImportacoesPage() {
       RUNNING: { label: "Processando", variant: "default", icon: Clock },
       COMPLETED: { label: "Concluído", variant: "default", icon: Check },
       FAILED: { label: "Falhou", variant: "destructive", icon: X },
-      CANCELED: { label: "Cancelado", variant: "secondary", icon: Warning }
+      CANCELED: { label: "Cancelado", variant: "secondary", icon: Warning },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.QUEUED;
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.QUEUED;
     const Icon = config.icon;
 
     return (
-      <Badge variant={config.variant as any}>
+      <Badge
+        variant={config.variant as "default" | "secondary" | "destructive"}
+      >
         <Icon className="w-3 h-3 mr-1" />
         {config.label}
       </Badge>
@@ -71,7 +73,7 @@ export default function ImportacoesPage() {
       month: "2-digit",
       year: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -84,8 +86,8 @@ export default function ImportacoesPage() {
             Gerencie suas importações de transações
           </p>
         </div>
-        <ImportTransactionsDialog 
-          open={isDialogOpen} 
+        <ImportTransactionsDialog
+          open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onImportStarted={(jobId) => {
             setIsDialogOpen(false);
@@ -113,7 +115,10 @@ export default function ImportacoesPage() {
           ) : (
             <div className="space-y-4">
               {importJobs.map((job) => (
-                <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={job.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-medium">{job.filename}</h3>
@@ -121,13 +126,18 @@ export default function ImportacoesPage() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Criado em {formatDate(job.createdAt)}
-                      {job.finishedAt && ` • Concluído em ${formatDate(job.finishedAt)}`}
+                      {job.finishedAt &&
+                        ` • Concluído em ${formatDate(job.finishedAt)}`}
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-sm">
                       <span>Total: {job.totalRows}</span>
-                      <span className="text-green-600">Importadas: {job.importedRows}</span>
+                      <span className="text-green-600">
+                        Importadas: {job.importedRows}
+                      </span>
                       {job.errorRows > 0 && (
-                        <span className="text-red-600">Erros: {job.errorRows}</span>
+                        <span className="text-red-600">
+                          Erros: {job.errorRows}
+                        </span>
                       )}
                     </div>
                   </div>

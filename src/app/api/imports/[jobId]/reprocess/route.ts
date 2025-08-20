@@ -102,11 +102,12 @@ export async function POST(
             (event) =>
               event.type === "LOG" &&
               event.data &&
-              (event.data as any).columnMapping
+              (event.data as Record<string, unknown>).columnMapping
           );
 
           if (mappingEvent) {
-            const columnMapping = (mappingEvent.data as any).columnMapping;
+            const columnMapping = (mappingEvent.data as Record<string, unknown>)
+              .columnMapping as Record<string, string>;
 
             // Buscar todos os registros PENDING para reprocessar
             const pendingRecords = await prisma.importRecord.findMany({
@@ -118,9 +119,16 @@ export async function POST(
             });
 
             // Reprocessar usando a mesma lógica da API de confirmação
+            const recordsToReprocess = pendingRecords
+              .filter((record) => record.rawData !== null)
+              .map((record) => ({
+                id: record.id,
+                rawData: record.rawData as Record<string, unknown>,
+              }));
+
             await reprocessRecords(
               jobId,
-              pendingRecords,
+              recordsToReprocess,
               columnMapping,
               user.id
             );
@@ -168,8 +176,8 @@ export async function POST(
 // Função auxiliar para reprocessar registros (reutiliza lógica existente)
 async function reprocessRecords(
   jobId: string,
-  records: any[],
-  columnMapping: any,
+  records: Array<{ id: string; rawData: Record<string, unknown> }>,
+  columnMapping: Record<string, string>,
   userId: string
 ) {
   let reprocessedCount = 0;
@@ -177,13 +185,22 @@ async function reprocessRecords(
 
   for (const record of records) {
     try {
+      // Buscar o registro completo do banco
+      const fullRecord = await prisma.importRecord.findUnique({
+        where: { id: record.id },
+      });
+
+      if (!fullRecord) {
+        continue;
+      }
+
       // Atualizar status para PROCESSING
       await prisma.importRecord.update({
         where: { id: record.id },
         data: { status: "PROCESSING" },
       });
 
-      const rawData = record.rawData as any;
+      const rawData = record.rawData as Record<string, string>;
 
       // Extrair dados do registro original usando o mapeamento
       const date = rawData[columnMapping.date] || "";
@@ -197,8 +214,8 @@ async function reprocessRecords(
       await prisma.importRecord.update({
         where: { id: record.id },
         data: {
-          date: date ? parseBrazilianDate(date) : record.date,
-          description: description || record.description,
+          date: date ? parseBrazilianDate(date) : fullRecord.date,
+          description: description || fullRecord.description,
           amount: amountStr
             ? (() => {
                 let cleanAmountStr = amountStr.trim();
@@ -227,8 +244,8 @@ async function reprocessRecords(
                 const amount = Math.round(parseFloat(cleanAmountStr) * 100);
                 return isNegative ? -amount : amount;
               })()
-            : record.amount,
-          envelope: envelope || record.envelope,
+            : fullRecord.amount,
+          envelope: envelope || fullRecord.envelope,
         },
       });
 

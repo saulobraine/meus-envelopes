@@ -11,7 +11,7 @@ import {
 } from "phosphor-react";
 import { getDashboardOverview } from "@/app/_actions/dashboard/getDashboardOverview";
 import { useEffect, useState } from "react";
-import { ColorUtility, formatChartValue } from "@/lib/utils";
+import { ColorUtility } from "@/lib/utils";
 import { formatCurrency } from "@/lib/currency";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -102,21 +102,6 @@ export const OverviewCards = ({
       </div>
     );
   }
-
-  const getPeriodDescription = (periodKey: string) => {
-    const descriptions: Record<string, string> = {
-      "7-days": "7 dias",
-      "this-month": "Este mês",
-      "last-month": "Mês passado",
-      "3-months": "3 meses",
-      "6-months": "6 meses",
-      "12-months": "12 meses",
-      "all-time": "Total",
-    };
-    return descriptions[periodKey] || "Período";
-  };
-
-  const periodDesc = getPeriodDescription(period);
 
   const metrics = [
     {

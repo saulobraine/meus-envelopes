@@ -110,7 +110,7 @@ export function TransactionDialog({
     if (isOpen) {
       fetchEnvelopes();
     }
-  }, [isOpen]); // Removido toast das dependências para evitar loops infinitos
+  }, [isOpen, toast]); // Removido toast das dependências para evitar loops infinitos
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};

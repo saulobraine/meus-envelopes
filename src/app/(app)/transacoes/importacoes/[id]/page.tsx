@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,13 +39,7 @@ export default function ImportProgressPage() {
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
 
-  useEffect(() => {
-    fetchJobDetails();
-    const interval = setInterval(updateProgress, 1000);
-    return () => clearInterval(interval);
-  }, [jobId]);
-
-  const fetchJobDetails = async () => {
+  const fetchJobDetails = useCallback(async () => {
     try {
       const response = await fetch(`/api/imports/${jobId}`);
       if (response.ok) {
@@ -60,15 +54,21 @@ export default function ImportProgressPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [jobId]);
 
-  const updateProgress = () => {
+  const updateProgress = useCallback(() => {
     if (job && job.status === "RUNNING") {
       // Simular progresso incremental
       setProgress((prev) => Math.min(prev + Math.random() * 2, 100));
       setElapsedTime((prev) => prev + 1);
     }
-  };
+  }, [job]);
+
+  useEffect(() => {
+    fetchJobDetails();
+    const interval = setInterval(updateProgress, 1000);
+    return () => clearInterval(interval);
+  }, [jobId, fetchJobDetails, updateProgress]);
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -84,7 +84,9 @@ export default function ImportProgressPage() {
     const Icon = config.icon;
 
     return (
-      <Badge variant={config.variant as any}>
+      <Badge
+        variant={config.variant as "default" | "secondary" | "destructive"}
+      >
         <Icon className="w-3 h-3 mr-1" />
         {config.label}
       </Badge>

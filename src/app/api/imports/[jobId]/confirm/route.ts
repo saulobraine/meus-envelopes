@@ -110,7 +110,7 @@ function parseCSVLine(line: string): string[] {
 async function processImportJob(
   jobId: string,
   lines: string[],
-  columnMapping: any,
+  columnMapping: Record<string, string>,
   userId: string
 ) {
   try {
