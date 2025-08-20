@@ -45,17 +45,35 @@ export function ThemeProvider({
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
-    let currentTheme: "light" | "dark";
-    if (theme === "system") {
-      currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    } else {
-      currentTheme = theme;
-    }
+    const updateTheme = () => {
+      let currentTheme: "light" | "dark";
+      if (theme === "system") {
+        currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+      } else {
+        currentTheme = theme;
+      }
 
-    root.classList.add(currentTheme);
-    setResolvedTheme(currentTheme);
+      root.classList.add(currentTheme);
+      setResolvedTheme(currentTheme);
+
+      // Forçar repaint para garantir que as mudanças sejam aplicadas
+      root.style.colorScheme = currentTheme;
+    };
+
+    updateTheme();
+
+    // Adicionar listener para mudanças no tema do sistema
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = () => {
+        updateTheme();
+      };
+
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
   }, [theme]);
 
   const value = {
