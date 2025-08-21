@@ -129,7 +129,12 @@ export function EnvelopeForm({ onSuccess }: EnvelopeFormProps) {
               <FormItem className="flex-1">
                 <FormLabel>Valor</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="30" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="30"
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

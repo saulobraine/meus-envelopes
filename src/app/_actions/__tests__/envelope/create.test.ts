@@ -16,7 +16,7 @@ jest.mock("@/lib/supabase/server", () => ({
   getAuthenticatedUser: jest.fn(),
 }));
 
-import { create } from "../create";
+import { create } from "@/app/_actions/envelope";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";

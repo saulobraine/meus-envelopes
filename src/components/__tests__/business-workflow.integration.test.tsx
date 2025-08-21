@@ -14,9 +14,13 @@ import { EnvelopeForm } from "../envelopes/EnvelopeForm";
 // Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
-jest.mock("@/app/_actions/envelope", () => ({
-  create: jest.fn(),
-}));
+jest.mock("@/app/_actions/envelope");
+
+// Importar o mock após a declaração
+import { create as mockCreateEnvelope } from "@/app/_actions/envelope";
+
+// Cast para Jest mock
+const mockCreateEnvelopeMock = mockCreateEnvelope as jest.Mock;
 
 // Mock do toast
 const mockToast = jest.fn();
@@ -31,22 +35,21 @@ describe("Workflow de Negócio - Integração Simplificada", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Configurar mock padrão para sucesso
+    mockCreateEnvelopeMock.mockResolvedValue({
+      success: true,
+      data: {
+        id: "env-123",
+        name: "Supermercado",
+        value: 500,
+        type: "MONETARY",
+      },
+    });
   });
 
   describe("Workflow: Criar Envelope", () => {
     it("deve permitir criar envelope com sucesso", async () => {
-      // Mock para criação de envelope
-      const mockCreateEnvelope = jest.fn();
-      mockCreateEnvelope.mockResolvedValue({
-        success: true,
-        data: {
-          id: "env-123",
-          name: "Supermercado",
-          value: 500,
-          type: "MONETARY",
-        },
-      });
-
       render(<EnvelopeForm onSuccess={jest.fn()} />);
 
       // Preencher formulário de envelope
@@ -63,8 +66,8 @@ describe("Workflow de Negócio - Integração Simplificada", () => {
 
       // Verificar se envelope foi criado
       await waitFor(() => {
-        expect(mockCreateEnvelope).toHaveBeenCalled();
-        const callArgs = mockCreateEnvelope.mock.calls[0][0];
+        expect(mockCreateEnvelopeMock).toHaveBeenCalled();
+        const callArgs = mockCreateEnvelopeMock.mock.calls[0][0];
         expect(callArgs).toBeInstanceOf(FormData);
         expect(callArgs.get("name")).toBe("Supermercado");
         expect(callArgs.get("value")).toBe("500");
@@ -74,8 +77,9 @@ describe("Workflow de Negócio - Integração Simplificada", () => {
 
     it("deve lidar com erro na criação de envelope", async () => {
       // Mock para erro na criação
-      const mockCreateEnvelope = jest.fn();
-      mockCreateEnvelope.mockRejectedValue(new Error("Erro no banco de dados"));
+      mockCreateEnvelopeMock.mockRejectedValue(
+        new Error("Erro no banco de dados")
+      );
 
       render(<EnvelopeForm onSuccess={jest.fn()} />);
 

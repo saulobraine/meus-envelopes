@@ -188,7 +188,8 @@ describe("RadioGroup Component", () => {
 
     options.forEach((option) => {
       expect(screen.getByText(option.label)).toBeInTheDocument();
-      expect(screen.getByDisplayValue(option.value)).toBeInTheDocument();
+      const radioItem = screen.getByRole("radio", { name: option.label });
+      expect(radioItem).toHaveAttribute("value", option.value);
     });
   });
 });

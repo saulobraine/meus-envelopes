@@ -15,17 +15,14 @@ import { TransactionDialog } from "../TransactionDialog";
 // Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
-jest.mock("@/app/_actions/transactions/create", () => ({
-  create: jest.fn(),
-}));
+jest.mock("@/app/_actions/transactions/create");
+jest.mock("@/app/_actions/transactions/update");
+jest.mock("@/app/_actions/envelope/get");
 
-jest.mock("@/app/_actions/transactions/update", () => ({
-  update: jest.fn(),
-}));
-
-jest.mock("@/app/_actions/envelope/get", () => ({
-  get: jest.fn(),
-}));
+// Importar os mocks após a declaração
+import { create as mockCreateTransaction } from "@/app/_actions/transactions/create";
+import { update as mockUpdateTransaction } from "@/app/_actions/transactions/update";
+import { get as mockGetEnvelopes } from "@/app/_actions/envelope/get";
 
 // Mock do toast
 jest.mock("@/hooks/use-toast", () => ({
@@ -48,12 +45,16 @@ describe("TransactionDialog - Testes Básicos", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock para listagem de envelopes
-    const mockGetEnvelopes = jest.fn();
+
+    // Configurar mock para listagem de envelopes
     mockGetEnvelopes.mockResolvedValue([
       { id: "1", name: "Supermercado", type: "EXPENSE" },
       { id: "2", name: "Salário", type: "INCOME" },
     ]);
+
+    // Configurar mocks para transações
+    mockCreateTransaction.mockResolvedValue({ success: true });
+    mockUpdateTransaction.mockResolvedValue({ success: true });
   });
 
   describe("Renderização e Estrutura", () => {
