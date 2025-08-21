@@ -39,12 +39,6 @@ describe("Avatar Component", () => {
 
     it("deve renderizar o AvatarImage quando carrega com sucesso", () => {
       // Mock da imagem para simular carregamento bem-sucedido
-      const mockImage = {
-        complete: true,
-        naturalWidth: 100,
-        naturalHeight: 100,
-      };
-
       render(
         <Avatar>
           <AvatarImage src="/avatar.jpg" alt="Avatar do usuário" />
@@ -318,5 +312,19 @@ describe("Avatar Component", () => {
       expect(complexFallback).toBeInTheDocument();
       expect(complexFallback).toHaveTextContent("JD");
     });
+  });
+
+  it("deve renderizar com imagem personalizada", () => {
+    render(
+      <Avatar>
+        <AvatarImage src="/custom-image.jpg" alt="Custom Avatar" />
+        <AvatarFallback>CA</AvatarFallback>
+      </Avatar>
+    );
+
+    // O AvatarImage só é renderizado quando a imagem carrega
+    // Por padrão, testamos o fallback
+    const fallback = screen.getByText("CA");
+    expect(fallback).toBeInTheDocument();
   });
 });

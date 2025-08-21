@@ -162,7 +162,6 @@ describe("Alert", () => {
         </Alert>
       );
 
-      const alert = screen.getByRole("alert");
       const description = screen.getByText("Alert description");
       // O componente Alert pode não ter aria-describedby por padrão
       expect(description).toHaveAttribute("id", "alert-desc");
@@ -298,5 +297,17 @@ describe("Alert", () => {
         screen.getByText("Operação realizada com sucesso.")
       ).toBeInTheDocument();
     });
+  });
+
+  it("deve aplicar variantes de cor corretamente", () => {
+    const { rerender } = render(
+      <Alert variant="default">Mensagem padrão</Alert>
+    );
+    expect(screen.getByRole("alert")).toHaveClass("bg-background");
+
+    rerender(<Alert variant="destructive">Mensagem de erro</Alert>);
+    expect(screen.getByRole("alert")).toHaveClass(
+      "border-destructive/50 text-destructive dark:border-destructive"
+    );
   });
 });

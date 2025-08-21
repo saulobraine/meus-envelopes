@@ -1,4 +1,6 @@
 import { update } from "../../envelope/update";
+import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 // Mock das dependências
@@ -29,14 +31,11 @@ describe("update - Envelope", () => {
     mockFormData.set("value", "2000");
     mockFormData.set("type", "MONETARY");
 
-    const { getAuthenticatedUser } = require("@/lib/supabase/server");
-    getAuthenticatedUser.mockResolvedValue({ user: mockUser });
+    (getAuthenticatedUser as jest.Mock).mockResolvedValue({ user: mockUser });
   });
 
   it("deve atualizar um envelope com sucesso", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.update.mockResolvedValue({} as any);
+    (prisma.envelope.update as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await update(envelopeId, mockFormData);
 
@@ -56,12 +55,10 @@ describe("update - Envelope", () => {
   });
 
   it("deve atualizar um envelope com tipo PERCENTAGE", async () => {
-    const { prisma } = require("@/lib/prisma");
-
     mockFormData.set("type", "PERCENTAGE");
     mockFormData.set("value", "30");
 
-    prisma.envelope.update.mockResolvedValue({} as any);
+    (prisma.envelope.update as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await update(envelopeId, mockFormData);
 
@@ -79,11 +76,9 @@ describe("update - Envelope", () => {
   });
 
   it("deve atualizar envelope com valores decimais", async () => {
-    const { prisma } = require("@/lib/prisma");
-
     mockFormData.set("value", "1500.50");
 
-    prisma.envelope.update.mockResolvedValue({} as any);
+    (prisma.envelope.update as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await update(envelopeId, mockFormData);
 
@@ -105,8 +100,6 @@ describe("update - Envelope", () => {
 
     await expect(update(envelopeId, mockFormData)).rejects.toThrow();
 
-    const { prisma } = require("@/lib/prisma");
-    const { revalidatePath } = require("next/cache");
     expect(prisma.envelope.update).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -116,8 +109,6 @@ describe("update - Envelope", () => {
 
     await expect(update(envelopeId, mockFormData)).rejects.toThrow();
 
-    const { prisma } = require("@/lib/prisma");
-    const { revalidatePath } = require("next/cache");
     expect(prisma.envelope.update).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
@@ -127,15 +118,12 @@ describe("update - Envelope", () => {
 
     await expect(update(envelopeId, mockFormData)).rejects.toThrow();
 
-    const { prisma } = require("@/lib/prisma");
-    const { revalidatePath } = require("next/cache");
     expect(prisma.envelope.update).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve lançar erro se o usuário não estiver autenticado", async () => {
-    const { getAuthenticatedUser } = require("@/lib/supabase/server");
-    getAuthenticatedUser.mockRejectedValue(
+    (getAuthenticatedUser as jest.Mock).mockRejectedValue(
       new Error("User not authenticated.")
     );
 
@@ -143,16 +131,12 @@ describe("update - Envelope", () => {
       "User not authenticated."
     );
 
-    const { prisma } = require("@/lib/prisma");
-    const { revalidatePath } = require("next/cache");
     expect(prisma.envelope.update).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve lançar erro se o ID do envelope for inválido", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.update.mockRejectedValue(
+    (prisma.envelope.update as jest.Mock).mockRejectedValue(
       new Error("Record to update not found")
     );
 
@@ -160,14 +144,11 @@ describe("update - Envelope", () => {
       "Record to update not found"
     );
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve verificar se o envelope pertence ao usuário correto", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.update.mockResolvedValue({} as any);
+    (prisma.envelope.update as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await update(envelopeId, mockFormData);
 

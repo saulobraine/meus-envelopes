@@ -20,7 +20,7 @@ jest.mock("recharts", () => ({
     data,
   }: {
     children: React.ReactNode;
-    data: any[];
+    data: Array<Record<string, unknown>>;
   }) => (
     <div data-testid="bar-chart" data-points={data.length}>
       {children}
@@ -76,7 +76,7 @@ jest.mock("@/components/ui/chart", () => ({
     config,
   }: {
     children: React.ReactNode;
-    config: any;
+    config: Record<string, unknown>;
   }) => (
     <div data-testid="chart-container" data-config={JSON.stringify(config)}>
       {children}
@@ -88,7 +88,7 @@ jest.mock("@/components/ui/chart", () => ({
 }));
 
 describe("StackedBarChart", () => {
-  const mockInitialChartData = [
+  const mockChartData: Array<{ [key: string]: string | number | undefined; period?: string; name?: string }> = [
     { period: "Jan", Supermercado: 150000, Salário: 300000 },
     { period: "Feb", Supermercado: 160000, Salário: 320000 },
     { period: "Mar", Supermercado: 140000, Salário: 280000 },
@@ -104,7 +104,7 @@ describe("StackedBarChart", () => {
     it("deve renderizar o gráfico de barras empilhadas", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -118,7 +118,7 @@ describe("StackedBarChart", () => {
     it("deve renderizar título e descrição corretos", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -142,7 +142,7 @@ describe("StackedBarChart", () => {
     it("deve lidar com envelopes vazios", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={[]}
         />
       );
@@ -170,7 +170,7 @@ describe("StackedBarChart", () => {
     it("deve renderizar com dados de múltiplos períodos", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -183,7 +183,7 @@ describe("StackedBarChart", () => {
     it("deve configurar cores para envelopes", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -202,7 +202,7 @@ describe("StackedBarChart", () => {
     it("deve usar cores consistentes para o mesmo envelope", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -221,7 +221,7 @@ describe("StackedBarChart", () => {
     it("deve ter estrutura semântica adequada", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -234,7 +234,7 @@ describe("StackedBarChart", () => {
     it("deve ter tooltip configurado", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -247,7 +247,7 @@ describe("StackedBarChart", () => {
     it("deve usar container responsivo", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -258,7 +258,7 @@ describe("StackedBarChart", () => {
     it("deve ter classes CSS responsivas", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -316,7 +316,7 @@ describe("StackedBarChart", () => {
     it("deve ter tooltip funcional", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );
@@ -327,7 +327,7 @@ describe("StackedBarChart", () => {
     it("deve ter grid para facilitar leitura", () => {
       render(
         <StackedBarChart
-          initialChartData={mockInitialChartData}
+          initialChartData={mockChartData}
           envelopes={mockEnvelopes}
         />
       );

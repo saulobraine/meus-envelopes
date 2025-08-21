@@ -1,4 +1,7 @@
 import { remove } from "../../envelope/remove";
+import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 
 // Mock das dependências
 jest.mock("@/lib/prisma", () => ({
@@ -23,14 +26,11 @@ describe("remove - Envelope", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const { getAuthenticatedUser } = require("@/lib/supabase/server");
-    getAuthenticatedUser.mockResolvedValue({ user: mockUser });
+    (getAuthenticatedUser as jest.Mock).mockResolvedValue({ user: mockUser });
   });
 
   it("deve remover um envelope com sucesso", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockResolvedValue({} as any);
+    (prisma.envelope.delete as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await remove(envelopeId);
 
@@ -42,14 +42,11 @@ describe("remove - Envelope", () => {
       },
     });
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 
   it("deve verificar se o envelope pertence ao usuário correto", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockResolvedValue({} as any);
+    (prisma.envelope.delete as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await remove(envelopeId);
 
@@ -63,9 +60,7 @@ describe("remove - Envelope", () => {
   });
 
   it("deve verificar se o envelope é deletável", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockResolvedValue({} as any);
+    (prisma.envelope.delete as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await remove(envelopeId);
 
@@ -79,23 +74,18 @@ describe("remove - Envelope", () => {
   });
 
   it("deve lançar erro se o usuário não estiver autenticado", async () => {
-    const { getAuthenticatedUser } = require("@/lib/supabase/server");
-    getAuthenticatedUser.mockRejectedValue(
+    (getAuthenticatedUser as jest.Mock).mockRejectedValue(
       new Error("User not authenticated.")
     );
 
     await expect(remove(envelopeId)).rejects.toThrow("User not authenticated.");
 
-    const { prisma } = require("@/lib/prisma");
-    const { revalidatePath } = require("next/cache");
     expect(prisma.envelope.delete).not.toHaveBeenCalled();
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve lançar erro se o envelope não for encontrado", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockRejectedValue(
+    (prisma.envelope.delete as jest.Mock).mockRejectedValue(
       new Error("Record to delete does not exist")
     );
 
@@ -103,14 +93,11 @@ describe("remove - Envelope", () => {
       "Record to delete does not exist"
     );
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve lançar erro se o envelope não for deletável", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockRejectedValue(
+    (prisma.envelope.delete as jest.Mock).mockRejectedValue(
       new Error("Cannot delete non-deletable envelope")
     );
 
@@ -118,25 +105,19 @@ describe("remove - Envelope", () => {
       "Cannot delete non-deletable envelope"
     );
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve lançar erro se o envelope não pertencer ao usuário", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockRejectedValue(new Error("Access denied"));
+    (prisma.envelope.delete as jest.Mock).mockRejectedValue(new Error("Access denied"));
 
     await expect(remove(envelopeId)).rejects.toThrow("Access denied");
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
   it("deve funcionar com diferentes IDs de envelope", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockResolvedValue({} as any);
+    (prisma.envelope.delete as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     const differentIds = ["envelope-1", "envelope-2", "envelope-abc123"];
 
@@ -152,18 +133,14 @@ describe("remove - Envelope", () => {
       });
     }
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).toHaveBeenCalledTimes(differentIds.length);
   });
 
   it("deve revalidar o cache após remoção bem-sucedida", async () => {
-    const { prisma } = require("@/lib/prisma");
-
-    prisma.envelope.delete.mockResolvedValue({} as any);
+    (prisma.envelope.delete as jest.Mock).mockResolvedValue({} as Record<string, unknown>);
 
     await remove(envelopeId);
 
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 });

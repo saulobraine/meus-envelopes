@@ -28,38 +28,32 @@ jest.mock("@/lib/utils", () => ({
   },
 }));
 
-// Mock do componente Card para evitar problemas com a função cn
+import React from "react";
+import { render, screen, waitFor } from "@testing-library/react";
+import { OverviewCards } from "@/components/dashboard/OverviewCards";
+import { getDashboardOverview } from "@/app/_actions/dashboard/getDashboardOverview";
+
+// Mock da action getDashboardOverview
+const mockGetDashboardOverview = getDashboardOverview as jest.Mock;
+
+// Mock dos componentes de UI
 jest.mock("@/components/ui/card", () => ({
-  Card: ({ children, className, ...props }: any) => (
+  Card: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={`card ${className || ""}`} {...props}>
       {children}
     </div>
   ),
-  CardContent: ({ children, className, ...props }: any) => (
-    <div className={`card-content ${className || ""}`} {...props}>
-      {children}
-    </div>
-  ),
-  CardHeader: ({ children, className, ...props }: any) => (
+  CardHeader: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={`card-header ${className || ""}`} {...props}>
       {children}
     </div>
   ),
-  CardTitle: ({ children, className, ...props }: any) => (
+  CardTitle: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={`card-title ${className || ""}`} {...props}>
       {children}
     </div>
   ),
 }));
-
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
-import { OverviewCards } from "@/components/dashboard/OverviewCards";
-
-// Mock da action getDashboardOverview
-const {
-  getDashboardOverview: mockGetDashboardOverview,
-} = require("@/app/_actions/dashboard/getDashboardOverview");
 
 describe("OverviewCards", () => {
   beforeEach(() => {
@@ -67,7 +61,7 @@ describe("OverviewCards", () => {
   });
 
   it("deve renderizar o componente sem erros", async () => {
-    const mockData = {
+    const mockOverviewData = {
       totalBalance: 150000,
       monthlyIncome: 300000,
       monthlyExpenses: 150000,
@@ -78,7 +72,7 @@ describe("OverviewCards", () => {
       balanceChange: { value: 15, isPositive: true, stringValue: "+15%" },
     };
 
-    mockGetDashboardOverview.mockResolvedValue(mockData);
+    mockGetDashboardOverview.mockResolvedValue(mockOverviewData);
 
     render(<OverviewCards />);
 
@@ -120,7 +114,7 @@ describe("OverviewCards", () => {
   });
 
   it("deve aceitar período customizado como prop", async () => {
-    const mockData = {
+    const mockOverviewData = {
       totalBalance: 150000,
       monthlyIncome: 300000,
       monthlyExpenses: 150000,
@@ -131,7 +125,7 @@ describe("OverviewCards", () => {
       balanceChange: { value: 15, isPositive: true, stringValue: "+15%" },
     };
 
-    mockGetDashboardOverview.mockResolvedValue(mockData);
+    mockGetDashboardOverview.mockResolvedValue(mockOverviewData);
 
     render(<OverviewCards period="7-days" />);
 

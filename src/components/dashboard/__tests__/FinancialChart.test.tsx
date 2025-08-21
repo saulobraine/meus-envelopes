@@ -20,7 +20,7 @@ jest.mock("recharts", () => ({
     data,
   }: {
     children: React.ReactNode;
-    data: any[];
+    data: Array<Record<string, unknown>>;
   }) => (
     <div data-testid="area-chart" data-points={data.length}>
       {children}
@@ -74,7 +74,7 @@ jest.mock("@/components/ui/chart", () => ({
     config,
   }: {
     children: React.ReactNode;
-    config: any;
+    config: Record<string, unknown>;
   }) => (
     <div data-testid="chart-container" data-config={JSON.stringify(config)}>
       {children}

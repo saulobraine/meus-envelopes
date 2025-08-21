@@ -12,19 +12,17 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { TransactionDialog } from "../TransactionDialog";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
-jest.mock("@/app/_actions/transactions/create", () => ({
-  create: jest.fn(),
-}));
+jest.mock("@/app/_actions/transactions/create");
+jest.mock("@/app/_actions/transactions/update");
+jest.mock("@/app/_actions/envelope/get");
 
-jest.mock("@/app/_actions/transactions/update", () => ({
-  update: jest.fn(),
-}));
-
-jest.mock("@/app/_actions/envelope/get", () => ({
-  get: jest.fn(),
-}));
+// Importar os mocks após a declaração
+import { create as mockCreateTransaction } from "@/app/_actions/transactions/create";
+import { update as mockUpdateTransaction } from "@/app/_actions/transactions/update";
+import { get as mockGetEnvelopes } from "@/app/_actions/envelope/get";
 
 // Mock do toast
 jest.mock("@/hooks/use-toast", () => ({
@@ -52,9 +50,13 @@ describe("TransactionDialog - Integração Simples", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock para listagem de envelopes
-    const { get: mockGetEnvelopes } = require("@/app/_actions/envelope/get");
+
+    // Configurar mock para listagem de envelopes
     mockGetEnvelopes.mockResolvedValue(mockEnvelopes);
+
+    // Configurar mocks para transações
+    mockCreateTransaction.mockResolvedValue({ success: true });
+    mockUpdateTransaction.mockResolvedValue({ success: true });
   });
 
   describe("Fluxo Básico de Criação", () => {
@@ -69,7 +71,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se os campos estão presentes
@@ -108,7 +110,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const submitButton = screen.getByRole("button", {
@@ -137,7 +139,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i);
@@ -182,7 +184,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se os campos estão preenchidos
@@ -222,7 +224,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se o título está correto
@@ -247,7 +249,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i) as HTMLInputElement;
@@ -270,7 +272,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i) as HTMLInputElement;

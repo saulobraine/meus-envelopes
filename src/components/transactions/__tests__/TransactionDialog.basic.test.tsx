@@ -12,19 +12,17 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { TransactionDialog } from "../TransactionDialog";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
-jest.mock("@/app/_actions/transactions/create", () => ({
-  create: jest.fn(),
-}));
+jest.mock("@/app/_actions/transactions/create");
+jest.mock("@/app/_actions/transactions/update");
+jest.mock("@/app/_actions/envelope/get");
 
-jest.mock("@/app/_actions/transactions/update", () => ({
-  update: jest.fn(),
-}));
-
-jest.mock("@/app/_actions/envelope/get", () => ({
-  get: jest.fn(),
-}));
+// Importar os mocks após a declaração
+import { create as mockCreateTransaction } from "@/app/_actions/transactions/create";
+import { update as mockUpdateTransaction } from "@/app/_actions/transactions/update";
+import { get as mockGetEnvelopes } from "@/app/_actions/envelope/get";
 
 // Mock do toast
 jest.mock("@/hooks/use-toast", () => ({
@@ -47,12 +45,16 @@ describe("TransactionDialog - Testes Básicos", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock para listagem de envelopes
-    const { get: mockGetEnvelopes } = require("@/app/_actions/envelope/get");
+
+    // Configurar mock para listagem de envelopes
     mockGetEnvelopes.mockResolvedValue([
       { id: "1", name: "Supermercado", type: "EXPENSE" },
       { id: "2", name: "Salário", type: "INCOME" },
     ]);
+
+    // Configurar mocks para transações
+    mockCreateTransaction.mockResolvedValue({ success: true });
+    mockUpdateTransaction.mockResolvedValue({ success: true });
   });
 
   describe("Renderização e Estrutura", () => {
@@ -67,7 +69,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se o título está presente
@@ -110,7 +112,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se o título está correto
@@ -135,7 +137,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const submitButton = screen.getByRole("button", {
@@ -164,7 +166,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i);
@@ -197,7 +199,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i) as HTMLInputElement;
@@ -220,7 +222,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i);
@@ -248,19 +250,15 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Verificar se a action de buscar envelopes foi chamada
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
     });
 
     it("deve ter mocks configurados corretamente", () => {
       // Verificar se os mocks estão funcionando
-      const {
-        create: mockCreate,
-      } = require("@/app/_actions/transactions/create");
-      const {
-        update: mockUpdate,
-      } = require("@/app/_actions/transactions/update");
-      const { get: mockGet } = require("@/app/_actions/envelope/get");
+      const mockCreate = jest.fn();
+      const mockUpdate = jest.fn();
+      const mockGet = jest.fn();
 
       expect(mockCreate).toBeDefined();
       expect(mockUpdate).toBeDefined();

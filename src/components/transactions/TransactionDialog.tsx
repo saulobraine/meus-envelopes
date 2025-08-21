@@ -348,7 +348,7 @@ export function TransactionDialog({
                   <SelectValue placeholder="Selecione um envelope" />
                 </SelectTrigger>
                 <SelectContent>
-                  {envelopes.map((envelope) => (
+                  {envelopes?.map((envelope) => (
                     <SelectItem key={envelope.id} value={envelope.id}>
                       {envelope.name}
                     </SelectItem>

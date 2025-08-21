@@ -55,7 +55,7 @@ export const createTestFormData = (overrides: Partial<typeof ENVELOPE_TEST_CONFI
 };
 
 // Utilitários para criação de mocks de envelope
-export const createMockEnvelope = (overrides: Partial<any> = {}) => {
+export const createMockEnvelope = (overrides: Partial<Record<string, unknown>> = {}) => {
   return {
     id: ENVELOPE_TEST_CONFIG.TEST_ENVELOPE_ID,
     name: ENVELOPE_TEST_CONFIG.DEFAULT_ENVELOPE_DATA.name,
@@ -71,7 +71,7 @@ export const createMockEnvelope = (overrides: Partial<any> = {}) => {
 };
 
 // Utilitários para criação de mocks de usuário
-export const createMockUser = (overrides: Partial<any> = {}) => {
+export const createMockUser = (overrides: Partial<Record<string, unknown>> = {}) => {
   return {
     id: ENVELOPE_TEST_CONFIG.TEST_USER_ID,
     email: 'test@example.com',
@@ -129,7 +129,7 @@ export const VALIDATION_RULES = {
 };
 
 // Função para validar estrutura de envelope
-export const validateEnvelopeStructure = (envelope: any) => {
+export const validateEnvelopeStructure = (envelope: Record<string, unknown>) => {
   const requiredFields = ['id', 'name', 'value', 'type', 'userId', 'isGlobal', 'isDeletable', 'createdAt', 'updatedAt'];
   
   requiredFields.forEach(field => {

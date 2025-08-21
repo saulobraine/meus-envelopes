@@ -11,24 +11,37 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { EnvelopeForm } from "../EnvelopeForm";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
-jest.mock("@/app/_actions/envelope", () => ({
-  create: jest.fn(),
-}));
+jest.mock("@/app/_actions/envelope");
 
 // Mock do toast
-jest.mock("@/hooks/use-toast", () => ({
-  useToast: () => ({
-    toast: jest.fn(),
-  }),
-}));
+jest.mock("@/hooks/use-toast");
+
+// Importar os mocks após a declaração
+import { create as mockCreateEnvelope } from "@/app/_actions/envelope";
+import { useToast } from "@/hooks/use-toast";
+
+// Cast para Jest mock
+const mockCreateEnvelopeMock = mockCreateEnvelope as jest.Mock;
 
 describe("EnvelopeForm - Integração Simples", () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Configurar mock padrão para sucesso
+    mockCreateEnvelopeMock.mockResolvedValue({
+      success: true,
+      data: { id: "123", name: "Teste", value: 100, type: "MONETARY" },
+    });
+
+    // Configurar mock do toast
+    (useToast as jest.Mock).mockReturnValue({
+      toast: jest.fn(),
+    });
   });
 
   describe("Fluxo Básico de Criação", () => {
@@ -107,13 +120,6 @@ describe("EnvelopeForm - Integração Simples", () => {
   describe("Integração com Actions", () => {
     it("deve chamar a action quando o formulário for válido", async () => {
       const mockOnSuccess = jest.fn();
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
-
-      // Mock para sucesso
-      mockCreateEnvelope.mockResolvedValue({
-        success: true,
-        data: { id: "123", name: "Teste", value: 100, type: "MONETARY" },
-      });
 
       render(<EnvelopeForm onSuccess={mockOnSuccess} />);
 
@@ -133,16 +139,15 @@ describe("EnvelopeForm - Integração Simples", () => {
 
       // Verificar se a action foi chamada
       await waitFor(() => {
-        expect(mockCreateEnvelope).toHaveBeenCalled();
+        expect(mockCreateEnvelopeMock).toHaveBeenCalled();
       });
     });
 
     it("deve lidar com erro da action", async () => {
       const mockOnSuccess = jest.fn();
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
 
       // Mock para erro
-      mockCreateEnvelope.mockRejectedValue(new Error("Erro no servidor"));
+      mockCreateEnvelopeMock.mockRejectedValue(new Error("Erro no servidor"));
 
       render(<EnvelopeForm onSuccess={mockOnSuccess} />);
 
@@ -162,7 +167,7 @@ describe("EnvelopeForm - Integração Simples", () => {
 
       // Verificar se a action foi chamada
       await waitFor(() => {
-        expect(mockCreateEnvelope).toHaveBeenCalled();
+        expect(mockCreateEnvelopeMock).toHaveBeenCalled();
       });
 
       // Verificar se onSuccess NÃO foi chamado devido ao erro
@@ -187,13 +192,6 @@ describe("EnvelopeForm - Integração Simples", () => {
 
     it("deve limpar campos após submissão bem-sucedida", async () => {
       const mockOnSuccess = jest.fn();
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
-
-      // Mock para sucesso
-      mockCreateEnvelope.mockResolvedValue({
-        success: true,
-        data: { id: "123", name: "Teste", value: 100, type: "MONETARY" },
-      });
 
       render(<EnvelopeForm onSuccess={mockOnSuccess} />);
 
@@ -213,7 +211,7 @@ describe("EnvelopeForm - Integração Simples", () => {
 
       // Aguardar sucesso
       await waitFor(() => {
-        expect(mockCreateEnvelope).toHaveBeenCalled();
+        expect(mockCreateEnvelopeMock).toHaveBeenCalled();
       });
 
       // Verificar se os campos foram limpos

@@ -173,7 +173,13 @@ beforeEach(() => {
 });
 
 // Mock das funções de autenticação
-export const mockAuth = {
+export const mockAuth: {
+  user: { id: string; email: string };
+  isAuthenticated: boolean;
+  loading: boolean;
+  signOut: jest.Mock;
+  getUser: jest.Mock;
+} = {
   user: { id: "test-user-123", email: "test@example.com" },
   isAuthenticated: true,
   loading: false,
