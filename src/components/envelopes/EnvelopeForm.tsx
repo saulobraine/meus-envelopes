@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TransactionType } from "@prisma/client";
+import { BudgetType } from "@prisma/client";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -32,7 +32,7 @@ const FormSchema = z.object({
   value: z.number().min(0, {
     message: "O valor deve ser um número positivo.",
   }),
-  type: z.enum(TransactionType).refine((val) => !!val, {
+  type: z.nativeEnum(BudgetType).refine((val) => !!val, {
     message: "Selecione um tipo de valor.",
   }),
 });
@@ -48,7 +48,7 @@ export function EnvelopeForm({ onSuccess }: EnvelopeFormProps) {
     defaultValues: {
       name: "",
       value: 0,
-      type: TransactionType.EXPENSE,
+      type: BudgetType.MONETARY,
     },
   });
 
@@ -129,7 +129,12 @@ export function EnvelopeForm({ onSuccess }: EnvelopeFormProps) {
               <FormItem className="flex-1">
                 <FormLabel>Valor</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="30" {...field} />
+                  <Input
+                    type="number"
+                    placeholder="30"
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
