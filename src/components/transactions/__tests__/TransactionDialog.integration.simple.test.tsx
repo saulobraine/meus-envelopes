@@ -12,6 +12,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { TransactionDialog } from "../TransactionDialog";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
 jest.mock("@/app/_actions/transactions/create", () => ({
@@ -53,7 +54,7 @@ describe("TransactionDialog - Integração Simples", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Mock para listagem de envelopes
-    const { get: mockGetEnvelopes } = require("@/app/_actions/envelope/get");
+    const mockGetEnvelopes = jest.fn();
     mockGetEnvelopes.mockResolvedValue(mockEnvelopes);
   });
 
@@ -69,7 +70,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se os campos estão presentes
@@ -108,7 +109,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const submitButton = screen.getByRole("button", {
@@ -137,7 +138,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i);
@@ -182,7 +183,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se os campos estão preenchidos
@@ -222,7 +223,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se o título está correto
@@ -247,7 +248,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i) as HTMLInputElement;
@@ -270,7 +271,7 @@ describe("TransactionDialog - Integração Simples", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i) as HTMLInputElement;

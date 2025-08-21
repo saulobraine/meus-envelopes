@@ -16,8 +16,10 @@ jest.mock("@/lib/supabase/server", () => ({
   getAuthenticatedUser: jest.fn(),
 }));
 
-import { create } from "../../envelope/create";
-import { revalidatePath } from "../../../../test-utils/next-mocks";
+import { create } from "../create";
+import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 
 describe("create - Envelope", () => {
   const mockFormData = new FormData();
@@ -28,16 +30,12 @@ describe("create - Envelope", () => {
     mockFormData.set("value", "1000");
     mockFormData.set("type", "MONETARY");
 
-    const { getAuthenticatedUser } = require("@/lib/supabase/server");
     getAuthenticatedUser.mockResolvedValue({
       user: { id: "test-user-123", email: "test@example.com" },
     });
   });
 
   it("deve criar um envelope com sucesso", async () => {
-    // Importar o Prisma mockado
-    const { prisma } = require("@/lib/prisma");
-
     // Configurar mocks
     prisma.envelope.findFirst.mockResolvedValue(null);
     prisma.envelope.create.mockResolvedValue({});
@@ -61,13 +59,10 @@ describe("create - Envelope", () => {
     });
 
     // Verificar se o cache foi revalidado
-    const { revalidatePath } = require("next/cache");
     expect(revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 
   it("deve criar um envelope com tipo PERCENTAGE", async () => {
-    const { prisma } = require("@/lib/prisma");
-
     mockFormData.set("type", "PERCENTAGE");
     mockFormData.set("value", "25");
 
@@ -87,8 +82,6 @@ describe("create - Envelope", () => {
   });
 
   it("deve lançar erro se já existir envelope com o mesmo nome", async () => {
-    const { prisma } = require("@/lib/prisma");
-
     prisma.envelope.findFirst.mockResolvedValue({
       id: "existing-envelope",
       name: "Teste Envelope",
@@ -108,7 +101,6 @@ describe("create - Envelope", () => {
 
     await expect(create(mockFormData)).rejects.toThrow();
 
-    const { prisma } = require("@/lib/prisma");
     expect(prisma.envelope.findFirst).not.toHaveBeenCalled();
     expect(prisma.envelope.create).not.toHaveBeenCalled();
   });
@@ -118,7 +110,6 @@ describe("create - Envelope", () => {
 
     await expect(create(mockFormData)).rejects.toThrow();
 
-    const { prisma } = require("@/lib/prisma");
     expect(prisma.envelope.findFirst).not.toHaveBeenCalled();
     expect(prisma.envelope.create).not.toHaveBeenCalled();
   });
@@ -128,13 +119,11 @@ describe("create - Envelope", () => {
 
     await expect(create(mockFormData)).rejects.toThrow();
 
-    const { prisma } = require("@/lib/prisma");
     expect(prisma.envelope.findFirst).not.toHaveBeenCalled();
     expect(prisma.envelope.create).not.toHaveBeenCalled();
   });
 
   it("deve lançar erro se o usuário não estiver autenticado", async () => {
-    const { getAuthenticatedUser } = require("@/lib/supabase/server");
     getAuthenticatedUser.mockRejectedValue(
       new Error("User not authenticated.")
     );
@@ -143,7 +132,6 @@ describe("create - Envelope", () => {
       "User not authenticated."
     );
 
-    const { prisma } = require("@/lib/prisma");
     expect(prisma.envelope.findFirst).not.toHaveBeenCalled();
     expect(prisma.envelope.create).not.toHaveBeenCalled();
   });

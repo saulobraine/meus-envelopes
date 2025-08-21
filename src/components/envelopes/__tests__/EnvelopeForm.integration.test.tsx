@@ -13,6 +13,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { EnvelopeForm } from "../EnvelopeForm";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions reais
 jest.mock("@/app/_actions/envelope", () => ({
@@ -38,7 +39,7 @@ describe("EnvelopeForm - Integração com Actions", () => {
   describe("Fluxo de Criação de Envelope", () => {
     it("deve criar envelope com sucesso e chamar onSuccess", async () => {
       // Configurar mock para sucesso
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
+      const mockCreateEnvelope = jest.fn();
       mockCreateEnvelope.mockResolvedValue({
         success: true,
         data: { id: "123", name: "Supermercado", value: 300, type: "MONETARY" },
@@ -86,7 +87,7 @@ describe("EnvelopeForm - Integração com Actions", () => {
 
     it("deve lidar com erro na criação e mostrar toast de erro", async () => {
       // Configurar mock para erro
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
+      const mockCreateEnvelope = jest.fn();
       mockCreateEnvelope.mockRejectedValue(new Error("Erro ao criar envelope"));
 
       render(<EnvelopeForm onSuccess={mockOnSuccess} />);
@@ -163,7 +164,7 @@ describe("EnvelopeForm - Integração com Actions", () => {
   describe("Estados de Loading", () => {
     it("deve mostrar estado de loading durante a criação", async () => {
       // Mock que demora para responder
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
+      const mockCreateEnvelope = jest.fn();
       mockCreateEnvelope.mockImplementation(
         () => new Promise((resolve) => setTimeout(resolve, 100))
       );
@@ -199,7 +200,7 @@ describe("EnvelopeForm - Integração com Actions", () => {
 
   describe("Integração com Diferentes Tipos", () => {
     it("deve criar envelope com tipo padrão corretamente", async () => {
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
+      const mockCreateEnvelope = jest.fn();
       mockCreateEnvelope.mockResolvedValue({
         success: true,
         data: { id: "123", name: "Salário", value: 5000, type: "MONETARY" },

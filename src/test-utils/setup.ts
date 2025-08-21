@@ -18,12 +18,12 @@ import { TextEncoder, TextDecoder } from "util";
 import { ReadableStream } from "stream/web";
 
 // Configurar TextEncoder/TextDecoder globalmente
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as any;
+global.TextEncoder = TextEncoder as unknown as typeof global.TextEncoder;
+global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder;
 
 // Configurar ReadableStream para testes de streaming
 if (typeof global.ReadableStream === "undefined") {
-  global.ReadableStream = ReadableStream as any;
+  global.ReadableStream = ReadableStream as unknown as typeof global.ReadableStream;
 }
 
 // Mock do ResizeObserver (necessário para muitos componentes UI)
@@ -80,7 +80,7 @@ if (typeof global.HTMLDialogElement === "undefined") {
     show = jest.fn();
     showModal = jest.fn();
     close = jest.fn();
-  } as any;
+  } as typeof HTMLDialogElement;
 }
 
 // Mock do Clipboard API - comentado temporariamente para resolver conflito
@@ -103,7 +103,7 @@ const originalError = console.error;
 const originalWarn = console.warn;
 
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: Array<unknown>) => {
     // Suprimir warnings específicos do React/Next.js que não são relevantes para testes
     if (
       typeof args[0] === "string" &&
@@ -116,12 +116,12 @@ beforeAll(() => {
     originalError.call(console, ...args);
   };
 
-  console.warn = (...args: any[]) => {
-    // Suprimir warnings específicos
+  console.warn = (...args: Array<unknown>) => {
+    // Suprimir warnings específicos que não são relevantes para testes
     if (
       typeof args[0] === "string" &&
-      (args[0].includes("componentWillReceiveProps") ||
-        args[0].includes("componentWillUpdate"))
+      (args[0].includes("Warning: ReactDOM.render is deprecated") ||
+        args[0].includes("Warning: Function components cannot be given refs"))
     ) {
       return;
     }

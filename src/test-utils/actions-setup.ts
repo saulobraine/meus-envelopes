@@ -1,27 +1,34 @@
 /**
  * Setup Global para Testes
- * 
+ *
  * Este arquivo resolve problemas comuns de ambiente de teste
  * e configura mocks globais necessários.
  */
 
-// Polyfill para TextEncoder/TextDecoder (necessário para Next.js 15+)
-if (typeof globalThis.TextEncoder === 'undefined') {
-  const { TextEncoder, TextDecoder } = require('util');
-  globalThis.TextEncoder = TextEncoder;
-  globalThis.TextDecoder = TextDecoder;
+// Imports removidos pois não são utilizados diretamente neste arquivo
+
+// Polyfills simplificados apenas quando necessário
+import util from "util";
+if (typeof globalThis.TextEncoder === "undefined") {
+  globalThis.TextEncoder =
+    util.TextEncoder as unknown as typeof globalThis.TextEncoder;
+  globalThis.TextDecoder =
+    util.TextDecoder as unknown as typeof globalThis.TextDecoder;
 }
 
-// Polyfill para FormData (necessário para testes de server actions)
-if (typeof globalThis.FormData === 'undefined') {
-  const { FormData } = require('formdata-node');
-  globalThis.FormData = FormData;
-}
+// FormData polyfill básico para testes
+if (typeof globalThis.FormData === "undefined") {
+  globalThis.FormData = class FormData {
+    private data = new Map<string, string>();
 
-// Polyfill para Blob (necessário para FormData)
-if (typeof globalThis.Blob === 'undefined') {
-  const { Blob } = require('buffer');
-  globalThis.Blob = Blob;
+    append(name: string, value: string) {
+      this.data.set(name, value);
+    }
+
+    get(name: string) {
+      return this.data.get(name) || null;
+    }
+  } as unknown as typeof globalThis.FormData;
 }
 
 // Configurações globais do Jest
@@ -35,10 +42,16 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-// Configurar ambiente de teste
-process.env.NODE_ENV = 'test';
-process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321';
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-key';
+// Configurar ambiente de teste (apenas se não estiver definido)
+if (!process.env.NODE_ENV) {
+  (process.env as Record<string, unknown>).NODE_ENV = "test";
+}
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
+}
+if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+}
 
 // Suprimir logs desnecessários durante testes
 const originalConsoleLog = console.log;
@@ -58,20 +71,21 @@ afterAll(() => {
 });
 
 // Mock global para fetch se necessário
-if (typeof globalThis.fetch === 'undefined') {
+if (typeof globalThis.fetch === "undefined") {
   globalThis.fetch = jest.fn();
 }
 
 // Mock global para crypto se necessário
-if (typeof globalThis.crypto === 'undefined') {
+if (typeof globalThis.crypto === "undefined") {
   globalThis.crypto = {
     getRandomValues: jest.fn(),
-    randomUUID: jest.fn(() => 'test-uuid'),
-  } as any;
+    randomUUID: jest.fn(() => "test-uuid"),
+    subtle: {} as SubtleCrypto,
+  } as Crypto;
 }
 
 // Mock global para localStorage se necessário
-if (typeof globalThis.localStorage === 'undefined') {
+if (typeof globalThis.localStorage === "undefined") {
   globalThis.localStorage = {
     getItem: jest.fn(),
     setItem: jest.fn(),
@@ -79,11 +93,11 @@ if (typeof globalThis.localStorage === 'undefined') {
     clear: jest.fn(),
     length: 0,
     key: jest.fn(),
-  } as any;
+  } as Storage;
 }
 
 // Mock global para sessionStorage se necessário
-if (typeof globalThis.sessionStorage === 'undefined') {
+if (typeof globalThis.sessionStorage === "undefined") {
   globalThis.sessionStorage = {
     getItem: jest.fn(),
     setItem: jest.fn(),
@@ -91,41 +105,45 @@ if (typeof globalThis.sessionStorage === 'undefined') {
     clear: jest.fn(),
     length: 0,
     key: jest.fn(),
-  } as any;
+  } as Storage;
 }
 
 // Mock global para URL se necessário
-if (typeof globalThis.URL === 'undefined') {
-  globalThis.URL = require('url').URL;
+import url from "url";
+if (typeof globalThis.URL === "undefined") {
+  globalThis.URL = url.URL as unknown as typeof globalThis.URL;
 }
 
 // Mock global para URLSearchParams se necessário
-if (typeof globalThis.URLSearchParams === 'undefined') {
-  globalThis.URLSearchParams = require('url').URLSearchParams;
+if (typeof globalThis.URLSearchParams === "undefined") {
+  globalThis.URLSearchParams =
+    url.URLSearchParams as unknown as typeof globalThis.URLSearchParams;
 }
 
 // Mock global para Request se necessário
-if (typeof globalThis.Request === 'undefined') {
+if (typeof globalThis.Request === "undefined") {
   globalThis.Request = class Request {
-    constructor(input: any, init?: any) {
+    constructor() {
       // Implementação básica para testes
     }
-  } as any;
+  } as unknown as typeof globalThis.Request;
 }
 
 // Mock global para Response se necessário
-if (typeof globalThis.Response === 'undefined') {
+if (typeof globalThis.Response === "undefined") {
   globalThis.Response = class Response {
-    constructor(body?: any, init?: any) {
+    constructor() {
       // Implementação básica para testes
     }
-  } as any;
+  } as unknown as typeof globalThis.Response;
 }
 
 // Importar mocks do Supabase
-import './shared/supabase';
+import "./shared/supabase";
 
 // Configurar Jest para usar setupFilesAfterEnv
-export default {
-  setupFilesAfterEnv: ['<rootDir>/src/app/_actions/__tests__/setup.ts'],
+const actionsSetupConfig = {
+  setupFilesAfterEnv: ["<rootDir>/src/app/_actions/__tests__/setup.ts"],
 };
+
+export default actionsSetupConfig;

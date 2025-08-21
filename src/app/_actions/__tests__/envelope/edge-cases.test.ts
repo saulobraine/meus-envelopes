@@ -1,4 +1,4 @@
-import { create, get, update, remove } from "../../envelope";
+import { create, update, remove } from "../../envelope";
 import { prisma } from "@/lib/prisma";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -41,7 +41,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       mockFormData.set("type", "MONETARY");
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       await expect(create(mockFormData)).resolves.not.toThrow();
 
@@ -63,7 +65,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       mockFormData.set("type", "PERCENTAGE");
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       await expect(create(mockFormData)).resolves.not.toThrow();
 
@@ -85,7 +89,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       mockFormData.set("type", "MONETARY");
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       await expect(create(mockFormData)).resolves.not.toThrow();
 
@@ -107,7 +113,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       mockFormData.set("type", "MONETARY");
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       await expect(create(mockFormData)).resolves.not.toThrow();
 
@@ -133,7 +141,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       mockFormData.set("type", "MONETARY");
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       await expect(create(mockFormData)).resolves.not.toThrow();
 
@@ -164,7 +174,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
         mockFormData.set("type", "MONETARY");
 
         mockPrisma.envelope.findFirst.mockResolvedValue(null);
-        mockPrisma.envelope.create.mockResolvedValue({} as any);
+        mockPrisma.envelope.create.mockResolvedValue(
+          {} as Record<string, unknown>
+        );
 
         await expect(create(mockFormData)).resolves.not.toThrow();
       }
@@ -187,7 +199,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
         mockFormData.set("type", "MONETARY");
 
         mockPrisma.envelope.findFirst.mockResolvedValue(null);
-        mockPrisma.envelope.create.mockResolvedValue({} as any);
+        mockPrisma.envelope.create.mockResolvedValue(
+          {} as Record<string, unknown>
+        );
 
         await expect(create(mockFormData)).resolves.not.toThrow();
       }
@@ -209,9 +223,11 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
         id: "envelope-123",
         name: "Envelope Concorrente",
         userId: mockUser.id,
-      } as any);
+      } as Record<string, unknown>);
 
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       // Primeira criação deve funcionar
       await expect(create(mockFormData)).resolves.not.toThrow();
@@ -235,7 +251,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       );
       // Segunda tentativa funciona
       mockPrisma.envelope.findFirst.mockResolvedValueOnce(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       // Primeira tentativa deve falhar
       await expect(create(mockFormData)).rejects.toThrow("Connection timeout");
@@ -261,7 +279,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       );
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       // Primeira operação deve funcionar
       await expect(create(mockFormData)).resolves.not.toThrow();
@@ -362,7 +382,9 @@ describe("Envelope - Casos de Borda e Cenários Especiais", () => {
       mockFormData.set("type", "MONETARY");
 
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue(
+        {} as Record<string, unknown>
+      );
 
       // Simular falha na revalidação
       (revalidatePath as jest.Mock).mockImplementation(() => {

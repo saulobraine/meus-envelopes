@@ -14,10 +14,9 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 describe("RadioGroup Component", () => {
-  const mockOnValueChange = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -166,6 +165,30 @@ describe("RadioGroup Component", () => {
       );
       const radioGroup = screen.getByRole("radiogroup");
       expect(radioGroup).toHaveAttribute("aria-required", "false");
+    });
+  });
+
+  it("deve renderizar com opções customizadas", () => {
+    const options = [
+      { value: "option1", label: "Opção 1" },
+      { value: "option2", label: "Opção 2" },
+      { value: "option3", label: "Opção 3" },
+    ];
+
+    render(
+      <RadioGroup defaultValue="option1">
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center space-x-2">
+            <RadioGroupItem value={option.value} id={option.value} />
+            <Label htmlFor={option.value}>{option.label}</Label>
+          </div>
+        ))}
+      </RadioGroup>
+    );
+
+    options.forEach((option) => {
+      expect(screen.getByText(option.label)).toBeInTheDocument();
+      expect(screen.getByDisplayValue(option.value)).toBeInTheDocument();
     });
   });
 });

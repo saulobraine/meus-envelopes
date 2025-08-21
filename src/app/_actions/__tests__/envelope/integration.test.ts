@@ -51,7 +51,7 @@ describe('Envelope - Fluxo de Integração', () => {
         value: 1000,
         type: 'MONETARY',
         userId: mockUser.id,
-      } as any);
+      } as Record<string, unknown>);
 
       await create(mockFormData);
 
@@ -87,7 +87,7 @@ describe('Envelope - Fluxo de Integração', () => {
       mockFormData.set('name', 'Envelope Atualizado');
       mockFormData.set('value', '2000');
       
-      mockPrisma.envelope.update.mockResolvedValue({} as any);
+      mockPrisma.envelope.update.mockResolvedValue({} as Record<string, unknown>);
 
       await update(envelopeId, mockFormData);
 
@@ -104,7 +104,7 @@ describe('Envelope - Fluxo de Integração', () => {
       });
 
       // 4. Remover envelope
-      mockPrisma.envelope.delete.mockResolvedValue({} as any);
+      mockPrisma.envelope.delete.mockResolvedValue({} as Record<string, unknown>);
 
       await remove(envelopeId);
 
@@ -130,7 +130,7 @@ describe('Envelope - Fluxo de Integração', () => {
         id: 'existing-envelope',
         name: 'Envelope Teste',
         userId: mockUser.id,
-      } as any);
+      } as Record<string, unknown>);
 
       await expect(create(mockFormData)).rejects.toThrow('Já existe um envelope com este nome.');
 
@@ -154,7 +154,7 @@ describe('Envelope - Fluxo de Integração', () => {
         
         const mockPrisma = prisma as jest.Mocked<typeof prisma>;
         mockPrisma.envelope.findFirst.mockResolvedValue(null);
-        mockPrisma.envelope.create.mockResolvedValue({} as any);
+        mockPrisma.envelope.create.mockResolvedValue({} as Record<string, unknown>);
 
         await expect(create(mockFormData)).resolves.not.toThrow();
       }
@@ -178,7 +178,7 @@ describe('Envelope - Fluxo de Integração', () => {
       
       // Usuário atual cria envelope
       mockPrisma.envelope.findFirst.mockResolvedValue(null);
-      mockPrisma.envelope.create.mockResolvedValue({} as any);
+      mockPrisma.envelope.create.mockResolvedValue({} as Record<string, unknown>);
 
       await create(mockFormData);
 
@@ -204,7 +204,7 @@ describe('Envelope - Fluxo de Integração', () => {
       const mockPrisma = prisma as jest.Mocked<typeof prisma>;
       const envelopeId = 'envelope-123';
       
-      mockPrisma.envelope.delete.mockResolvedValue({} as any);
+      mockPrisma.envelope.delete.mockResolvedValue({} as Record<string, unknown>);
 
       await remove(envelopeId);
 

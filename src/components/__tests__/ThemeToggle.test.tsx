@@ -14,19 +14,20 @@ import "@testing-library/jest-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 // Mock do useTheme
-const mockUseTheme = {
-  setTheme: jest.fn(),
-  resolvedTheme: "light" as "light" | "dark",
-};
+let mockSetTheme = jest.fn();
+let mockResolvedTheme = "light";
 
 jest.mock("@/components/theme-provider", () => ({
-  useTheme: () => mockUseTheme,
+  useTheme: () => ({
+    setTheme: mockSetTheme,
+    resolvedTheme: mockResolvedTheme,
+  }),
 }));
 
 describe("ThemeToggle Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseTheme.resolvedTheme = "light";
+    mockResolvedTheme = "light";
   });
 
   describe("Renderização Básica", () => {
@@ -54,25 +55,25 @@ describe("ThemeToggle Component", () => {
 
   describe("Alternância de Tema", () => {
     it("deve chamar setTheme com dark quando tema atual é light", () => {
-      mockUseTheme.resolvedTheme = "light";
+      mockResolvedTheme = "light";
 
       render(<ThemeToggle />);
 
       const button = screen.getByRole("button");
       button.click();
 
-      expect(mockUseTheme.setTheme).toHaveBeenCalledWith("dark");
+      expect(mockSetTheme).toHaveBeenCalledWith("dark");
     });
 
     it("deve chamar setTheme com light quando tema atual é dark", () => {
-      mockUseTheme.resolvedTheme = "dark";
+      mockResolvedTheme = "dark";
 
       render(<ThemeToggle />);
 
       const button = screen.getByRole("button");
       button.click();
 
-      expect(mockUseTheme.setTheme).toHaveBeenCalledWith("light");
+      expect(mockSetTheme).toHaveBeenCalledWith("light");
     });
 
     it("deve chamar setTheme apenas uma vez por clique", () => {
@@ -81,13 +82,13 @@ describe("ThemeToggle Component", () => {
       const button = screen.getByRole("button");
       button.click();
 
-      expect(mockUseTheme.setTheme).toHaveBeenCalledTimes(1);
+      expect(mockSetTheme).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("Ícones", () => {
     it("deve mostrar ícone Moon quando tema é light", () => {
-      mockUseTheme.resolvedTheme = "light";
+      mockResolvedTheme = "light";
 
       render(<ThemeToggle />);
 
@@ -97,7 +98,7 @@ describe("ThemeToggle Component", () => {
     });
 
     it("deve mostrar ícone Sun quando tema é dark", () => {
-      mockUseTheme.resolvedTheme = "dark";
+      mockResolvedTheme = "dark";
 
       render(<ThemeToggle />);
 
@@ -159,8 +160,8 @@ describe("ThemeToggle Component", () => {
 
   describe("Comportamento", () => {
     it("deve funcionar quando setTheme é undefined", () => {
-      const originalSetTheme = mockUseTheme.setTheme;
-      mockUseTheme.setTheme = undefined as any;
+      const originalSetTheme = mockSetTheme;
+      mockSetTheme = undefined as unknown as jest.Mock;
 
       render(<ThemeToggle />);
 
@@ -168,12 +169,12 @@ describe("ThemeToggle Component", () => {
       expect(button).toBeInTheDocument();
 
       // Restaurar mock
-      mockUseTheme.setTheme = originalSetTheme;
+      mockSetTheme = originalSetTheme;
     });
 
     it("deve funcionar quando resolvedTheme é undefined", () => {
-      const originalResolvedTheme = mockUseTheme.resolvedTheme;
-      mockUseTheme.resolvedTheme = undefined as any;
+      const originalResolvedTheme = mockResolvedTheme;
+      mockResolvedTheme = undefined as unknown as string;
 
       render(<ThemeToggle />);
 
@@ -181,7 +182,7 @@ describe("ThemeToggle Component", () => {
       expect(button).toBeInTheDocument();
 
       // Restaurar mock
-      mockUseTheme.resolvedTheme = originalResolvedTheme;
+      mockResolvedTheme = originalResolvedTheme;
     });
   });
 });

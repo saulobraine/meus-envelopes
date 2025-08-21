@@ -29,10 +29,8 @@ jest.mock("@/components/dashboard/OverviewCards", () => ({
 jest.mock("@/components/dashboard/FinancialChart", () => ({
   FinancialChart: ({
     initialChartData,
-    envelopes,
   }: {
-    initialChartData: any[];
-    envelopes: any[];
+    initialChartData: Array<Record<string, unknown>>;
   }) => (
     <div data-testid="financial-chart" data-points={initialChartData.length}>
       Financial Chart Component
@@ -43,10 +41,8 @@ jest.mock("@/components/dashboard/FinancialChart", () => ({
 jest.mock("@/components/dashboard/StackedBarChart", () => ({
   StackedBarChart: ({
     initialChartData,
-    envelopes,
   }: {
-    initialChartData: any[];
-    envelopes: any[];
+    initialChartData: Array<Record<string, unknown>>;
   }) => (
     <div data-testid="stacked-bar-chart" data-points={initialChartData.length}>
       Stacked Bar Chart Component

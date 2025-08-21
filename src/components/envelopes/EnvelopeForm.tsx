@@ -29,10 +29,10 @@ const FormSchema = z.object({
   name: z.string().min(2, {
     message: "O nome do envelope deve ter pelo menos 2 caracteres.",
   }),
-  value: z.coerce.number().min(0, {
+  value: z.number().min(0, {
     message: "O valor deve ser um número positivo.",
   }),
-  type: z.enum(BudgetType).refine((val) => !!val, {
+  type: z.nativeEnum(BudgetType).refine((val) => !!val, {
     message: "Selecione um tipo de valor.",
   }),
 });

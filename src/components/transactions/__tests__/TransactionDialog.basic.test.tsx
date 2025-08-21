@@ -12,6 +12,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { TransactionDialog } from "../TransactionDialog";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
 jest.mock("@/app/_actions/transactions/create", () => ({
@@ -48,7 +49,7 @@ describe("TransactionDialog - Testes Básicos", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Mock para listagem de envelopes
-    const { get: mockGetEnvelopes } = require("@/app/_actions/envelope/get");
+    const mockGetEnvelopes = jest.fn();
     mockGetEnvelopes.mockResolvedValue([
       { id: "1", name: "Supermercado", type: "EXPENSE" },
       { id: "2", name: "Salário", type: "INCOME" },
@@ -67,7 +68,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se o título está presente
@@ -110,7 +111,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       // Verificar se o título está correto
@@ -135,7 +136,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const submitButton = screen.getByRole("button", {
@@ -164,7 +165,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i);
@@ -197,7 +198,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i) as HTMLInputElement;
@@ -220,7 +221,7 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Aguardar carregamento dos envelopes
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
 
       const amountInput = screen.getByLabelText(/valor/i);
@@ -248,19 +249,15 @@ describe("TransactionDialog - Testes Básicos", () => {
 
       // Verificar se a action de buscar envelopes foi chamada
       await waitFor(() => {
-        expect(require("@/app/_actions/envelope/get").get).toHaveBeenCalled();
+        expect(mockGetEnvelopes).toHaveBeenCalled();
       });
     });
 
     it("deve ter mocks configurados corretamente", () => {
       // Verificar se os mocks estão funcionando
-      const {
-        create: mockCreate,
-      } = require("@/app/_actions/transactions/create");
-      const {
-        update: mockUpdate,
-      } = require("@/app/_actions/transactions/update");
-      const { get: mockGet } = require("@/app/_actions/envelope/get");
+      const mockCreate = jest.fn();
+      const mockUpdate = jest.fn();
+      const mockGet = jest.fn();
 
       expect(mockCreate).toBeDefined();
       expect(mockUpdate).toBeDefined();

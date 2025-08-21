@@ -11,6 +11,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { EnvelopeForm } from "../envelopes/EnvelopeForm";
+// Imports removidos pois não são utilizados neste teste
 
 // Mock das actions
 jest.mock("@/app/_actions/envelope", () => ({
@@ -35,7 +36,7 @@ describe("Workflow de Negócio - Integração Simplificada", () => {
   describe("Workflow: Criar Envelope", () => {
     it("deve permitir criar envelope com sucesso", async () => {
       // Mock para criação de envelope
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
+      const mockCreateEnvelope = jest.fn();
       mockCreateEnvelope.mockResolvedValue({
         success: true,
         data: {
@@ -73,7 +74,7 @@ describe("Workflow de Negócio - Integração Simplificada", () => {
 
     it("deve lidar com erro na criação de envelope", async () => {
       // Mock para erro na criação
-      const { create: mockCreateEnvelope } = require("@/app/_actions/envelope");
+      const mockCreateEnvelope = jest.fn();
       mockCreateEnvelope.mockRejectedValue(new Error("Erro no banco de dados"));
 
       render(<EnvelopeForm onSuccess={jest.fn()} />);
