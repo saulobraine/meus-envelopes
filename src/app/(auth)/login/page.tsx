@@ -1,28 +1,33 @@
-"use client"
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const supabase = createClient()
+  const router = useRouter();
+  const supabase = createClient();
+
+  // Evitar execução durante build
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   const handleGoogleSignIn = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
-    })
+    });
 
     if (error) {
-      console.error('Error signing in with Google:', error)
+      console.error("Error signing in with Google:", error);
       // Handle error, e.g., display a message to the user
     } else if (data.url) {
-      router.push(data.url)
+      router.push(data.url);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -33,14 +38,11 @@ export default function LoginPage() {
           </h2>
         </div>
         <div className="mt-8 space-y-6">
-          <Button
-            onClick={handleGoogleSignIn}
-            className="w-full"
-          >
+          <Button onClick={handleGoogleSignIn} className="w-full">
             Entrar com Google
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
