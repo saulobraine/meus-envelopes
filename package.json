@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma migrate deploy && prisma generate && next build",
-    "build:with-seed": "prisma migrate deploy && prisma generate && prisma db seed && next build",
+    "build:with-seed": "ts-node scripts/smart-build.ts",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
     "db:health": "ts-node scripts/health-check.ts",
     "db:rollback": "ts-node scripts/rollback.ts",
-    "db:seed": "ts-node prisma/seed.ts"
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:fix-envelopes": "ts-node scripts/fix-null-envelopes.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
