@@ -43,6 +43,9 @@ import { Separator } from "@/components/ui/separator";
 import { TrendUp, Users, Buildings } from "phosphor-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { TransactionDialog } from "@/components/transactions/TransactionDialog";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   { icon: ChartBar, label: "Visão Geral", path: "/dashboard" },
@@ -325,18 +328,46 @@ export const DashboardLayout = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  // Atalho Ctrl + E para abrir diálogo de nova transação
+  useKeyboardShortcut({
+    ctrl: true,
+    key: "e",
+    onTrigger: () => {
+      setIsTransactionDialogOpen(true);
+      toast({
+        title: "Atalho de teclado",
+        description: "Diálogo de nova transação aberto via Ctrl + E",
+      });
+    },
+  });
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <main className="flex-1 px-4 py-6">
           <div className="flex items-center justify-between mb-6">
-            <SidebarTrigger />
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <div className="text-sm text-muted-foreground">
+                💡 Dica: Use <kbd className="px-2 py-1 text-xs bg-muted rounded border">Ctrl + E</kbd> para nova transação
+              </div>
+            </div>
             <UserDropdown />
           </div>
           {children}
         </main>
         <FloatingMenu />
+        
+        {/* Diálogo de nova transação global */}
+        <TransactionDialog
+          open={isTransactionDialogOpen}
+          onOpenChange={setIsTransactionDialogOpen}
+          onTransactionAdded={() => setIsTransactionDialogOpen(false)}
+        />
       </div>
     </SidebarProvider>
   );
