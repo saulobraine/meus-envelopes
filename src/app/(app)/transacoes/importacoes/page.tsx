@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,7 @@ interface ImportJob {
 }
 
 export default function ImportacoesPage() {
+  const router = useRouter();
   const [importJobs, setImportJobs] = useState<ImportJob[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,7 +95,7 @@ export default function ImportacoesPage() {
           onImportStarted={(jobId) => {
             setIsDialogOpen(false);
             // Redirecionar para página de progresso
-            window.location.href = `/transacoes/importacoes/${jobId}`;
+            router.push(`/transacoes/importacoes/${jobId}`);
           }}
         />
         <Button onClick={() => setIsDialogOpen(true)}>
@@ -143,10 +146,10 @@ export default function ImportacoesPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" asChild>
-                      <a href={`/transacoes/importacoes/${job.id}`}>
+                      <Link href={`/transacoes/importacoes/${job.id}`}>
                         <Eye className="w-4 h-4 mr-1" />
                         Ver Detalhes
-                      </a>
+                      </Link>
                     </Button>
                     {job.errorRows > 0 && (
                       <Button variant="outline" size="sm">

@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 
 export async function getDashboardOverview(
   period:
-    | "7-days"
     | "this-month"
     | "last-month"
     | "3-months"
@@ -165,7 +164,6 @@ class DateCalculator {
 
   private createCalculationStrategy(period: string): DateCalculationStrategy {
     const strategies: Record<string, DateCalculationStrategy> = {
-      "7-days": new SevenDaysStrategy(),
       "this-month": new ThisMonthStrategy(),
       "last-month": new LastMonthStrategy(),
       "3-months": new ThreeMonthsStrategy(),
@@ -194,19 +192,6 @@ class CustomDateRangeImpl implements CustomDateRange {
 
   getEndDate(): Date {
     return this.endDate;
-  }
-}
-
-class SevenDaysStrategy implements DateCalculationStrategy {
-  calculate(now: Date): CustomDateRange {
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - 6);
-    startDate.setHours(0, 0, 0, 0);
-
-    const endDate = new Date(now);
-    endDate.setHours(23, 59, 59, 999);
-
-    return new CustomDateRangeImpl(startDate, endDate);
   }
 }
 
@@ -293,8 +278,6 @@ class PreviousPeriodCalculator {
     const now = new Date();
 
     switch (period) {
-      case "7-days":
-        return this.calculatePrevious7Days(now);
       case "this-month":
         return this.calculatePreviousMonth(now);
       case "last-month":
@@ -310,18 +293,6 @@ class PreviousPeriodCalculator {
       default:
         return this.calculatePreviousMonth(now);
     }
-  }
-
-  private calculatePrevious7Days(now: Date): CustomDateRange {
-    const endDate = new Date(now);
-    endDate.setDate(now.getDate() - 7);
-    endDate.setHours(23, 59, 59, 999);
-
-    const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - 6);
-    startDate.setHours(0, 0, 0, 0);
-
-    return new CustomDateRangeImpl(startDate, endDate);
   }
 
   private calculatePreviousMonth(now: Date): CustomDateRange {

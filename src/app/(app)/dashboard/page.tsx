@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { OverviewCards } from "@/components/dashboard/OverviewCards";
 import { FinancialChart } from "@/components/dashboard/FinancialChart";
 import { StackedBarChart } from "@/components/dashboard/StackedBarChart";
@@ -19,17 +20,17 @@ interface ChartData {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { loading: authLoading, isAuthenticated } = useAuth();
 
   const [selectedPeriod, setSelectedPeriod] = useState<
-    | "7-days"
     | "this-month"
     | "last-month"
     | "3-months"
     | "6-months"
     | "12-months"
     | "all-time"
-  >("7-days");
+  >("this-month");
 
   const [chartData, setChartData] = useState<ChartData>({
     data: [],
@@ -40,9 +41,9 @@ export default function DashboardPage() {
   // Redirect to landing if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      window.location.href = "/";
+      router.push("/");
     }
-  }, [authLoading, isAuthenticated]);
+  }, [authLoading, isAuthenticated, router]);
 
   useEffect(() => {
     // Only fetch data if user is authenticated
@@ -60,7 +61,7 @@ export default function DashboardPage() {
           error instanceof Error &&
           error.message === "User not authenticated."
         ) {
-          window.location.href = "/";
+          router.push("/");
           return;
         }
       } finally {

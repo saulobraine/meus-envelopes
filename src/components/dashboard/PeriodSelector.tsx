@@ -10,7 +10,6 @@ import {
 
 interface PeriodSelectorProps {
   value:
-    | "7-days"
     | "this-month"
     | "last-month"
     | "3-months"
@@ -19,7 +18,6 @@ interface PeriodSelectorProps {
     | "all-time";
   onValueChange: (
     value:
-      | "7-days"
       | "this-month"
       | "last-month"
       | "3-months"
@@ -41,7 +39,6 @@ export const PeriodSelector = ({
         <SelectValue placeholder="Selecionar período" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="7-days">Últimos 7 dias</SelectItem>
         <SelectItem value="this-month">Este mês</SelectItem>
         <SelectItem value="last-month">Mês passado</SelectItem>
         <SelectItem value="3-months">Últimos 3 meses</SelectItem>

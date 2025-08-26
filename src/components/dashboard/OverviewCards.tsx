@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 import {
   CurrencyDollar,
   TrendUp,
@@ -23,7 +24,6 @@ interface PercentageChange {
 
 interface OverviewCardsProps {
   period?:
-    | "7-days"
     | "this-month"
     | "last-month"
     | "3-months"
@@ -35,6 +35,7 @@ interface OverviewCardsProps {
 export const OverviewCards = ({
   period = "this-month",
 }: OverviewCardsProps) => {
+  const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
   const [data, setData] = useState({
@@ -76,7 +77,7 @@ export const OverviewCards = ({
           error instanceof Error &&
           error.message === "User not authenticated."
         ) {
-          window.location.href = "/";
+          router.push("/");
           return;
         }
       } finally {
@@ -185,14 +186,14 @@ export const OverviewCards = ({
           className={`p-6 ${metric.isGeneralBalance ? "xl:col-span-1 lg:col-span-full md:col-span-2" : ""}`}
         >
           <div className="flex items-center justify-between mb-4">
-            <metric.icon className="h-8 w-8 text-secondary" />
+            <metric.icon className="h-8 w-8 text-primary" />
             {metric.change && (
               <span className={`text-sm font-medium ${metric.colorClass}`}>
                 {metric.change}
               </span>
             )}
           </div>
-          <h3 className="text-sm font-medium text-muted-foreground">
+          <h3 className="text-sm font-medium text-black dark:text-white">
             {metric.title}
           </h3>
           <div className="flex items-center gap-2 mt-2">

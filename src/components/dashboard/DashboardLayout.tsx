@@ -19,6 +19,9 @@ import {
   SignOut,
   ArrowsLeftRight,
   Upload,
+  TrendUp,
+  Users,
+  Buildings,
 } from "phosphor-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { FloatingMenu } from "@/components/ui/floating-menu";
@@ -40,7 +43,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { TrendUp, Users, Buildings } from "phosphor-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
@@ -220,7 +222,7 @@ const SharedAccountSidebar = () => {
 
   return (
     <div className="border-t border-border/40 bg-muted/20">
-      <div className="p-4">
+      <div className={isCollapsed ? "p-3" : "p-4"}>
         {!isCollapsed ? (
           <TooltipProvider>
             <div className="space-y-3">
@@ -269,8 +271,8 @@ const SharedAccountSidebar = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" className="w-full p-2">
-                  <Buildings className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="w-full p-3">
+                  <Buildings className="h-6 w-6" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">
@@ -303,24 +305,28 @@ const AppSidebar = () => {
         collapsible="icon"
         className={`${isCollapsed ? "w-14" : "w-60"} flex flex-col`}
       >
-        <SidebarHeader className={isCollapsed ? "p-2" : "p-4"}>
+        <SidebarHeader
+          className={
+            isCollapsed ? "p-0 my-3 justify-center items-center" : "p-4"
+          }
+        >
           <div className="flex items-center justify-between">
             {!isCollapsed && (
               <h2 className="text-lg font-semibold">Meus Envelopes</h2>
             )}
-            <ThemeToggle />
+            <ThemeToggle isCollapsed={isCollapsed} />
           </div>
         </SidebarHeader>
 
         <SidebarContent className="flex-1">
-          <nav className="space-y-2 px-3">
+          <nav className={`${isCollapsed ? "space-y-0" : "space-y-2 px-3"} `}>
             {menuItems.map((item) => {
               const active = isActive(item.path);
               const buttonContent = (
                 <div
                   key={item.path}
                   className={`relative flex w-full items-center py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isCollapsed ? "justify-center px-2" : "px-4"
+                    isCollapsed ? "justify-center rounded-none" : "px-4"
                   } ${
                     item.disabled
                       ? "opacity-50 cursor-not-allowed"
@@ -347,9 +353,14 @@ const AppSidebar = () => {
                       )}
                     </>
                   ) : (
-                    <Link href={item.path} className="flex w-full items-center">
+                    <Link
+                      href={item.path}
+                      className={`flex w-full items-center ${
+                        isCollapsed ? "justify-center" : ""
+                      }`}
+                    >
                       <item.icon
-                        className={`h-5 w-5 ${isCollapsed ? "mr-0" : "mr-3"}`}
+                        className={`${isCollapsed ? "h-6 w-6" : "h-5 w-5"} ${isCollapsed ? "mr-0" : "mr-3"}`}
                       />
                       {!isCollapsed && <span>{item.label}</span>}
                     </Link>

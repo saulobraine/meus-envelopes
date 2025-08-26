@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -54,6 +55,7 @@ const GoogleIcon = () => (
 );
 
 export function LandingPage() {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -81,6 +83,7 @@ export function LandingPage() {
       if (error) {
         console.error("Erro ao autenticar com Google:", error);
       } else if (data.url) {
+        // Para OAuth externo, precisamos usar window.location
         window.location.href = data.url;
       }
     } finally {

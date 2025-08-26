@@ -35,9 +35,9 @@ describe("PeriodSelector", () => {
 
     it("deve mostrar o valor selecionado quando há um value", () => {
       render(
-        <PeriodSelector value="7-days" onValueChange={mockOnValueChange} />
+        <PeriodSelector value="this-month" onValueChange={mockOnValueChange} />
       );
-      expect(screen.getByText("Últimos 7 dias")).toBeInTheDocument();
+      expect(screen.getByText("Este mês")).toBeInTheDocument();
     });
 
     it("deve ter o role combobox", () => {
@@ -55,7 +55,7 @@ describe("PeriodSelector", () => {
   describe("Props e Validação", () => {
     it("deve aceitar value correto", () => {
       render(
-        <PeriodSelector value="7-days" onValueChange={mockOnValueChange} />
+        <PeriodSelector value="this-month" onValueChange={mockOnValueChange} />
       );
       const select = screen.getByRole("combobox");
       expect(select).toBeInTheDocument();
@@ -75,7 +75,6 @@ describe("PeriodSelector", () => {
 
     it("deve aceitar todos os valores de período válidos", () => {
       const validPeriods = [
-        "7-days",
         "this-month",
         "last-month",
         "3-months",

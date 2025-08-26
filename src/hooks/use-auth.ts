@@ -40,6 +40,8 @@ export function useAuth() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    // Note: This hook doesn't have access to router, so we'll use window.location
+    // The components using this hook should handle navigation with useRouter
     window.location.href = "/";
   };
 

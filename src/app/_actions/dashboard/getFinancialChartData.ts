@@ -19,7 +19,6 @@ type Envelope = {
 
 export async function getFinancialChartData(
   period:
-    | "7-days"
     | "this-month"
     | "last-month"
     | "3-months"
@@ -137,7 +136,6 @@ class DateCalculator {
 
   private createCalculationStrategy(period: string): DateCalculationStrategy {
     const strategies: Record<string, DateCalculationStrategy> = {
-      "7-days": new SevenDaysStrategy(),
       "this-month": new ThisMonthStrategy(),
       "last-month": new LastMonthStrategy(),
       "3-months": new ThreeMonthsStrategy(),
@@ -159,19 +157,6 @@ class DateRange {
     public readonly startDate: Date,
     public readonly endDate: Date
   ) {}
-}
-
-class SevenDaysStrategy implements DateCalculationStrategy {
-  calculate(now: Date): DateRange {
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - 6);
-    startDate.setHours(0, 0, 0, 0);
-
-    const endDate = new Date(now);
-    endDate.setHours(23, 59, 59, 999);
-
-    return new DateRange(startDate, endDate);
-  }
 }
 
 class ThisMonthStrategy implements DateCalculationStrategy {
@@ -330,7 +315,7 @@ class TransactionAggregator {
   }
 
   private createAggregationStrategy(): AggregationStrategy {
-    const dailyPeriods = ["7-days", "this-month", "last-month"];
+    const dailyPeriods = ["this-month", "last-month"];
     const monthlyPeriods = ["3-months", "6-months", "12-months"];
 
     if (dailyPeriods.includes(this.period)) {
@@ -655,18 +640,7 @@ class DayNameFormatter {
   constructor(private readonly period: string) {}
 
   format(date: Date): string {
-    if (this.period === "7-days") {
-      return this.formatForSevenDays(date);
-    }
-
     return this.formatForMonth(date);
-  }
-
-  private formatForSevenDays(date: Date): string {
-    return date.toLocaleDateString("pt-BR", {
-      weekday: "short",
-      day: "2-digit",
-    });
   }
 
   private formatForMonth(date: Date): string {

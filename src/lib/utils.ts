@@ -103,7 +103,7 @@ export function formatYAxisValue(value: number): string {
 // Color utilities for consistent positive/negative value styling
 export class ColorUtility {
   static getValueColorClass(value: number, isExpense = false): string {
-    if (value === 0) return "text-muted-foreground";
+    if (value === 0) return "text-muted-foreground opacity-50";
 
     // Para despesas, a lógica é inversa (mais gasto = ruim = vermelho)
     if (isExpense) {

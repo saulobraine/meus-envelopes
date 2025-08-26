@@ -38,17 +38,29 @@ const mockGetDashboardOverview = getDashboardOverview as jest.Mock;
 
 // Mock dos componentes de UI
 jest.mock("@/components/ui/card", () => ({
-  Card: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  Card: ({
+    children,
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={`card ${className || ""}`} {...props}>
       {children}
     </div>
   ),
-  CardHeader: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  CardHeader: ({
+    children,
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={`card-header ${className || ""}`} {...props}>
       {children}
     </div>
   ),
-  CardTitle: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  CardTitle: ({
+    children,
+    className,
+    ...props
+  }: React.HTMLAttributes<HTMLDivElement>) => (
     <div className={`card-title ${className || ""}`} {...props}>
       {children}
     </div>
@@ -127,11 +139,11 @@ describe("OverviewCards", () => {
 
     mockGetDashboardOverview.mockResolvedValue(mockOverviewData);
 
-    render(<OverviewCards period="7-days" />);
+    render(<OverviewCards period="this-month" />);
 
     await waitFor(
       () => {
-        expect(mockGetDashboardOverview).toHaveBeenCalledWith("7-days");
+        expect(mockGetDashboardOverview).toHaveBeenCalledWith("this-month");
       },
       { timeout: 5000 }
     );

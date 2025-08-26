@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { get as getTransactions } from "@/app/_actions/transactions/get";
 import { remove as removeTransaction } from "@/app/_actions/transactions/remove";
 import { removeAllTransactions } from "@/app/_actions/transactions/removeAll";
@@ -115,6 +116,7 @@ function TransactionsListSkeleton() {
 }
 
 export default function Page() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEnvelope, setSelectedEnvelope] = useState("all");
@@ -460,7 +462,7 @@ export default function Page() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => (window.location.href = "/transacoes/importacoes")}
+            onClick={() => router.push("/transacoes/importacoes")}
           >
             <Upload className="w-4 h-4 mr-2" />
             Importar

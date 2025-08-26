@@ -4,7 +4,7 @@ import { Moon, Sun } from "phosphor-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 
-export function ThemeToggle() {
+export function ThemeToggle({ isCollapsed }: { isCollapsed: boolean }) {
   const { setTheme, resolvedTheme } = useTheme();
 
   return (

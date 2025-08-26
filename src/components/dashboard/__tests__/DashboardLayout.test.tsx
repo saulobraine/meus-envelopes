@@ -79,7 +79,9 @@ jest.mock("@/components/dashboard/PeriodSelector", () => ({
   }) => (
     <div data-testid="period-selector" data-period={period}>
       Period Selector Component
-      <button onClick={() => onChange?.("7-days")}>Change to 7 days</button>
+      <button onClick={() => onChange?.("this-month")}>
+        Change to this month
+      </button>
     </div>
   ),
 }));
