@@ -6,13 +6,13 @@ import { getAuthenticatedUser } from "@/lib/supabase/server";
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     envelope: {
-      findMany: jest.fn(),
+      findMany: jest.fn() as jest.MockedFunction<unknown>,
     },
   },
 }));
 
 jest.mock("@/lib/supabase/server", () => ({
-  getAuthenticatedUser: jest.fn(),
+  getAuthenticatedUser: jest.fn() as jest.MockedFunction<unknown>,
 }));
 
 describe("get - Envelope", () => {

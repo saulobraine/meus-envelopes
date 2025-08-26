@@ -66,15 +66,15 @@ describe("Alert", () => {
       expect(alert).toHaveClass("border-destructive/50");
     });
 
-    it("deve aplicar variante outline", () => {
+    it("deve aplicar variante default", () => {
       render(
-        <Alert variant="outline">
-          <AlertTitle>Outline Alert</AlertTitle>
+        <Alert variant="default">
+          <AlertTitle>Default Alert</AlertTitle>
         </Alert>
       );
 
       const alert = screen.getByRole("alert");
-      expect(alert).toHaveClass("border");
+      expect(alert).toHaveClass("bg-background", "text-foreground");
     });
   });
 

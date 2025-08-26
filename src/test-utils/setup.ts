@@ -7,6 +7,16 @@
 
 import "@testing-library/jest-dom";
 
+// Configurar tipos do Jest para mocks
+declare global {
+  interface Mock<T = unknown, Y extends unknown[] = unknown[]> {
+    mockResolvedValue: (value: T) => Mock<T, Y>;
+    mockRejectedValue: (value: unknown) => Mock<T, Y>;
+    mockResolvedValueOnce: (value: T) => Mock<T, Y>;
+    mockRejectedValueOnce: (value: unknown) => Mock<T, Y>;
+  }
+}
+
 // Importar mocks do Supabase
 import "./supabase-mocks";
 
@@ -23,7 +33,8 @@ global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder;
 
 // Configurar ReadableStream para testes de streaming
 if (typeof global.ReadableStream === "undefined") {
-  global.ReadableStream = ReadableStream as unknown as typeof global.ReadableStream;
+  global.ReadableStream =
+    ReadableStream as unknown as typeof global.ReadableStream;
 }
 
 // Mock do ResizeObserver (necessário para muitos componentes UI)

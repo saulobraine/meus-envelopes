@@ -37,10 +37,10 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Redirect to login if not authenticated
+  // Redirect to landing if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      window.location.href = "/login";
+      window.location.href = "/";
     }
   }, [authLoading, isAuthenticated]);
 
@@ -55,12 +55,12 @@ export default function DashboardPage() {
         setChartData(response);
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
-        // If authentication error, redirect to login
+        // If authentication error, redirect to landing
         if (
           error instanceof Error &&
           error.message === "User not authenticated."
         ) {
-          window.location.href = "/login";
+          window.location.href = "/";
           return;
         }
       } finally {

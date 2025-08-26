@@ -76,7 +76,7 @@ export const OverviewCards = ({
           error instanceof Error &&
           error.message === "User not authenticated."
         ) {
-          window.location.href = "/login";
+          window.location.href = "/";
           return;
         }
       } finally {

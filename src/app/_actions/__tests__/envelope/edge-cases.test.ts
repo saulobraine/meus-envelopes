@@ -7,21 +7,21 @@ import { revalidatePath } from "next/cache";
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     envelope: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      findMany: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      findFirst: jest.fn() as jest.MockedFunction<unknown>,
+      create: jest.fn() as jest.MockedFunction<unknown>,
+      findMany: jest.fn() as jest.MockedFunction<unknown>,
+      update: jest.fn() as jest.MockedFunction<unknown>,
+      delete: jest.fn() as jest.MockedFunction<unknown>,
     },
   },
 }));
 
 jest.mock("@/lib/supabase/server", () => ({
-  getAuthenticatedUser: jest.fn(),
+  getAuthenticatedUser: jest.fn() as jest.MockedFunction<unknown>,
 }));
 
 jest.mock("next/cache", () => ({
-  revalidatePath: jest.fn(),
+  revalidatePath: jest.fn() as jest.MockedFunction<unknown>,
 }));
 
 describe("Envelope - Casos de Borda e Cenários Especiais", () => {

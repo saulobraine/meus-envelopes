@@ -24,6 +24,17 @@ import { create as mockCreateTransaction } from "@/app/_actions/transactions/cre
 import { update as mockUpdateTransaction } from "@/app/_actions/transactions/update";
 import { get as mockGetEnvelopes } from "@/app/_actions/envelope/get";
 
+// Tipagem dos mocks
+const mockGetEnvelopesTyped = mockGetEnvelopes as jest.MockedFunction<
+  typeof mockGetEnvelopes
+>;
+const mockCreateTransactionTyped = mockCreateTransaction as jest.MockedFunction<
+  typeof mockCreateTransaction
+>;
+const mockUpdateTransactionTyped = mockUpdateTransaction as jest.MockedFunction<
+  typeof mockUpdateTransaction
+>;
+
 // Mock do toast
 jest.mock("@/hooks/use-toast", () => ({
   useToast: () => ({
@@ -47,14 +58,14 @@ describe("TransactionDialog - Testes Básicos", () => {
     jest.clearAllMocks();
 
     // Configurar mock para listagem de envelopes
-    mockGetEnvelopes.mockResolvedValue([
+    mockGetEnvelopesTyped.mockResolvedValue([
       { id: "1", name: "Supermercado", type: "EXPENSE" },
       { id: "2", name: "Salário", type: "INCOME" },
     ]);
 
     // Configurar mocks para transações
-    mockCreateTransaction.mockResolvedValue({ success: true });
-    mockUpdateTransaction.mockResolvedValue({ success: true });
+    mockCreateTransactionTyped.mockResolvedValue({ success: true });
+    mockUpdateTransactionTyped.mockResolvedValue({ success: true });
   });
 
   describe("Renderização e Estrutura", () => {
@@ -177,7 +188,7 @@ describe("TransactionDialog - Testes Básicos", () => {
       await user.type(descriptionInput, "Compras do mês");
 
       // Verificar se os valores foram preenchidos
-      expect(amountInput.value).toMatch(/R\$\s*1,50/); // Valor formatado (aceita espaços)
+      expect((amountInput as HTMLInputElement).value).toMatch(/R\$\s*1,50/); // Valor formatado (aceita espaços)
       expect(descriptionInput).toHaveValue("Compras do mês");
 
       // Verificar se não há erros de validação
@@ -233,7 +244,7 @@ describe("TransactionDialog - Testes Básicos", () => {
       await user.type(descriptionInput, "Teste");
 
       // Verificar se os valores foram preenchidos
-      expect(amountInput.value).toMatch(/R\$\s*1,00/); // Valor formatado (aceita espaços)
+      expect((amountInput as HTMLInputElement).value).toMatch(/R\$\s*1,00/); // Valor formatado (aceita espaços)
       expect(descriptionInput).toHaveValue("Teste");
     });
   });

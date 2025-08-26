@@ -45,23 +45,47 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { TransactionDialog } from "@/components/transactions/TransactionDialog";
-import { useToast } from "@/hooks/use-toast";
+
+import { useAuth } from "@/hooks/use-auth";
 
 const menuItems = [
   { icon: ChartBar, label: "Visão Geral", path: "/dashboard" },
   { icon: FolderOpen, label: "Envelopes", path: "/envelopes" },
   { icon: CreditCard, label: "Transações", path: "/transacoes" },
-  { icon: Receipt, label: "Contas a Receber", path: "/contas-pendentes" },
+  {
+    icon: Receipt,
+    label: "Contas a Receber",
+    path: "/contas-pendentes",
+    disabled: true,
+    comingSoon: true,
+  },
   {
     icon: Repeat,
     label: "Pagamentos Recorrentes",
     path: "/pagamentos-recorrentes",
+    disabled: true,
+    comingSoon: true,
   },
-  { icon: GearSix, label: "Configurações", path: "/configuracoes" },
 ];
 
 const UserDropdown = () => {
   const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
+  const { user, loading, signOut } = useAuth();
+
+  const displayName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email ||
+    "Usuário";
+  const email = user?.email || "";
+  const avatarUrl =
+    user?.user_metadata?.avatar_url || user?.user_metadata?.picture || "";
+  const initials = (displayName || email)
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const sharedAccounts = [
     { id: "1", name: "Empresa ABC Ltda", role: "Administrador", active: false },
@@ -121,28 +145,35 @@ const UserDropdown = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="" alt="@usuario" />
-            <AvatarFallback>JS</AvatarFallback>
+            <AvatarImage src={avatarUrl} alt={displayName} />
+            <AvatarFallback>{initials || "U"}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
-            <p className="font-medium">João Silva</p>
-            <p className="w-[200px] truncate text-sm text-muted-foreground">
-              joao@exemplo.com
-            </p>
+            <p className="font-medium">{displayName}</p>
+            {email ? (
+              <p className="w-[200px] truncate text-sm text-muted-foreground">
+                {email}
+              </p>
+            ) : null}
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <GearSix className="mr-2 h-4 w-4" />
-          <span>Configurações do perfil</span>
+        <DropdownMenuItem asChild>
+          <Link href="/configuracoes">
+            <GearSix className="mr-2 h-4 w-4" />
+            <span>Configurações</span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setShowAccountSwitcher(true)}>
+        <DropdownMenuItem disabled onClick={() => setShowAccountSwitcher(true)}>
           <ArrowsLeftRight className="mr-2 h-4 w-4" />
           <span>Trocar de conta</span>
+          <Badge variant="secondary" className="absolute top-1 right-2 text-xs">
+            Em Breve
+          </Badge>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/transacoes/importacoes">
@@ -150,12 +181,15 @@ const UserDropdown = () => {
             <span>Importações</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem disabled>
           <Receipt className="mr-2 h-4 w-4" />
           <span>Integrações</span>
+          <Badge variant="secondary" className="absolute top-1 right-2 text-xs">
+            Em Breve
+          </Badge>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem disabled={loading} onClick={() => signOut()}>
           <SignOut className="mr-2 h-4 w-4" />
           <span>Sair</span>
         </DropdownMenuItem>
@@ -167,7 +201,7 @@ const UserDropdown = () => {
 const SharedAccountSidebar = () => {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const [hasSharedAccount] = useState(true); // Simula conta compartilhada ativa
+  const [hasSharedAccount] = useState(false); // Desabilitado temporariamente
 
   const sharedAccountInfo = {
     name: "Startup XYZ",
@@ -283,22 +317,44 @@ const AppSidebar = () => {
             {menuItems.map((item) => {
               const active = isActive(item.path);
               const buttonContent = (
-                <Link
+                <div
                   key={item.path}
-                  href={item.path}
-                  className={`flex w-full items-center py-3 text-sm font-medium rounded-lg transition-colors ${
+                  className={`relative flex w-full items-center py-3 text-sm font-medium rounded-lg transition-colors ${
                     isCollapsed ? "justify-center px-2" : "px-4"
                   } ${
-                    active
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-secondary/10"
+                    item.disabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : active
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-secondary/10"
                   }`}
                 >
-                  <item.icon
-                    className={`h-5 w-5 ${isCollapsed ? "mr-0" : "mr-3"}`}
-                  />
-                  {!isCollapsed && <span>{item.label}</span>}
-                </Link>
+                  {item.disabled ? (
+                    <>
+                      <item.icon
+                        className={`h-5 w-5 ${isCollapsed ? "mr-0" : "mr-3"}`}
+                      />
+                      {!isCollapsed && (
+                        <>
+                          <span className="flex-1">{item.label}</span>
+                          <Badge
+                            variant="secondary"
+                            className="absolute top-1 right-2 text-xs"
+                          >
+                            Em Breve
+                          </Badge>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <Link href={item.path} className="flex w-full items-center">
+                      <item.icon
+                        className={`h-5 w-5 ${isCollapsed ? "mr-0" : "mr-3"}`}
+                      />
+                      {!isCollapsed && <span>{item.label}</span>}
+                    </Link>
+                  )}
+                </div>
               );
 
               if (isCollapsed) {
@@ -307,6 +363,11 @@ const AppSidebar = () => {
                     <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
                     <TooltipContent side="right">
                       <p>{item.label}</p>
+                      {item.disabled && (
+                        <p className="text-xs text-muted-foreground">
+                          Em Breve
+                        </p>
+                      )}
                     </TooltipContent>
                   </Tooltip>
                 );
@@ -329,7 +390,6 @@ export const DashboardLayout = ({
   children: React.ReactNode;
 }) => {
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
-  const { toast } = useToast();
 
   // Atalho Ctrl + E para abrir diálogo de nova transação
   useKeyboardShortcut({
@@ -337,10 +397,6 @@ export const DashboardLayout = ({
     key: "e",
     onTrigger: () => {
       setIsTransactionDialogOpen(true);
-      toast({
-        title: "Atalho de teclado",
-        description: "Diálogo de nova transação aberto via Ctrl + E",
-      });
     },
   });
 
@@ -352,16 +408,13 @@ export const DashboardLayout = ({
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <div className="text-sm text-muted-foreground">
-                💡 Dica: Use <kbd className="px-2 py-1 text-xs bg-muted rounded border">Ctrl + E</kbd> para nova transação
-              </div>
             </div>
             <UserDropdown />
           </div>
           {children}
         </main>
         <FloatingMenu />
-        
+
         {/* Diálogo de nova transação global */}
         <TransactionDialog
           open={isTransactionDialogOpen}

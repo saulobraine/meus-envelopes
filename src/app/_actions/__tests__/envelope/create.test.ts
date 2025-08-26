@@ -2,18 +2,18 @@
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     envelope: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
+      findFirst: jest.fn() as jest.MockedFunction<unknown>,
+      create: jest.fn() as jest.MockedFunction<unknown>,
     },
   },
 }));
 
 jest.mock("next/cache", () => ({
-  revalidatePath: jest.fn(),
+  revalidatePath: jest.fn() as jest.MockedFunction<unknown>,
 }));
 
 jest.mock("@/lib/supabase/server", () => ({
-  getAuthenticatedUser: jest.fn(),
+  getAuthenticatedUser: jest.fn() as jest.MockedFunction<unknown>,
 }));
 
 import { create } from "@/app/_actions/envelope";

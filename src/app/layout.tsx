@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Work_Sans } from "next/font/google";
 
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import NavigationProgress from "@/components/navigation-progress";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const workSans = Work_Sans({
+  variable: "--font-work-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -30,13 +27,12 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${workSans.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <NavigationProgress />
             {children}
           </TooltipProvider>
         </ThemeProvider>

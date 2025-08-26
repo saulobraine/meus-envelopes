@@ -24,6 +24,17 @@ import { create as mockCreateTransaction } from "@/app/_actions/transactions/cre
 import { update as mockUpdateTransaction } from "@/app/_actions/transactions/update";
 import { get as mockGetEnvelopes } from "@/app/_actions/envelope/get";
 
+// Tipagem dos mocks
+const mockGetEnvelopesTyped = mockGetEnvelopes as jest.MockedFunction<
+  typeof mockGetEnvelopes
+>;
+const mockCreateTransactionTyped = mockCreateTransaction as jest.MockedFunction<
+  typeof mockCreateTransaction
+>;
+const mockUpdateTransactionTyped = mockUpdateTransaction as jest.MockedFunction<
+  typeof mockUpdateTransaction
+>;
+
 // Mock do toast
 jest.mock("@/hooks/use-toast", () => ({
   useToast: () => ({
@@ -52,11 +63,11 @@ describe("TransactionDialog - Integração Simples", () => {
     jest.clearAllMocks();
 
     // Configurar mock para listagem de envelopes
-    mockGetEnvelopes.mockResolvedValue(mockEnvelopes);
+    mockGetEnvelopesTyped.mockResolvedValue(mockEnvelopes);
 
     // Configurar mocks para transações
-    mockCreateTransaction.mockResolvedValue({ success: true });
-    mockUpdateTransaction.mockResolvedValue({ success: true });
+    mockCreateTransactionTyped.mockResolvedValue({ success: true });
+    mockUpdateTransactionTyped.mockResolvedValue({ success: true });
   });
 
   describe("Fluxo Básico de Criação", () => {
